@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,17 @@ SECRET_KEY = 'django-insecure-uq0uu-9s2v_v^o0ab)x4=%bwt)an8q%@za10$o03f+)fq$%1y8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app']
+
+_vercel_url = os.environ.get('VERCEL_URL', '').strip()
+if _vercel_url:
+    _vercel_host = _vercel_url.removeprefix('https://').removeprefix('http://').rstrip('/')
+    if _vercel_host:
+        ALLOWED_HOSTS.append(_vercel_host)
+
+CSRF_TRUSTED_ORIGINS = [
+    f'https://{host}' for host in ALLOWED_HOSTS if host and not host.startswith('.')
+]
 
 
 # Application definition
