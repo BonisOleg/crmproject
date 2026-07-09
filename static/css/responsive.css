@@ -72,11 +72,13 @@
   }
 
   .sidebar {
-    transform: translateX(-100%);
+    transform: translate3d(-100%, 0, 0);
     width: min(var(--sidebar-w), 88vw);
     z-index: 110;
     overflow: hidden;
     padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + 12px);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
 
   .sidebar__nav {
@@ -96,7 +98,7 @@
   }
 
   .sidebar--open {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
     pointer-events: auto;
   }
 
@@ -336,11 +338,9 @@
 
 body.nav-open {
   overflow: hidden;
-  touch-action: none;
 }
 
 @supports (-webkit-touch-callout: none) {
-  .sidebar,
   .topbar,
   .bottom-nav {
     -webkit-transform: translateZ(0);

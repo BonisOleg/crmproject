@@ -373,7 +373,6 @@ html {
 
 @supports (-webkit-touch-callout: none) {
   .card,
-  .sidebar,
   .topbar {
     transform: translateZ(0);
   }

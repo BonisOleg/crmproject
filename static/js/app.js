@@ -27,7 +27,14 @@ function initMobileNav() {
     toggle(!sidebar.classList.contains('sidebar--open'));
   });
 
-  overlay?.addEventListener('click', close);
+  const bindOverlayClose = (event) => {
+    if (event.target !== overlay) return;
+    event.preventDefault();
+    close();
+  };
+
+  overlay?.addEventListener('click', bindOverlayClose);
+  overlay?.addEventListener('touchend', bindOverlayClose, { passive: false });
 
   sidebar.querySelectorAll('.nav-item').forEach((link) => {
     link.addEventListener('click', () => {
