@@ -1,0 +1,380 @@
+/* Адаптив: великі екрани → планшет → телефон */
+
+@media (min-width: 1440px) {
+  .page-content {
+    max-width: 1360px;
+  }
+
+  .cockpit-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .recent-deals-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .deals-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .clients-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1200px) {
+  .cockpit-stats,
+  .recent-deals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .deals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .deal-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cockpit-row {
+    grid-template-columns: 1fr;
+  }
+
+  .report-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .queue-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .topbar {
+    height: auto;
+    min-height: var(--header-h);
+    flex-wrap: wrap;
+    row-gap: 10px;
+    padding: max(var(--safe-top), 8px) 20px 12px;
+  }
+
+  .topbar__left {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+
+  .topbar__actions {
+    flex: 1 1 100%;
+    margin-left: 0;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+    width: min(var(--sidebar-w), 88vw);
+    z-index: 110;
+    overflow: hidden;
+    padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + 12px);
+  }
+
+  .sidebar__nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  .sidebar__footer {
+    flex-shrink: 0;
+  }
+
+  body.nav-open .bottom-nav {
+    z-index: 90;
+  }
+
+  .sidebar--open {
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .sidebar:not(.sidebar--open) {
+    pointer-events: none;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .topbar__menu-btn {
+    display: flex;
+  }
+
+  .bottom-nav {
+    display: block;
+  }
+
+  .page-content {
+    padding: var(--space-lg);
+    padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + var(--space-lg));
+    align-self: stretch;
+  }
+
+  .search-bar {
+    min-width: 0;
+    flex: 1 1 220px;
+  }
+
+  .report-totals {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .settings-grid,
+  .clients-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .leads-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .queue-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .topbar__actions > .search-bar {
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-strip {
+    padding: 22px 20px;
+    border-radius: var(--radius-lg);
+  }
+
+  .hero-strip__title {
+    font-size: 20px;
+  }
+
+  .hero-strip__meta {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .cockpit-stats,
+  .recent-deals-grid,
+  .deals-grid,
+  .queue-grid,
+  .report-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    padding-inline: var(--space-md);
+  }
+
+  .page-content {
+    padding: var(--space-md);
+    padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + var(--space-md));
+  }
+
+  .topbar__title {
+    font-size: 17px;
+  }
+
+  .topbar__subtitle {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: min(52vw, 220px);
+  }
+
+  .topbar__actions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
+    padding-bottom: 2px;
+  }
+
+  .topbar__actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .topbar__actions .btn--sm {
+    padding-inline: 10px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .topbar__actions > .search-bar {
+    display: none;
+  }
+
+  .topbar__menu-btn,
+  .bottom-nav__item {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .stat-card__value {
+    font-size: 24px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .section-header .btn {
+    align-self: stretch;
+    justify-content: center;
+  }
+
+  .report-totals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .deal-gallery {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .deal-gallery__main {
+    height: 200px;
+  }
+
+  .deal-gallery__thumbs {
+    flex-direction: row;
+    height: 60px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .login-card {
+    padding: 32px 24px;
+  }
+
+  .client-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .client-card__stats {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar__subtitle {
+    max-width: 46vw;
+  }
+
+  .badge-tag {
+    font-size: 10px;
+    padding: 3px 7px;
+  }
+
+  .hero-strip__desc {
+    font-size: 13px;
+  }
+
+  .hero-meta-item__value {
+    font-size: 13px;
+  }
+
+  .bottom-nav__item {
+    padding-inline: 8px;
+    min-width: 52px;
+    font-size: 9px;
+  }
+
+  .page-content {
+    padding-inline: 12px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .bottom-nav {
+    display: none;
+  }
+
+  .topbar__menu-btn {
+    display: none;
+  }
+}
+
+body.nav-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .sidebar,
+  .topbar,
+  .bottom-nav {
+    -webkit-transform: translateZ(0);
+  }
+
+  .page-content {
+    min-height: -webkit-fill-available;
+  }
+
+  input,
+  select,
+  textarea,
+  .search-bar input,
+  .crm-modal__input,
+  .crm-modal__select,
+  .crm-modal__textarea,
+  .form-input {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ambient-orb {
+    opacity: 0.38;
+    filter: blur(56px);
+  }
+
+  .mesh-grid {
+    opacity: 0.18;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+}

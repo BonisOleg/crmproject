@@ -1,0 +1,137 @@
+@media (max-width: 1199px) {
+  .deal-detail-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .deal-detail-grid__card {
+    order: -1;
+  }
+}
+
+.deal-unified {
+  margin-bottom: 16px;
+}
+
+.deal-unified__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.deal-unified__title {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.deal-unified__status {
+  font-size: 11px;
+  color: var(--wf-text-muted, var(--text-muted));
+  margin-top: 4px;
+  max-width: 280px;
+}
+
+.deal-unified__grid {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .deal-unified__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .deal-unified__grid--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.deal-unified__group {
+  display: grid;
+  gap: 6px;
+}
+
+.deal-unified__group span {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wf-text-muted, var(--text-muted));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.deal-unified__input:not([data-due-amount]),
+.deal-unified__textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border, var(--wf-border));
+  border-radius: 10px;
+  background: var(--wf-surface, var(--surface));
+  font-size: 16px;
+}
+
+.deal-unified__textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.deal-unified__section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border, var(--wf-border));
+}
+
+.deal-unified__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.deal-unified__section-title {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.deal-unified__empty {
+  font-size: 13px;
+  color: var(--wf-text-muted, var(--text-muted));
+  margin: 0;
+}
+
+.deal-unified__section--docs {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border, var(--wf-border));
+}
+
+.deal-unified__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .deal-unified__input,
+  .deal-unified__textarea {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .deal-unified__actions {
+    flex-direction: column-reverse;
+  }
+
+  .deal-unified__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

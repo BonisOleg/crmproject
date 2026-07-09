@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+<div class="app-shell wireframe-app" data-page="{{ page|default:'' }}">
+  {% include "partials/sidebar.html" %}
+  <div class="main-content">
+    {% include "partials/app_toolbar.html" %}
+    <main class="page-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% endblock %}

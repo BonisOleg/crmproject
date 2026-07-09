@@ -1,0 +1,39 @@
+{% extends "layout_app.html" %}
+
+{% block title %}Налаштування — Autolot CRM{% endblock %}
+
+{% block toolbar_action %}
+<button type="button" class="wf-panel-btn wf-panel-btn--blue" data-action-message="Збережено">Зберегти</button>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1 class="page-head__title">Налаштування</h1>
+  <p class="page-head__sub">Формула, курси, пороги</p>
+</div>
+
+<div class="settings-grid" style="display:grid;grid-template-columns:minmax(0,1fr);gap:12px">
+  <div class="card" style="padding:16px">
+    <h3 class="card__title" style="margin-bottom:12px;font-size:14px;font-weight:800">Формула ціни</h3>
+    <div class="setting-field" style="margin-bottom:10px">
+      <label style="display:block;font-size:11px;color:var(--wf-text-muted);margin-bottom:4px">Комісія (%)</label>
+      <input type="number" value="8" step="0.1" style="width:100%;padding:8px 10px;border:1px solid var(--wf-border);border-radius:8px;background:var(--wf-surface)">
+    </div>
+    <div class="setting-field">
+      <label style="display:block;font-size:11px;color:var(--wf-text-muted);margin-bottom:4px">Логістика (фіксована, CHF)</label>
+      <input type="number" value="2800" style="width:100%;padding:8px 10px;border:1px solid var(--wf-border);border-radius:8px;background:var(--wf-surface)">
+    </div>
+  </div>
+  <div class="card" style="padding:16px">
+    <h3 class="card__title" style="margin-bottom:12px;font-size:14px;font-weight:800">Курси валют</h3>
+    <div class="setting-field" style="margin-bottom:10px">
+      <label style="display:block;font-size:11px;color:var(--wf-text-muted);margin-bottom:4px">CHF → UAH</label>
+      <input type="number" value="47.20" step="0.01" style="width:100%;padding:8px 10px;border:1px solid var(--wf-border);border-radius:8px;background:var(--wf-surface)">
+    </div>
+    <div class="setting-field">
+      <label style="display:block;font-size:11px;color:var(--wf-text-muted);margin-bottom:4px">EUR → UAH</label>
+      <input type="number" value="44.85" step="0.01" style="width:100%;padding:8px 10px;border:1px solid var(--wf-border);border-radius:8px;background:var(--wf-surface)">
+    </div>
+  </div>
+</div>
+{% endblock %}

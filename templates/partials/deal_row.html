@@ -1,0 +1,32 @@
+<a
+  href="{% url 'deal_detail' deal.id %}"
+  class="deal-row crm-card--deletable"
+  data-deal-id="{{ deal.id }}"
+  data-crm-card="deals"
+  data-crm-key="{{ deal.id }}"
+  data-deal-item
+  data-deal-status="{{ deal.execution }}"
+  data-deal-debt="{{ deal.debt }}"
+  data-deal-search="{{ deal.id|lower }} {{ deal.car|lower }} {{ deal.client|lower }} {{ deal.year }} {{ deal.vin|lower }}"
+>
+  <img src="{{ deal.image }}" alt="{{ deal.car }}" class="deal-row__thumb" loading="lazy">
+  <div class="deal-row__main">
+    <div class="deal-row__top">
+      <span class="deal-row__title">{{ deal.car }}</span>
+      <span class="deal-row__badge">{{ deal.auction|default:"BCP" }}</span>
+    </div>
+    <div class="deal-row__sub">{{ deal.client }} · {{ deal.id }}</div>
+    <div class="deal-row__pills">
+      <span class="wf-pill">{{ deal.execution_label }}</span>
+      <span class="wf-pill">{{ deal.payment_label }}</span>
+    </div>
+  </div>
+  <div class="deal-row__money">
+    <div class="deal-row__price mono" data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</div>
+    {% if deal.debt > 0 %}
+    <div class="deal-row__debt" data-money="{{ deal.debt }}" data-money-currency="{{ deal.currency }}" data-money-prefix="борг ">борг {{ deal.debt|floatformat:0 }} {{ deal.currency }}</div>
+    {% else %}
+    <div class="deal-row__debt text-green">✓ оплачено</div>
+    {% endif %}
+  </div>
+</a>

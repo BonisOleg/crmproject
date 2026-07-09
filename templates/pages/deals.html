@@ -1,0 +1,124 @@
+{% extends "layout_app.html" %}
+{% load static %}
+
+{% block title %}Угоди — Autolot CRM{% endblock %}
+
+{% block content %}
+<div class="deals-toolbar">
+  <div class="deals-toolbar__row page-head">
+    <div>
+      <h1 class="page-head__title">Угоди (<span data-deals-visible>{{ deals|length }}</span>)</h1>
+    </div>
+    <div class="view-switcher" role="group" aria-label="Вигляд списку угод">
+      <button type="button" class="view-switcher__btn {% if view_mode == 'cards' %}view-switcher__btn--active{% endif %}" data-view="cards" aria-pressed="{% if view_mode == 'cards' %}true{% else %}false{% endif %}">Картки</button>
+      <button type="button" class="view-switcher__btn {% if view_mode == 'table' %}view-switcher__btn--active{% endif %}" data-view="table" aria-pressed="{% if view_mode == 'table' %}true{% else %}false{% endif %}">Таблиця</button>
+      <button type="button" class="view-switcher__btn {% if view_mode == 'kanban' %}view-switcher__btn--active{% endif %}" data-view="kanban" data-package-feature="deals_kanban" data-package-mode="lock" aria-pressed="{% if view_mode == 'kanban' %}true{% else %}false{% endif %}">Канбан</button>
+    </div>
+  </div>
+  <div class="deals-toolbar__row">
+    <div class="wf-search deals-search" style="flex:1;max-width:420px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" placeholder="Пошук: авто, клієнт, VIN…" data-deals-search autocomplete="off">
+    </div>
+  </div>
+  <div class="filter-chips" data-deals-filters role="group" aria-label="Фільтр угод">
+    <button type="button" class="filter-chip filter-chip--active" data-deal-filter="all" aria-pressed="true">Усі</button>
+    <button type="button" class="filter-chip" data-deal-filter="won" aria-pressed="false">Виграно</button>
+    <button type="button" class="filter-chip" data-deal-filter="in_transit" aria-pressed="false">В дорозі</button>
+    <button type="button" class="filter-chip" data-deal-filter="delivered" aria-pressed="false">Доставлено</button>
+    <button type="button" class="filter-chip" data-deal-filter="picked" aria-pressed="false">Забрано</button>
+    <button type="button" class="filter-chip" data-deal-filter="debt" aria-pressed="false">Борг</button>
+  </div>
+</div>
+
+{% if view_mode == 'table' %}
+<div class="card report-table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Авто</th>
+        <th>Клієнт</th>
+        <th>Стадія</th>
+        <th>Ціна</th>
+        <th>Баланс</th>
+        <th>Прибуток</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for deal in deals %}
+      <tr
+        data-deal-id="{{ deal.id }}"
+        data-crm-card="deals"
+        data-crm-key="{{ deal.id }}"
+        data-deal-item
+        data-deal-status="{{ deal.execution }}"
+        data-deal-debt="{{ deal.debt }}"
+        data-deal-search="{{ deal.id|lower }} {{ deal.car|lower }} {{ deal.client|lower }} {{ deal.year }} {{ deal.vin|lower }}"
+        onclick="window.location='{% url 'deal_detail' deal.id %}'"
+        style="cursor:pointer"
+      >
+        <td><strong>{{ deal.car }}</strong></td>
+        <td>{{ deal.client }}</td>
+        <td>{{ deal.execution_label }}</td>
+        <td class="mono" data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</td>
+        <td class="mono {% if deal.debt > 0 %}text-red{% else %}text-green{% endif %}" data-money="{{ deal.debt }}" data-money-currency="{{ deal.currency }}">{{ deal.debt|floatformat:0 }}</td>
+        <td class="mono text-green" data-money="{{ deal.profit }}" data-money-currency="{{ deal.currency }}" data-money-sign="+">+{{ deal.profit|floatformat:0 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% elif view_mode == 'kanban' %}
+<div class="kanban-board">
+  {% for stage in stages %}
+  <div class="kanban-column kanban-column--{{ stage.key }}">
+    <div class="kanban-column__header">
+      <span class="kanban-column__title">{{ stage.label }}</span>
+      <span class="kanban-column__count">{{ stage.count }}</span>
+    </div>
+    <div class="kanban-column__cards">
+      {% for deal in deals %}
+        {% if deal.execution == stage.key %}
+        <a
+          href="{% url 'deal_detail' deal.id %}"
+          class="kanban-card crm-card--deletable"
+          data-deal-id="{{ deal.id }}"
+          data-crm-card="deals"
+          data-crm-key="{{ deal.id }}"
+          data-deal-item
+          data-deal-status="{{ deal.execution }}"
+          data-deal-debt="{{ deal.debt }}"
+          data-deal-search="{{ deal.id|lower }} {{ deal.car|lower }} {{ deal.client|lower }} {{ deal.year }}"
+        >
+          <div class="kanban-card__title">{{ deal.car }}</div>
+          <div class="kanban-card__client">{{ deal.client }}</div>
+          <div class="deal-row__pills" style="margin-top:8px">
+            <span class="wf-pill">{{ deal.payment_label }}</span>
+          </div>
+          <div class="mono" style="margin-top:8px;font-size:12px;font-weight:800" data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</div>
+        </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="deals-list" data-deals-list>
+  {% for deal in deals %}
+    {% include "partials/deal_row.html" with deal=deal %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="card deals-empty" data-deals-empty hidden style="margin-top:12px;padding:20px;text-align:center">
+  <p class="deals-empty__title" style="font-weight:800;margin-bottom:4px">Угод не знайдено</p>
+  <p class="text-muted" style="font-size:13px">Спробуйте інший фільтр або змініть пошук</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/deals.js' %}" defer></script>
+{% endblock %}

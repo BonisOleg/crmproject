@@ -1,0 +1,340 @@
+/* Єдина система hover-анімацій */
+
+.btn {
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition),
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition-fast);
+}
+
+.btn svg {
+  transition: transform var(--transition-fast);
+}
+
+.btn:hover svg {
+  transform: scale(1.08);
+}
+
+.btn--primary:hover {
+  transform: translateY(var(--hover-lift));
+}
+
+.btn--primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn--ghost:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-accent);
+}
+
+.btn--ghost:active {
+  transform: translateY(0);
+}
+
+.nav-item {
+  transition:
+    transform var(--transition-fast),
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition-fast),
+    box-shadow var(--transition);
+}
+
+.nav-item:hover {
+  transform: translateX(3px);
+}
+
+.nav-item--active:hover {
+  transform: translateX(0);
+}
+
+.nav-item svg {
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+.nav-item:hover svg {
+  transform: scale(1.06);
+}
+
+.card {
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition);
+}
+
+.hover-lift:hover,
+.deal-card:hover,
+.queue-card:hover,
+.stat-card:hover,
+.client-card:hover,
+.lead-card:hover,
+.carrier-card:hover,
+.kanban-card:hover {
+  transform: translateY(var(--hover-lift));
+  box-shadow: var(--glass-shadow-hover);
+  border-color: var(--glass-border-strong);
+}
+
+.queue-card:hover .queue-card__icon {
+  transform: scale(1.06);
+}
+
+.queue-card:hover .queue-card__count {
+  color: var(--accent-soft);
+}
+
+.queue-card__icon {
+  transition: transform var(--transition), background var(--transition);
+}
+
+.queue-card__count {
+  transition: color var(--transition);
+}
+
+.deal-card:hover .deal-card__title {
+  color: var(--accent-soft);
+}
+
+.deal-card__title {
+  transition: color var(--transition-fast);
+}
+
+.deal-card:hover .deal-card__id {
+  letter-spacing: 0.06em;
+}
+
+.deal-card__id {
+  transition: letter-spacing var(--transition);
+}
+
+.filter-chip {
+  transition:
+    transform var(--transition-fast),
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition-fast);
+}
+
+.filter-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.lead-filter:hover {
+  border-color: var(--border-strong);
+}
+
+.filter-chip--active:hover {
+  border-color: var(--border-accent);
+}
+
+.view-switcher__btn {
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.view-switcher__btn:hover:not(.view-switcher__btn--active) {
+  color: var(--text);
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.view-switcher__btn--active:hover {
+  color: var(--accent-soft);
+}
+
+.activity-item {
+  transition:
+    transform var(--transition-fast),
+    background var(--transition),
+    border-color var(--transition);
+}
+
+.activity-item:hover {
+  transform: translateX(4px);
+}
+
+.activity-item:hover .activity-item__icon {
+  transform: scale(1.05);
+  border-color: var(--border-accent);
+  color: var(--accent-soft);
+}
+
+.activity-item__icon {
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition),
+    color var(--transition),
+    background var(--transition);
+}
+
+.data-table tbody tr {
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.data-table tbody tr:hover {
+  background: rgba(45, 212, 179, 0.04);
+  transform: scale(1.002);
+}
+
+.payment-item {
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.payment-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateX(3px);
+}
+
+.login-feature {
+  transition:
+    transform var(--transition),
+    border-color var(--transition),
+    background var(--transition);
+}
+
+.login-feature:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.login-feature:hover .login-feature__icon {
+  transform: scale(1.06);
+  color: var(--accent-soft);
+}
+
+.login-feature__icon {
+  transition: transform var(--transition-fast), color var(--transition);
+}
+
+.user-card {
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.user-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-strong);
+}
+
+.topbar__menu-btn {
+  transition:
+    transform var(--transition-fast),
+    background var(--transition),
+    border-color var(--transition);
+  border: 1px solid transparent;
+}
+
+.topbar__menu-btn:hover {
+  transform: scale(1.04);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border);
+}
+
+.bottom-nav__item {
+  transition: transform var(--transition-fast), color var(--transition);
+}
+
+.bottom-nav__item:hover {
+  transform: translateY(-2px);
+  color: var(--text-secondary);
+}
+
+.bottom-nav__item--active:hover {
+  color: var(--accent-soft);
+}
+
+.form-input,
+.setting-field input,
+.setting-field select {
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background var(--transition);
+}
+
+.hero-meta-item__value {
+  transition: color var(--transition-fast);
+}
+
+.hero-strip:hover .hero-meta-item__value {
+  color: var(--text);
+}
+
+.stat-card:hover .stat-card__value {
+  color: var(--text);
+}
+
+.stat-card__value {
+  transition: color var(--transition);
+}
+
+.search-bar {
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background var(--transition),
+    transform var(--transition-fast);
+}
+
+.search-bar:hover {
+  border-color: var(--border-strong);
+}
+
+.lead-status {
+  transition: transform var(--transition-fast), box-shadow var(--transition);
+}
+
+.lead-card:hover .lead-status {
+  transform: scale(1.03);
+}
+
+.client-card:hover .client-card__avatar {
+  transform: scale(1.04);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.client-card__avatar {
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+@media (hover: none) {
+  .hover-lift:hover,
+  .deal-card:hover,
+  .queue-card:hover,
+  .stat-card:hover,
+  .client-card:hover,
+  .lead-card:hover,
+  .carrier-card:hover,
+  .kanban-card:hover,
+  .nav-item:hover,
+  .filter-chip:hover,
+  .activity-item:hover,
+  .login-feature:hover {
+    transform: none;
+  }
+
+  .data-table tbody tr:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover,
+  .nav-item:hover,
+  .card:hover,
+  .hover-lift:hover,
+  .deal-card:hover,
+  .queue-card:hover,
+  .filter-chip:hover,
+  .activity-item:hover,
+  .login-feature:hover {
+    transform: none;
+  }
+}

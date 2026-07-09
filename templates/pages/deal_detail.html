@@ -1,0 +1,200 @@
+{% extends "layout_app.html" %}
+{% load static %}
+
+{% block title %}{{ deal.id }} — Autolot CRM{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/deals.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/deal-card.css' %}">
+{% endblock %}
+
+{% block page_title %}{{ deal.id }}{% endblock %}
+{% block page_subtitle %}<p class="topbar__subtitle" data-deal-page-sub>{{ deal.car }} · {{ deal.year }}</p>{% endblock %}
+
+{% block topbar_actions %}
+<div class="dual-pills">
+  <span class="pill pill--{{ deal.execution }}"><span class="pill__dot"></span>{{ deal.execution_label }}</span>
+  <span class="pill pill--{{ deal.payment }}"><span class="pill__dot"></span>{{ deal.payment_label }}</span>
+</div>
+<a href="#deal-unified-form" class="wf-panel-btn wf-panel-btn--blue">Редагувати картку</a>
+{% endblock %}
+
+{% block content %}
+<div class="deal-detail-grid" data-deal-page data-deal-id="{{ deal.id }}">
+  <div class="deal-detail-grid__media">
+    <div class="deal-gallery animate-fade-up" data-reveal>
+      <img src="{{ deal.image }}" alt="{{ deal.car }}" class="deal-gallery__main">
+      <div class="deal-gallery__thumbs">
+        <img src="{{ deal.image }}" alt="" class="deal-gallery__thumb">
+        <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=200&h=120&fit=crop" alt="" class="deal-gallery__thumb">
+      </div>
+    </div>
+
+    <div class="card animate-fade-up stagger-2" style="margin-top:20px" data-reveal>
+      <div class="card__header">
+        <h3 class="card__title">Логістика</h3>
+        <span class="badge-tag badge-tag--mvp">4 точки</span>
+      </div>
+      <div class="timeline">
+        {% for stage in stages %}
+        <div class="timeline__step {% if deal.execution == stage.key %}timeline__step--active{% elif stage.key == 'won' or stage.key == 'picked' %}timeline__step--done{% endif %}">
+          <div class="timeline__dot">
+            {% if stage.key == 'won' or stage.key == 'picked' or deal.execution == stage.key %}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{% if deal.execution == stage.key %}var(--bg-deep){% else %}var(--accent){% endif %}" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            {% endif %}
+          </div>
+          <div class="timeline__label">{{ stage.label }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="info-grid" style="margin-top:20px">
+        <div class="info-item">
+          <div class="info-item__label">Тип доставки</div>
+          <div class="info-item__value">{% if deal.delivery_type == 'ours' %}Наша{% elif deal.delivery_type == 'theirs' %}Їхня{% else %}Самовивіз{% endif %}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-item__label">Лот</div>
+          <div class="info-item__value"><a href="{{ deal.lot_url }}" class="text-accent" target="_blank" rel="noopener">auto-lot.com ↗</a></div>
+        </div>
+        <div class="info-item">
+          <div class="info-item__label">VIN</div>
+          <div class="info-item__value mono">{% if deal.vin %}{{ deal.vin }}{% else %}<span class="text-amber">Не вказано</span>{% endif %}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-item__label">Клієнт</div>
+          <div class="info-item__value">{{ deal.client }} · {{ deal.phone }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="deal-detail-grid__card">
+    <form class="card deal-unified animate-fade-up" id="deal-unified-form" data-reveal>
+      <div class="deal-unified__head">
+        <div>
+          <h2 class="deal-unified__title" data-deal-page-title>{{ deal.car }}</h2>
+          <p class="deal-unified__status" data-deal-save-status>Єдина картка угоди · зміни потрапляють у звіт</p>
+        </div>
+        <span class="mono" style="font-size:12px;font-weight:700">{{ deal.id }}</span>
+      </div>
+
+      <div class="deal-unified__grid">
+        <label class="deal-unified__group">
+          <span>Авто</span>
+          <input class="deal-unified__input" type="text" name="car" required maxlength="120" autocomplete="off">
+        </label>
+        <label class="deal-unified__group">
+          <span>Клієнт</span>
+          <input class="deal-unified__input" type="text" name="client" required maxlength="80" autocomplete="off">
+        </label>
+        <label class="deal-unified__group">
+          <span>Телефон</span>
+          <input class="deal-unified__input" type="tel" name="phone" inputmode="tel" maxlength="20" autocomplete="tel">
+        </label>
+        <label class="deal-unified__group">
+          <span>VIN</span>
+          <input class="deal-unified__input" type="text" name="vin" maxlength="20" autocomplete="off">
+        </label>
+        <label class="deal-unified__group">
+          <span>Аукціон</span>
+          <select class="deal-unified__input" name="auction">
+            <option value="BCP">BCP</option>
+            <option value="SCC">SCC</option>
+            <option value="ALLIANZ">ALLIANZ</option>
+            <option value="REST">REST</option>
+          </select>
+        </label>
+        <label class="deal-unified__group">
+          <span>Стадія</span>
+          <select class="deal-unified__input" name="execution">
+            <option value="won">Виграно</option>
+            <option value="picked">Забрано</option>
+            <option value="in_transit">В дорозі</option>
+            <option value="customs">Розмитнено</option>
+            <option value="delivered">Доставлено</option>
+          </select>
+        </label>
+        <label class="deal-unified__group">
+          <span>Собівартість</span>
+          <input class="deal-unified__input" type="text" name="cost" inputmode="numeric" maxlength="9" autocomplete="off">
+        </label>
+        <label class="deal-unified__group">
+          <span>Ціна клієнту</span>
+          <input class="deal-unified__input" type="text" name="price" inputmode="numeric" maxlength="9" autocomplete="off">
+        </label>
+        <label class="deal-unified__group deal-unified__grid--wide">
+          <span>Нотатки</span>
+          <textarea class="deal-unified__textarea" name="notes" maxlength="500"></textarea>
+        </label>
+      </div>
+
+      <section class="deal-unified__section deal-unified__section--due" id="deal-due-section">
+        <div class="deal-unified__section-head">
+          <h3 class="deal-unified__section-title">Місце оплати</h3>
+        </div>
+        <div data-due-root></div>
+      </section>
+
+      <section class="deal-unified__section deal-unified__section--docs">
+        <div data-doc-root></div>
+      </section>
+
+      <div class="deal-unified__actions">
+        <button type="submit" class="btn btn--primary btn--sm">Зберегти картку</button>
+      </div>
+    </form>
+
+    <div class="card animate-fade-up stagger-2" style="margin-top:16px" data-reveal>
+      <div class="card__header">
+        <h3 class="card__title">Ціна клієнта</h3>
+      </div>
+      <div class="finance-block">
+        {% for row in price_breakdown %}
+        <div class="finance-row">
+          <span class="text-secondary">{{ row.label }}</span>
+          <span class="finance-row__amount mono" data-money="{{ row.amount }}" data-money-currency="CHF">{{ row.amount|floatformat:0 }} CHF</span>
+        </div>
+        {% endfor %}
+        <div class="finance-row finance-row--total">
+          <span>Разом</span>
+          <span class="finance-row__amount text-accent mono" data-deal-price-total data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</span>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+          <span class="text-secondary">Оплачено</span>
+          <span class="mono"><span data-deal-paid data-money="{{ deal.paid }}" data-money-currency="{{ deal.currency }}">{{ deal.paid|floatformat:0 }}</span> / <span data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }}</span></span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill" data-deal-progress data-width="{% widthratio deal.paid deal.price 100 %}" style="width:0"></div>
+        </div>
+      </div>
+      <div class="finance-row" style="margin-top:16px">
+        <span class="text-secondary">Прибуток</span>
+        <span class="finance-row__amount text-green mono" data-deal-profit data-money="{{ deal.profit }}" data-money-currency="CHF" data-money-sign="+">+{{ deal.profit|floatformat:0 }} CHF</span>
+      </div>
+    </div>
+
+    <div class="card animate-fade-up stagger-3" style="margin-top:16px" data-reveal>
+      <div class="card__header">
+        <h3 class="card__title">Фактичні платежі</h3>
+        <button type="button" class="btn btn--ghost btn--sm" data-open-modal="payment" data-payment-deal="{{ deal.id }}">+ Додати</button>
+      </div>
+      <div class="payment-list" data-payment-list>
+        {% for payment in payments %}
+        <div class="payment-item">
+          <div>
+            <div class="mono" data-money="{{ payment.amount }}" data-money-currency="{{ payment.currency }}">{{ payment.amount|floatformat:0 }} {{ payment.currency }}</div>
+            <div class="text-muted" style="font-size:12px">{{ payment.place }}</div>
+          </div>
+          <div class="text-muted">{{ payment.date }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/crm-deal-card.js' %}" defer></script>
+{% endblock %}

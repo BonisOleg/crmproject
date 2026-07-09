@@ -1,0 +1,33 @@
+{% extends "layout_app.html" %}
+
+{% block title %}Автовози — Autolot CRM{% endblock %}
+
+{% block toolbar_action %}
+<button type="button" class="wf-panel-btn wf-panel-btn--green" data-open-modal="carrier">+ Рейс</button>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1 class="page-head__title">Автовози</h1>
+  <p class="page-head__sub">Рейси CH → UA</p>
+</div>
+
+<h2 class="wf-section-title">Рейси</h2>
+<div class="carriers-list" data-carriers-list>
+  {% for carrier in carriers %}
+  <div class="card trip-card crm-card--deletable" data-crm-card="carriers" data-crm-key="{{ carrier.id }}" data-carrier-id="{{ carrier.id }}">
+    <div class="trip-card__head">
+      <span class="trip-card__id">{{ carrier.id }}</span>
+      <span class="wf-pill">{{ carrier.status_label }}</span>
+    </div>
+    <div class="trip-card__meta">
+      {{ carrier.route }} · {{ carrier.cars }} авто · {{ carrier.departure }} → {{ carrier.eta }}
+    </div>
+    <div class="trip-car-row">
+      <img src="https://images.unsplash.com/photo-1621007947382-b6763a597664?w=80&h=60&fit=crop" alt="" class="trip-car-row__thumb" loading="lazy">
+      <span>На возі ({{ carrier.cars }}/4)</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

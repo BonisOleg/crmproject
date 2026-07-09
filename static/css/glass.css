@@ -1,0 +1,368 @@
+/* Glass-картки CRM */
+
+.card,
+.hero-strip,
+.kanban-card,
+.login-feature,
+.user-card,
+.report-section-card,
+.client-card,
+.lead-card,
+.carrier-card,
+.stat-card,
+.queue-card,
+.deal-card,
+.table-wrap,
+.leads-stat,
+.lead-filter-bar,
+.leads-empty {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition-fast);
+}
+
+.card:hover,
+.hero-strip:hover,
+.kanban-card:hover,
+.client-card:hover,
+.lead-card:hover,
+.carrier-card:hover,
+.stat-card:hover,
+.queue-card:hover,
+.deal-card:hover,
+.table-wrap:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-strong);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.card:not(.kanban-card)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.65;
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.03) 42%,
+    rgba(45, 212, 179, 0.06) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity var(--transition);
+}
+
+.card:not(.stat-card)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card:not(.kanban-card):hover::before {
+  opacity: 0.9;
+}
+
+[data-theme="light"] .card:not(.kanban-card)::before {
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(13, 148, 136, 0.07) 100%
+  );
+}
+
+[data-theme="light"] .card:not(.stat-card)::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), transparent);
+}
+
+.card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.deal-card__body {
+  background: var(--glass-highlight);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sidebar,
+.topbar,
+.bottom-nav {
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+}
+
+.nav-item {
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.nav-item--active {
+  background: var(--glass-bg-hover);
+  border-color: var(--border-accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.search-bar,
+.view-switcher,
+.filter-chips .filter-chip,
+.leads-search,
+.lead-filter {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.btn--ghost {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.btn--ghost:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-strong);
+}
+
+.badge-tag {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+}
+
+.badge-tag--vip {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.18), rgba(45, 212, 179, 0.12));
+  border-color: rgba(167, 139, 250, 0.35);
+  box-shadow: 0 0 20px rgba(167, 139, 250, 0.12);
+}
+
+/* Glass theme toggle */
+
+.theme-switch-wrap {
+  width: 100%;
+}
+
+.theme-switch-wrap--topbar {
+  display: none;
+}
+
+.glass-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-switch-wrap--sidebar .glass-toggle {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition-fast);
+}
+
+.theme-switch-wrap--sidebar .glass-toggle:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-strong);
+  transform: translateY(-1px);
+}
+
+.glass-toggle__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex: 1;
+  text-align: left;
+  transition: color var(--transition);
+}
+
+.glass-toggle__track {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 99px;
+  background: var(--toggle-track-bg);
+  backdrop-filter: blur(12px) saturate(1.5);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.glass-toggle__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--toggle-knob-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border-strong);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.32s var(--ease-spring), background var(--transition);
+}
+
+.glass-toggle__icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  transition: color var(--transition), opacity var(--transition), transform var(--transition);
+  pointer-events: none;
+}
+
+.glass-toggle__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.glass-toggle__icon--moon {
+  left: 7px;
+  opacity: 1;
+}
+
+.glass-toggle__icon--sun {
+  right: 7px;
+  opacity: 0.45;
+}
+
+.glass-toggle[aria-checked="true"] .glass-toggle__knob {
+  transform: translateX(24px);
+}
+
+.glass-toggle[aria-checked="true"] .glass-toggle__icon--moon {
+  opacity: 0.45;
+}
+
+.glass-toggle[aria-checked="true"] .glass-toggle__icon--sun {
+  opacity: 1;
+  color: var(--amber);
+}
+
+.glass-toggle[aria-checked="true"] .glass-toggle__label::after {
+  content: "Світла";
+}
+
+.glass-toggle[aria-checked="false"] .glass-toggle__label::after {
+  content: "Темна";
+}
+
+.glass-toggle__label::after {
+  color: var(--text);
+}
+
+.theme-switch-wrap--login {
+  position: fixed;
+  top: calc(var(--safe-top) + 16px);
+  right: 16px;
+  z-index: 50;
+  width: auto;
+}
+
+.theme-switch-wrap--login .glass-toggle {
+  padding: 8px 12px;
+  border-radius: 99px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.theme-switch-wrap--login .glass-toggle__label {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .theme-switch-wrap--topbar {
+    display: block;
+  }
+
+  .theme-switch-wrap--sidebar {
+    display: none;
+  }
+}
+
+.glass-toggle:hover .glass-toggle__track {
+  border-color: var(--glass-border-strong);
+}
+
+.glass-toggle:active .glass-toggle__knob {
+  transform: scale(0.94);
+}
+
+.glass-toggle[aria-checked="true"]:active .glass-toggle__knob {
+  transform: translateX(24px) scale(0.94);
+}
+
+html {
+  transition: background-color 0.4s var(--ease-out);
+}
+
+@media (max-width: 640px) {
+  .theme-switch-wrap--login {
+    top: calc(var(--safe-top) + 12px);
+    right: 12px;
+  }
+
+  :root,
+  [data-theme="dark"],
+  [data-theme="light"] {
+    --glass-blur: 16px;
+    --glass-blur-strong: 24px;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .card,
+  .sidebar,
+  .topbar {
+    transform: translateZ(0);
+  }
+}

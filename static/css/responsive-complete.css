@@ -1,0 +1,280 @@
+/* Повний адаптив: решта компонентів і edge-cases */
+
+.deal-card,
+.lead-card,
+.client-card,
+.carrier-card,
+.queue-card,
+.stat-card {
+  min-width: 0;
+}
+
+.deal-card__title,
+.lead-card__name,
+.client-card__name,
+.carrier-card__route {
+  overflow-wrap: anywhere;
+}
+
+.card__header {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.report-section-card .card__header {
+  align-items: flex-start;
+}
+
+.hero-strip {
+  overflow: hidden;
+}
+
+.hero-strip__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+@media (min-width: 1600px) {
+  .page-content {
+    max-width: 1420px;
+  }
+
+  .cockpit-row {
+    grid-template-columns: 2.2fr 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .card__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .report-section-card .card__header .mono {
+    font-size: 13px;
+  }
+
+  .deal-detail-grid > aside,
+  .deal-detail-grid > div {
+    min-width: 0;
+  }
+
+  .setting-field input,
+  .setting-field select {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .theme-switch-wrap--topbar {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .deal-card__image-wrap {
+    height: 160px;
+  }
+
+  .deal-card__body {
+    padding: 14px;
+  }
+
+  .deal-card__footer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .lead-card {
+    padding: 16px;
+  }
+
+  .queue-card {
+    min-height: 0;
+    padding: 16px;
+  }
+
+  .queue-card__count {
+    font-size: 26px;
+  }
+
+  .hero-strip {
+    padding: 18px 16px;
+  }
+
+  .hero-strip__meta {
+    gap: 12px;
+  }
+
+  .hero-meta-item {
+    min-width: calc(50% - 6px);
+  }
+
+  .report-totals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .report-total-item__value {
+    font-size: 14px;
+  }
+
+  .report-section-card .card__header {
+    gap: 6px;
+  }
+
+  .settings-grid .card {
+    padding: 16px;
+  }
+
+  .card__title {
+    font-size: 15px;
+  }
+
+  .finance-block {
+    gap: 6px;
+  }
+
+  .dual-pills {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .deals-empty,
+  .leads-empty {
+    padding: var(--space-lg);
+  }
+
+  .nav-section-label {
+    font-size: 10px;
+  }
+
+  .user-card {
+    padding: 10px 12px;
+  }
+
+  .sidebar__logo-text {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 480px) {
+  .report-totals {
+    grid-template-columns: 1fr;
+  }
+
+  .report-summary .stat-card__value {
+    font-size: 22px;
+  }
+
+  .topbar__actions .btn--ghost svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .filter-chip {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .deals-search input,
+  .leads-search input {
+    font-size: 16px;
+  }
+
+  .kanban-board {
+    margin-inline: -8px;
+    padding-inline: 8px;
+  }
+
+  .login-card {
+    padding: 28px 20px;
+  }
+
+  .login-card__submit {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 360px) {
+  .bottom-nav__inner {
+    padding-inline: 4px;
+  }
+
+  .bottom-nav__item {
+    min-width: 48px;
+    padding-inline: 6px;
+  }
+
+  .topbar__title {
+    font-size: 16px;
+  }
+
+  .page-content {
+    padding-inline: 10px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .crm-modal__dialog {
+    max-height: 96vh;
+  }
+
+  .sidebar {
+    padding-top: calc(var(--safe-top) + 8px);
+  }
+
+  .bottom-nav {
+    height: calc(56px + var(--safe-bottom));
+  }
+
+  .bottom-nav__inner {
+    height: 56px;
+  }
+
+  .page-content {
+    padding-bottom: calc(56px + var(--safe-bottom) + 12px);
+  }
+}
+
+@media (pointer: coarse) {
+  .card-delete-btn {
+    opacity: 1;
+    transform: none;
+    width: 36px;
+    height: 36px;
+  }
+
+  .filter-chip,
+  .lead-filter,
+  .view-switcher__btn {
+    min-height: 40px;
+  }
+
+  .btn--sm {
+    min-height: 40px;
+  }
+}
+
+@media print {
+  .sidebar,
+  .bottom-nav,
+  .topbar__menu-btn,
+  .theme-switch-wrap,
+  .card-delete-btn,
+  .ambient-scene,
+  .mesh-grid {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .page-content {
+    max-width: none;
+    padding: 0;
+  }
+}

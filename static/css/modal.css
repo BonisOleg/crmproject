@@ -1,0 +1,404 @@
+.crm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: max(16px, env(safe-area-inset-top, 0px))
+    max(16px, env(safe-area-inset-right, 0px))
+    max(16px, env(safe-area-inset-bottom, 0px))
+    max(16px, env(safe-area-inset-left, 0px));
+}
+
+.crm-modal[hidden] {
+  display: none;
+}
+
+.crm-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 7, 12, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+[data-theme="light"] .crm-modal__backdrop {
+  background: rgba(15, 23, 42, 0.28);
+}
+
+.crm-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 480px);
+  max-height: min(90vh, 720px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 0;
+  animation: modal-in 0.32s var(--ease-out);
+}
+
+.crm-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px 0;
+}
+
+.crm-modal__title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.crm-modal__close {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  color: var(--text-secondary);
+  background: var(--glass-bg);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.crm-modal__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.crm-modal__close:hover {
+  color: var(--text);
+  border-color: var(--glass-border-strong);
+}
+
+.crm-modal__form {
+  padding: 16px 20px 20px;
+}
+
+.crm-modal__fields {
+  display: grid;
+  gap: 14px;
+}
+
+.crm-modal__group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.crm-modal__group > label > span[aria-hidden="true"] {
+  color: var(--red);
+}
+
+.crm-modal__group-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wf-text-muted, var(--text-muted));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.crm-modal__group--wide {
+  grid-column: 1 / -1;
+}
+
+.crm-modal__input,
+.crm-modal__select,
+.crm-modal__textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--glass-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  outline: none;
+  font-size: 16px;
+  color: var(--text);
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+[data-theme="light"] .crm-modal__input,
+[data-theme="light"] .crm-modal__select,
+[data-theme="light"] .crm-modal__textarea {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+.crm-modal__textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.crm-modal__input:focus,
+.crm-modal__select:focus,
+.crm-modal__textarea:focus {
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.crm-modal__input--error,
+.crm-modal__select--error,
+.crm-modal__textarea--error {
+  border-color: rgba(248, 113, 113, 0.55);
+}
+
+.crm-modal__error {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--red);
+  line-height: 1.35;
+}
+
+.crm-modal__hint {
+  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--wf-text-muted, var(--text-muted));
+}
+
+.crm-modal__hint--ok {
+  color: var(--pastel-green-text, var(--green));
+}
+
+.crm-modal__hint--warn {
+  color: #92650a;
+}
+
+.crm-modal__combo {
+  position: relative;
+}
+
+.crm-modal__suggest {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  max-height: min(240px, 40vh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--wf-surface, var(--surface));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .crm-modal__suggest {
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+.crm-modal__suggest-item {
+  padding: 10px 14px;
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.crm-modal__suggest-item:hover,
+.crm-modal__suggest-item:focus {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.crm-modal__group:focus-within .crm-modal__hint:not(.crm-modal__hint--ok):not(.crm-modal__hint--warn) {
+  color: var(--wf-text-secondary, var(--text-secondary));
+}
+
+.crm-modal__input[aria-invalid="true"],
+.crm-modal__select[aria-invalid="true"],
+.crm-modal__textarea[aria-invalid="true"] {
+  border-color: rgba(248, 113, 113, 0.55);
+}
+
+.crm-modal__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.crm-modal__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.crm-modal__actions .btn {
+  min-width: 120px;
+}
+
+.card--new-item {
+  animation: card-pop-in 0.45s var(--ease-spring);
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes card-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .crm-modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .crm-modal__dialog {
+    width: 100%;
+    max-height: min(92vh, 100%);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .crm-modal__row {
+    grid-template-columns: 1fr;
+  }
+
+  .crm-modal__actions {
+    flex-direction: column-reverse;
+  }
+
+  .crm-modal__actions .btn {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crm-modal__dialog,
+  .card--new-item {
+    animation: none;
+  }
+}
+
+body.modal-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
+.crm-modal__message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.crm-card--deletable {
+  position: relative;
+}
+
+.card-delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  background: var(--glass-bg);
+  border: 1px solid var(--border);
+  opacity: 0;
+  transform: scale(0.92);
+  pointer-events: auto;
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast),
+    color var(--transition),
+    background var(--transition),
+    border-color var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-theme="light"] .card-delete-btn {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+.card-delete-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.crm-card--deletable:hover .card-delete-btn,
+.crm-card--deletable:focus-within .card-delete-btn,
+.card-delete-btn:focus-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.card-delete-btn:hover {
+  color: var(--red);
+  background: var(--red-dim);
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+.card--removing {
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.26s var(--ease-out), transform 0.26s var(--ease-out);
+  pointer-events: none;
+}
+
+.data-table__actions {
+  width: 48px;
+  text-align: center;
+  padding-inline: 8px;
+}
+
+.data-table__actions .card-delete-btn {
+  position: static;
+  opacity: 1;
+  transform: none;
+  margin-inline: auto;
+}
+
+@media (max-width: 640px) {
+  .card-delete-btn {
+    opacity: 1;
+    transform: none;
+    width: 36px;
+    height: 36px;
+  }
+}

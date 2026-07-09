@@ -1,0 +1,42 @@
+{% extends "layout_app.html" %}
+
+{% block title %}Гроші — Autolot CRM{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1 class="page-head__title">Гроші</h1>
+</div>
+
+<div class="money-grid">
+  <div class="stat-panel card">
+    <div class="stat-panel__label">До отримання</div>
+    <div class="stat-panel__value" data-money-composite='[{"amount":74300,"currency":"CHF"},{"amount":14030,"currency":"EUR"},{"amount":5050,"currency":"USD"}]' data-money-composite-total="142800" data-money-composite-total-currency="CHF">74 300 CHF + 14 030 EUR<br>+ 5 050 USD</div>
+    <div class="stat-panel__sub" data-money-composite='[{"amount":74300,"currency":"CHF"},{"amount":14030,"currency":"EUR"},{"amount":5050,"currency":"USD"}]' data-money-composite-mode="total" data-money-prefix="≈ ">≈ 142 800 CHF</div>
+  </div>
+  <div class="stat-panel card">
+    <div class="stat-panel__label">Прибуток (міс.)</div>
+    <div class="stat-panel__value" data-money="14974" data-money-currency="CHF">14 974 CHF</div>
+  </div>
+  <div class="stat-panel card">
+    <div class="stat-panel__label">Гроші в дорозі</div>
+    <div class="stat-panel__value" data-money="97960" data-money-currency="CHF">97 960 CHF</div>
+  </div>
+  <div class="stat-panel card">
+    <div class="stat-panel__label">Угод всього</div>
+    <div class="stat-panel__value">32</div>
+  </div>
+</div>
+
+<h2 class="wf-section-title">Дебіторка (хто винен)</h2>
+<div class="debtor-list">
+  {% for deal in debtors %}
+  <a href="{% url 'deal_detail' deal.id %}" class="card debtor-row">
+    <div>
+      <div class="debtor-row__title">{{ deal.car }}</div>
+      <div class="debtor-row__sub">{{ deal.client }} · {{ deal.payment_label }}</div>
+    </div>
+    <div class="debtor-row__amount" data-money="{{ deal.debt }}" data-money-currency="{{ deal.currency }}">{{ deal.debt|floatformat:0 }} {{ deal.currency }}</div>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

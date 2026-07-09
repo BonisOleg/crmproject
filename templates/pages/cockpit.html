@@ -1,0 +1,73 @@
+{% extends "layout_app.html" %}
+{% load static %}
+
+{% block title %}Кокпіт — Autolot CRM{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-head__title">Кокпіт Тимофій</h1>
+    <p class="page-head__sub">13 угод потребують уваги</p>
+  </div>
+</div>
+
+<section class="cockpit-stats" data-package-feature="cockpit_stats">
+  {% for stat in stats %}
+  <div class="stat-panel card">
+    <div class="stat-panel__label">{{ stat.label|upper }}</div>
+    {% if stat.id == 'receivable' %}
+    <div class="stat-panel__value" data-money-composite='[{"amount":74300,"currency":"CHF"},{"amount":14030,"currency":"EUR"},{"amount":5050,"currency":"USD"}]' data-money-composite-total="142800" data-money-composite-total-currency="CHF">74 300 CHF + 14 030 EUR<br>+ 5 050 USD</div>
+    <div class="stat-panel__sub" data-money-composite='[{"amount":74300,"currency":"CHF"},{"amount":14030,"currency":"EUR"},{"amount":5050,"currency":"USD"}]' data-money-composite-mode="total" data-money-prefix="≈ ">≈ 142 800 CHF</div>
+    {% elif stat.currency == 'CHF' or stat.currency == 'EUR' or stat.currency == 'USD' %}
+    <div class="stat-panel__value" data-money="{{ stat.value|cut:' ' }}" data-money-currency="{{ stat.currency }}">{{ stat.value }} {{ stat.currency }}</div>
+    {% else %}
+    <div class="stat-panel__value">{{ stat.value }} {{ stat.currency }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</section>
+
+<div class="cockpit-grid">
+  <section>
+    <h2 class="wf-section-title">Потребує дії</h2>
+    {% for queue in queues %}
+    <div
+      class="wf-list-row card"
+      data-package-feature="{% if queue.id == 'no_vin' or queue.id == 'stuck' %}cockpit_all_queues{% else %}cockpit_key_queues{% endif %}"
+    >
+      <div class="wf-list-row__left">
+        <span class="wf-list-row__icon {% if forloop.counter0|divisibleby:2 %}wf-list-row__icon--blue{% else %}wf-list-row__icon--green{% endif %}">●</span>
+        <span>{{ queue.title }}</span>
+      </div>
+      <span class="wf-list-row__count">{{ queue.count }}</span>
+    </div>
+    {% endfor %}
+    <p class="text-muted" style="font-size:11px;margin-top:12px" data-package-feature="cockpit_telegram">Ранкові сигнали в Telegram · VIP</p>
+  </section>
+
+  <aside>
+    <div data-package-feature="cockpit_pipeline">
+      <h2 class="wf-section-title">Конвеєр</h2>
+      <div class="card" style="padding:12px 14px;margin-bottom:14px">
+        <div class="pipeline-list">
+          {% for stage in pipeline %}
+          <div class="pipeline-item">
+            <span>{{ stage.label }}</span>
+            <span class="pipeline-item__count">{{ stage.count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div data-package-feature="cockpit_quick_actions">
+      <h2 class="wf-section-title">Швидкі дії</h2>
+      <div class="cockpit-quick">
+        <button type="button" class="wf-panel-btn wf-panel-btn--dark" data-open-modal="deal">+ Нова угода</button>
+        <button type="button" class="wf-panel-btn wf-panel-btn--green" data-open-modal="payment">+ Платіж</button>
+        <button type="button" class="wf-panel-btn wf-panel-btn--blue" data-open-modal="carrier" data-carrier-preset="ch-ua" data-package-feature="nav_carriers" data-package-mode="lock">Зібрати автовоз</button>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

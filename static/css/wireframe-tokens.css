@@ -1,0 +1,87 @@
+/* Wireframe Autolot CRM — дизайн-токени */
+
+:root,
+[data-theme="light"],
+[data-theme="dark"] {
+  color-scheme: light;
+
+  --pastel-blue: #b8d4f0;
+  --pastel-blue-strong: #8fbde8;
+  --pastel-blue-text: #1e4a72;
+  --pastel-blue-soft: #dceaf8;
+
+  --pastel-green: #b8e6c8;
+  --pastel-green-strong: #8fd4a8;
+  --pastel-green-text: #1f5c3a;
+  --pastel-green-soft: #dcf5e4;
+
+  --wf-bg: #ececec;
+  --wf-surface: #ffffff;
+  --wf-border: #d4d4d4;
+  --wf-border-strong: #bdbdbd;
+  --wf-text: #1a1a1a;
+  --wf-text-secondary: #5c5c5c;
+  --wf-text-muted: #8a8a8a;
+  --wf-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+  --bg-deep: var(--wf-bg);
+  --bg-base: var(--wf-bg);
+  --bg-surface: var(--wf-surface);
+  --bg-elevated: var(--wf-surface);
+  --bg-glass: var(--wf-surface);
+  --bg-glass-strong: var(--wf-surface);
+
+  --glass-bg: var(--wf-surface);
+  --glass-bg-hover: #f7f7f7;
+  --glass-border: var(--wf-border);
+  --glass-border-strong: var(--wf-border-strong);
+  --glass-highlight: #fafafa;
+  --glass-blur: 0px;
+  --glass-blur-strong: 0px;
+  --glass-saturate: 1;
+  --glass-shadow: var(--wf-shadow);
+  --glass-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  --accent: var(--pastel-green-strong);
+  --accent-soft: var(--pastel-green);
+  --accent-dim: var(--pastel-green-soft);
+  --accent-glow: transparent;
+  --accent-line: var(--pastel-green-strong);
+
+  --text: var(--wf-text);
+  --text-secondary: var(--wf-text-secondary);
+  --text-muted: var(--wf-text-muted);
+  --border: var(--wf-border);
+  --border-strong: var(--wf-border-strong);
+  --border-accent: var(--pastel-blue-strong);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+
+  --sidebar-w: 200px;
+  --header-h: auto;
+  --theme-color-meta: #ececec;
+  --btn-primary-text: #ffffff;
+
+  --shadow-sm: var(--wf-shadow);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-card: var(--wf-shadow);
+  --shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  --blue: #4a7fb8;
+  --blue-dim: var(--pastel-blue-soft);
+  --green: #3d8b6e;
+  --green-dim: var(--pastel-green-soft);
+  --red: #c0392b;
+  --red-dim: #fde8e6;
+  --amber: #b8860b;
+  --amber-dim: #fef3dc;
+  --purple: #6b5b95;
+  --purple-dim: #ebe6f2;
+  --cyan: #2a8f8f;
+  --cyan-dim: #dcf0f0;
+  --orange: #c2703a;
+  --orange-dim: #fdeee4;
+}

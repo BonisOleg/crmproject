@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk" data-theme="light" class="wireframe-app">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ececec">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>{% block title %}Autolot CRM{% endblock %}</title>
+  <script>
+    (function () {
+      var theme = localStorage.getItem('autolot-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', '#ececec');
+    })();
+    (function () {
+      var pkg = localStorage.getItem('autolot-package') || 'econom';
+      if (pkg === 'econom' || pkg === 'standard' || pkg === 'vip') {
+        document.documentElement.setAttribute('data-package', pkg);
+      }
+    })();
+    (function () {
+      var cur = localStorage.getItem('autolot-currency') || 'CHF';
+      if (cur === 'CHF' || cur === 'EUR' || cur === 'USD') {
+        document.documentElement.setAttribute('data-currency', cur);
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/animations.css' %}">
+  <link rel="stylesheet" href="{% static 'css/premium.css' %}">
+  <link rel="stylesheet" href="{% static 'css/hover.css' %}">
+  <link rel="stylesheet" href="{% static 'css/glass.css' %}">
+  <link rel="stylesheet" href="{% static 'css/glass-fx.css' %}">
+  <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/pages.css' %}">
+  <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+  <link rel="stylesheet" href="{% static 'css/responsive-pages.css' %}">
+  <link rel="stylesheet" href="{% static 'css/responsive-complete.css' %}">
+  <link rel="stylesheet" href="{% static 'css/toast.css' %}">
+  <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+  <link rel="stylesheet" href="{% static 'css/crm-due-payments.css' %}">
+  <link rel="stylesheet" href="{% static 'css/crm-documents.css' %}">
+  <link rel="stylesheet" href="{% static 'css/wireframe-tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/wireframe-layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/wireframe-components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/wireframe-pages.css' %}">
+  <link rel="stylesheet" href="{% static 'css/packages.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <script type="application/json" id="crm-deals-catalog">{{ crm_deals_catalog_json|safe }}</script>
+  {% block body %}{% endblock %}
+  {% include "partials/crm_modal.html" %}
+  <script src="{% static 'js/theme.js' %}" defer></script>
+  <script src="{% static 'js/crm-store.js' %}" defer></script>
+  <script src="{% static 'js/crm-payments.js' %}" defer></script>
+  <script src="{% static 'js/crm-validation.js' %}" defer></script>
+  <script src="{% static 'js/crm-route.js' %}" defer></script>
+  <script src="{% static 'js/crm-render.js' %}" defer></script>
+  <script src="{% static 'js/crm-due-payments.js' %}" defer></script>
+  <script src="{% static 'js/crm-documents.js' %}" defer></script>
+  <script src="{% static 'js/modal.js' %}" defer></script>
+  <script src="{% static 'js/crm-delete.js' %}" defer></script>
+  <script src="{% static 'js/actions.js' %}" defer></script>
+  <script src="{% static 'js/packages.js' %}" defer></script>
+  <script src="{% static 'js/currency.js' %}" defer></script>
+  <script src="{% static 'js/wireframe.js' %}" defer></script>
+  <script src="{% static 'js/app.js' %}" defer></script>
+  <script src="{% static 'js/animations.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

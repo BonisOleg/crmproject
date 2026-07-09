@@ -1,0 +1,464 @@
+/* Wireframe — кнопки, панелі, рядки угод */
+
+.wireframe-app .wf-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  height: 40px;
+  border: 1px solid var(--wf-border);
+  border-radius: 999px;
+  background: var(--wf-surface);
+}
+
+.wireframe-app .wf-search svg {
+  width: 16px;
+  height: 16px;
+  color: var(--wf-text-muted);
+  flex-shrink: 0;
+}
+
+.wireframe-app .wf-search input {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  background: transparent;
+}
+
+.wireframe-app .wf-search input::placeholder {
+  color: var(--wf-text-muted);
+}
+
+.wireframe-app .wf-sketch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--wf-border);
+  background: var(--wf-surface);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wf-text-secondary);
+}
+
+.wireframe-app .wf-currency {
+  display: inline-flex;
+  border: 1px solid var(--wf-border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--wf-surface);
+}
+
+.wireframe-app .wf-currency__btn {
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wf-text-muted);
+  border-right: 1px solid var(--wf-border);
+}
+
+.wireframe-app .wf-currency__btn:last-child {
+  border-right: none;
+}
+
+.wireframe-app .wf-currency__btn--active {
+  background: var(--pastel-blue-soft);
+  color: var(--pastel-blue-text);
+}
+
+.wireframe-app .wf-panel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.wireframe-app .wf-panel-btn--blue {
+  background: var(--pastel-blue);
+  border-color: var(--pastel-blue-strong);
+  color: var(--pastel-blue-text);
+}
+
+.wireframe-app .wf-panel-btn--green {
+  background: var(--pastel-green);
+  border-color: var(--pastel-green-strong);
+  color: var(--pastel-green-text);
+}
+
+.wireframe-app .wf-panel-btn--dark {
+  background: #2a2a2a;
+  border-color: #2a2a2a;
+  color: #fff;
+}
+
+.wireframe-app .wf-panel-btn:hover {
+  filter: brightness(0.97);
+}
+
+.wireframe-app .package-bar .wf-panel-btn {
+  padding: 6px 14px;
+  font-size: 11px;
+}
+
+.wireframe-app .package-bar .wf-panel-btn--active {
+  background: #2a2a2a;
+  border-color: #2a2a2a;
+  color: #fff;
+}
+
+.wireframe-app .view-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--wf-border);
+  border-radius: 999px;
+  background: var(--wf-surface);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  flex-shrink: 0;
+}
+
+.wireframe-app .view-switcher__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--wf-text-muted);
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
+  white-space: nowrap;
+}
+
+.wireframe-app .view-switcher__btn:hover:not(.view-switcher__btn--active):not(.package-gated--locked) {
+  color: var(--wf-text-secondary);
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.wireframe-app .view-switcher__btn--active {
+  background: var(--pastel-green-soft);
+  color: var(--pastel-green-text);
+  box-shadow: inset 0 0 0 1px var(--pastel-green);
+}
+
+.wireframe-app .view-switcher__btn:focus-visible {
+  outline: 2px solid var(--pastel-green-strong);
+  outline-offset: 2px;
+}
+
+.wireframe-app .filter-chips {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.wireframe-app .filter-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.wireframe-app .filter-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid var(--wf-border);
+  background: var(--wf-surface);
+  color: var(--wf-text-secondary);
+  flex-shrink: 0;
+}
+
+.wireframe-app .filter-chip--active {
+  background: var(--pastel-blue);
+  border-color: var(--pastel-blue-strong);
+  color: var(--pastel-blue-text);
+}
+
+.wireframe-app .filter-chip:nth-child(even):not(.filter-chip--active):hover {
+  background: var(--pastel-green-soft);
+}
+
+.wireframe-app .lead-filter {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+.wireframe-app .lead-filter:hover {
+  transform: none;
+}
+
+.wireframe-app .card,
+.wireframe-app .deal-row,
+.wireframe-app .kanban-column,
+.wireframe-app .stat-panel,
+.wireframe-app .wf-list-row {
+  background: var(--wf-surface);
+  border: 1px solid var(--wf-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--wf-shadow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.wireframe-app .card::before,
+.wireframe-app .card::after,
+.wireframe-app .deal-row::before,
+.wireframe-app .deal-row::after {
+  display: none;
+}
+
+.wireframe-app .deal-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 10px 12px;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.wireframe-app .deal-row__thumb {
+  width: 72px;
+  height: 54px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--wf-border);
+  background: var(--wf-bg);
+}
+
+.wireframe-app .deal-row__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wireframe-app .deal-row__title {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.wireframe-app .deal-row__badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--wf-border);
+  color: var(--wf-text-muted);
+  background: var(--wf-bg);
+  flex-shrink: 0;
+}
+
+.wireframe-app .deal-row__sub {
+  font-size: 11px;
+  color: var(--wf-text-muted);
+  margin-top: 3px;
+}
+
+.wireframe-app .deal-row__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.wireframe-app .wf-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--wf-border);
+  background: var(--wf-bg);
+  color: var(--wf-text-secondary);
+}
+
+.wireframe-app .deal-row__money {
+  text-align: right;
+  min-width: 88px;
+}
+
+.wireframe-app .deal-row__price {
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.wireframe-app .deal-row__debt {
+  font-size: 10px;
+  color: var(--wf-text-muted);
+  margin-top: 2px;
+}
+
+.wireframe-app .deals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.wireframe-app .deals-toolbar {
+  margin-bottom: 12px;
+}
+
+.wireframe-app .deals-toolbar__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.wireframe-app .stat-panel {
+  padding: 14px 16px;
+}
+
+.wireframe-app .stat-panel__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--wf-text-muted);
+  margin-bottom: 8px;
+}
+
+.wireframe-app .stat-panel__value {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.wireframe-app .stat-panel__sub {
+  font-size: 11px;
+  color: var(--wf-text-muted);
+  margin-top: 4px;
+}
+
+.wireframe-app .wf-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.wireframe-app .wf-list-row__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.wireframe-app .wf-list-row__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.wireframe-app .wf-list-row__icon--blue {
+  background: var(--pastel-blue-soft);
+}
+
+.wireframe-app .wf-list-row__icon--green {
+  background: var(--pastel-green-soft);
+}
+
+.wireframe-app .wf-list-row__count {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.wireframe-app .wf-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wf-text-muted);
+  margin-bottom: 10px;
+}
+
+.wireframe-app .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.wireframe-app .data-table th,
+.wireframe-app .data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--wf-border);
+  text-align: left;
+}
+
+.wireframe-app .data-table th {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--wf-text-muted);
+  background: var(--wf-bg);
+}
+
+@media (max-width: 640px) {
+  .wireframe-app .deal-row {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .wireframe-app .deal-row__money {
+    grid-column: 2;
+    text-align: left;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .wireframe-app .deal-row__thumb {
+    width: 64px;
+    height: 48px;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .wireframe-app .wf-search input {
+    font-size: 16px;
+  }
+}

@@ -1,0 +1,155 @@
+{% extends "layout_app.html" %}
+{% load static %}
+
+{% block title %}Запити — Autolot CRM{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/leads.css' %}">
+{% endblock %}
+
+{% block page_title %}Запити{% endblock %}
+{% block page_subtitle %}
+<p class="topbar__subtitle"><span data-leads-visible>{{ total_leads }}</span> запитів · воронка до угоди</p>
+{% endblock %}
+
+{% block topbar_actions %}
+<span class="badge-tag badge-tag--vip">VIP</span>
+<button type="button" class="btn btn--primary btn--sm" data-open-modal="lead">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  Новий запит
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="leads-page">
+  <section class="leads-hero card glass-hero glass-hero--vip" data-reveal>
+    <div class="glass-hero__shine"></div>
+    <div class="glow-orb glow-orb--purple"></div>
+    <div class="glow-orb glow-orb--accent"></div>
+    <div class="leads-hero__main">
+      <span class="leads-hero__eyebrow">Воронка VIP</span>
+      <h2 class="leads-hero__title display">Запити клієнтів</h2>
+      <p class="leads-hero__desc">Оберіть стан — одразу бачите, хто на якому етапі до угоди.</p>
+    </div>
+    <div class="leads-hero__stats">
+      <div class="leads-stat">
+        <span class="leads-stat__value mono">{{ total_leads }}</span>
+        <span class="leads-stat__label">Усього</span>
+      </div>
+      <div class="leads-stat">
+        <span class="leads-stat__value mono text-accent">{{ active_count }}</span>
+        <span class="leads-stat__label">Активні</span>
+      </div>
+      <div class="leads-stat">
+        <span class="leads-stat__value mono text-green">{{ won_count }}</span>
+        <span class="leads-stat__label">Виграли</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="lead-filter-bar card" data-reveal>
+    <p class="lead-filter-bar__title">Стан запиту</p>
+    <div class="lead-filter-scroll" role="tablist" aria-label="Фільтр за станом запиту">
+      <button
+        type="button"
+        class="lead-filter {% if active_status == 'all' %}lead-filter--active{% endif %}"
+        data-lead-filter="all"
+        role="tab"
+        aria-selected="{% if active_status == 'all' %}true{% else %}false{% endif %}"
+      >
+        <span class="lead-filter__body">
+          <span class="lead-filter__label">Усі</span>
+          <span class="lead-filter__count mono">{{ total_leads }}</span>
+        </span>
+      </button>
+      {% for stage in lead_statuses %}
+      <button
+        type="button"
+        class="lead-filter lead-filter--{{ stage.key }}{% if active_status == stage.key %} lead-filter--active{% endif %}"
+        data-lead-filter="{{ stage.key }}"
+        role="tab"
+        aria-selected="{% if active_status == stage.key %}true{% else %}false{% endif %}"
+        {% if stage.count == 0 %}data-empty="true"{% endif %}
+      >
+        <span class="lead-filter__dot" aria-hidden="true"></span>
+        <span class="lead-filter__body">
+          <span class="lead-filter__label">{{ stage.short }}</span>
+          <span class="lead-filter__count mono">{{ stage.count }}</span>
+        </span>
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="leads-toolbar" data-reveal>
+    <div class="search-bar leads-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" placeholder="Клієнт, телефон, критерії…" data-leads-search autocomplete="off">
+    </div>
+    <p class="leads-toolbar__hint text-muted">
+      Показано <strong class="mono" data-leads-visible>{{ total_leads }}</strong> з {{ total_leads }}
+    </p>
+  </div>
+
+  <div class="leads-grid" data-leads-list>
+    {% for lead in leads %}
+    <article
+      class="card lead-card lead-card--glass hover-lift crm-card--deletable"
+      data-lead-id="{{ lead.id }}"
+      data-crm-card="leads"
+      data-crm-key="{{ lead.id }}"
+      data-lead-status="{{ lead.status }}"
+      data-lead-search="{{ lead.client|lower }} {{ lead.phone }} {{ lead.criteria|lower }} {{ lead.id|lower }}"
+    >
+      <div class="lead-card__top">
+        <div class="lead-card__avatar">{{ lead.client|slice:":1" }}</div>
+        <div class="lead-card__head">
+          <div class="lead-card__row">
+            <span class="lead-card__id mono">{{ lead.id }}</span>
+            <span class="lead-status lead-status--{{ lead.status }}">{{ lead.status_label }}</span>
+          </div>
+          <h3 class="lead-card__name">{{ lead.client }}</h3>
+          <p class="lead-card__phone mono">{{ lead.phone }}</p>
+        </div>
+      </div>
+
+      <p class="lead-card__criteria">{{ lead.criteria }}</p>
+
+      <div class="lead-funnel" aria-label="Прогрес у воронці">
+        {% for stage in lead_statuses %}
+        <span
+          class="lead-funnel__step lead-funnel__step--{{ stage.key }}{% if forloop.counter0 < lead.status_index %} lead-funnel__step--done{% elif stage.key == lead.status %} lead-funnel__step--current{% endif %}"
+          title="{{ stage.label }}"
+        ></span>
+        {% endfor %}
+      </div>
+
+      <div class="lead-card__footer">
+        <div class="lead-card__meta">
+          <span>{{ lead.date }}</span>
+          <span>{{ lead.manager }}</span>
+          <span>{{ lead.candidates }} канд.</span>
+        </div>
+        {% if lead.deal_id %}
+        <a href="{% url 'deal_detail' lead.deal_id %}" class="lead-card__link text-accent">→ {{ lead.deal_id }}</a>
+        {% else %}
+        <span class="lead-card__link text-muted">Деталі</span>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  <div class="leads-empty card" data-leads-empty hidden>
+    <div class="leads-empty__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </div>
+    <h3 class="leads-empty__title">Запитів не знайдено</h3>
+    <p class="leads-empty__text text-secondary">Спробуйте інший стан або змініть пошук</p>
+    <button type="button" class="btn btn--ghost btn--sm" data-leads-reset>Скинути фільтри</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/leads.js' %}" defer></script>
+{% endblock %}
