@@ -63,14 +63,21 @@
         <p class="login-card__subtitle">Увійдіть до системи</p>
       </div>
 
-      <form action="{% url 'cockpit' %}" method="get">
+      <form action="{% url 'login' %}" method="post" novalidate>
+        {% csrf_token %}
+        {% if request.GET.next %}
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
+        {% if error %}
+        <div class="login-card__error" role="alert">{{ error }}</div>
+        {% endif %}
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" class="form-input" placeholder="timofiy@auto-lot.com" autocomplete="email">
+          <input type="email" id="email" name="username" class="form-input" value="{{ username }}" placeholder="timofiy@auto-lot.com" autocomplete="email" required>
         </div>
         <div class="form-group">
           <label for="password">Пароль</label>
-          <input type="password" id="password" class="form-input" placeholder="••••••••" autocomplete="current-password">
+          <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" autocomplete="current-password" required>
         </div>
         <button type="submit" class="btn btn--primary login-card__submit">Увійти</button>
       </form>

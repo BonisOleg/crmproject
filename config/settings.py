@@ -29,6 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app']
 
 _vercel_url = os.environ.get('VERCEL_URL', '').strip()
+_vercel_host = ''
 if _vercel_url:
     _vercel_host = _vercel_url.removeprefix('https://').removeprefix('http://').rstrip('/')
     if _vercel_host:
@@ -37,6 +38,13 @@ if _vercel_url:
 CSRF_TRUSTED_ORIGINS = [
     f'https://{host}' for host in ALLOWED_HOSTS if host and not host.startswith('.')
 ]
+
+if _vercel_url and _vercel_host:
+    _vercel_origin = f'https://{_vercel_host}'
+    if _vercel_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(_vercel_origin)
+
+_on_vercel = bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
 
 
 # Application definition
@@ -91,6 +99,17 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+if os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'):
+    DATABASES['default']['NAME'] = '/tmp/db.sqlite3'
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'cockpit'
+LOGOUT_REDIRECT_URL = 'login'
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = _on_vercel
+CSRF_COOKIE_SECURE = _on_vercel
 
 
 # Password validation

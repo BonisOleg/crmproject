@@ -1,14 +1,53 @@
 import json
 
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_http_methods
 
 from . import mock_data as md
 
 
+@require_http_methods(["GET", "POST"])
 def login_view(request):
-    return render(request, "pages/login.html")
+    if request.user.is_authenticated:
+        return redirect("cockpit")
+
+    error = None
+    username = ""
+
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip().lower()
+        password = request.POST.get("password", "")
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            next_url = request.POST.get("next") or request.GET.get("next")
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
+            return redirect("cockpit")
+
+        error = "Невірний email або пароль."
+
+    return render(request, "pages/login.html", {
+        "error": error,
+        "username": username,
+    })
 
 
+@require_http_methods(["POST"])
+def logout_view(request):
+    logout(request)
+    return redirect("login")
+
+
+@login_required
 def cockpit_view(request):
     pipeline = [
         {
@@ -26,6 +65,7 @@ def cockpit_view(request):
     })
 
 
+@login_required
 def deals_view(request):
     view_mode = request.GET.get("view", "cards")
     auctions = ["BCP", "SCC", "ALLIANZ", "REST", "BCP", "SCC"]
@@ -50,6 +90,7 @@ def deals_view(request):
     })
 
 
+@login_required
 def deal_detail_view(request, deal_id):
     deal = next((d for d in md.DEALS if d["id"] == deal_id), md.DEALS[0])
     deal = {
@@ -80,6 +121,7 @@ def _report_sections_with_ids(sections):
     return out
 
 
+@login_required
 def reports_view(request):
     sections = _report_sections_with_ids(md.REPORT_SECTIONS)
     return render(request, "pages/reports.html", {
@@ -90,6 +132,7 @@ def reports_view(request):
     })
 
 
+@login_required
 def clients_view(request):
     return render(request, "pages/clients.html", {
         "clients": md.CLIENTS,
@@ -97,6 +140,7 @@ def clients_view(request):
     })
 
 
+@login_required
 def leads_view(request):
     status_order = {s["key"]: i for i, s in enumerate(md.LEAD_STATUSES)}
     valid_statuses = {s["key"] for s in md.LEAD_STATUSES}
@@ -131,6 +175,7 @@ def leads_view(request):
     })
 
 
+@login_required
 def carriers_view(request):
     return render(request, "pages/carriers.html", {
         "carriers": md.CARRIERS,
@@ -138,6 +183,7 @@ def carriers_view(request):
     })
 
 
+@login_required
 def money_view(request):
     debtors = [d for d in md.DEALS if d.get("debt", 0) > 0]
     return render(request, "pages/money.html", {
@@ -146,5 +192,6 @@ def money_view(request):
     })
 
 
+@login_required
 def settings_view(request):
     return render(request, "pages/settings.html", {"page": "settings"})

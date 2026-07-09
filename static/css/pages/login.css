@@ -248,3 +248,15 @@
 .login-showcase__eyebrow {
   color: var(--pastel-green-text, var(--accent));
 }
+
+.login-card__error {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(192, 57, 43, 0.25);
+  background: rgba(192, 57, 43, 0.08);
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}

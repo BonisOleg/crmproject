@@ -185,6 +185,35 @@
   color: var(--text-muted);
 }
 
+.user-card__logout-form {
+  flex-shrink: 0;
+}
+
+.user-card__logout {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  color: var(--text-muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.user-card__logout svg {
+  width: 16px;
+  height: 16px;
+}
+
+.user-card__logout:hover {
+  color: var(--red);
+  border-color: rgba(192, 57, 43, 0.28);
+  background: rgba(192, 57, 43, 0.06);
+}
+
 .main-content {
   flex: 1;
   margin-left: var(--sidebar-w);

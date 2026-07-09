@@ -232,7 +232,7 @@ const CrmRender = (() => {
         ${escapeHtml(carrier.route)} · ${carrier.cars} авто · ${escapeHtml(carrier.departure)} → ${escapeHtml(carrier.eta)}
       </div>
       <div class="trip-car-row">
-        <img src="https://images.unsplash.com/photo-1621007947382-b6763a597664?w=80&h=60&fit=crop" alt="" class="trip-car-row__thumb" loading="lazy">
+        <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=80&h=60&fit=crop" alt="" class="trip-car-row__thumb" loading="lazy">
         <span>На возі (${carrier.cars}/4)</span>
       </div>`;
     return markNew(el);
