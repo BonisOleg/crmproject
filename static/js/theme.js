@@ -1,7 +1,7 @@
 const THEME_KEY = 'autolot-theme';
 
 function getStoredTheme() {
-  return localStorage.getItem(THEME_KEY) || 'dark';
+  return localStorage.getItem(THEME_KEY) || 'light';
 }
 
 function applyTheme(theme) {
@@ -10,7 +10,7 @@ function applyTheme(theme) {
 
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
-    meta.setAttribute('content', theme === 'light' ? '#e8edf4' : '#05070c');
+    meta.setAttribute('content', theme === 'light' ? '#ececec' : '#161616');
   }
 
   const isLight = theme === 'light';

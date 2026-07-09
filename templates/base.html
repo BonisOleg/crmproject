@@ -13,7 +13,7 @@
       var theme = localStorage.getItem('autolot-theme') || 'light';
       document.documentElement.setAttribute('data-theme', theme);
       var meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', '#ececec');
+      if (meta) meta.setAttribute('content', theme === 'light' ? '#ececec' : '#161616');
     })();
     (function () {
       var pkg = localStorage.getItem('autolot-package') || 'econom';

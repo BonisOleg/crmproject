@@ -240,3 +240,11 @@
   mask-image: radial-gradient(ellipse 80% 70% at 30% 40%, black, transparent);
   -webkit-mask-image: radial-gradient(ellipse 80% 70% at 30% 40%, black, transparent);
 }
+
+.wireframe-app .login-card.glass-hero {
+  display: block;
+}
+
+.login-showcase__eyebrow {
+  color: var(--pastel-green-text, var(--accent));
+}

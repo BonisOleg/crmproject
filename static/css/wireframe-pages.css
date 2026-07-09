@@ -312,7 +312,7 @@
 }
 
 .wireframe-app .hero-strip,
-.wireframe-app .glass-hero,
+.wireframe-app .glass-hero:not(.login-card),
 .wireframe-app .queue-grid,
 .wireframe-app .recent-deals-grid,
 .wireframe-app .deals-grid {

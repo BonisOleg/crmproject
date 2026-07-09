@@ -1,8 +1,6 @@
 /* Wireframe Autolot CRM — дизайн-токени */
 
-:root,
-[data-theme="light"],
-[data-theme="dark"] {
+[data-theme="light"] {
   color-scheme: light;
 
   --pastel-blue: #b8d4f0;
@@ -10,8 +8,8 @@
   --pastel-blue-text: #1e4a72;
   --pastel-blue-soft: #dceaf8;
 
-  --pastel-green: #b8e6c8;
-  --pastel-green-strong: #8fd4a8;
+  --pastel-green: #6db88a;
+  --pastel-green-strong: #3d8b6e;
   --pastel-green-text: #1f5c3a;
   --pastel-green-soft: #dcf5e4;
 
@@ -43,7 +41,7 @@
   --glass-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.08);
 
   --accent: var(--pastel-green-strong);
-  --accent-soft: var(--pastel-green);
+  --accent-soft: #5cb88a;
   --accent-dim: var(--pastel-green-soft);
   --accent-glow: transparent;
   --accent-line: var(--pastel-green-strong);
@@ -84,4 +82,84 @@
   --cyan-dim: #dcf0f0;
   --orange: #c2703a;
   --orange-dim: #fdeee4;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --pastel-blue: #2a4a6b;
+  --pastel-blue-strong: #3d6a96;
+  --pastel-blue-text: #b8d4f0;
+  --pastel-blue-soft: #1e3348;
+
+  --pastel-green: #2a5c3f;
+  --pastel-green-strong: #3d8b6e;
+  --pastel-green-text: #b8e6c8;
+  --pastel-green-soft: #1a3328;
+
+  --wf-bg: #161616;
+  --wf-surface: #1f1f1f;
+  --wf-border: #333333;
+  --wf-border-strong: #444444;
+  --wf-text: #ececec;
+  --wf-text-secondary: #a8a8a8;
+  --wf-text-muted: #737373;
+  --wf-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+
+  --bg-deep: var(--wf-bg);
+  --bg-base: var(--wf-bg);
+  --bg-surface: var(--wf-surface);
+  --bg-elevated: #262626;
+  --bg-glass: var(--wf-surface);
+  --bg-glass-strong: var(--wf-surface);
+
+  --glass-bg: var(--wf-surface);
+  --glass-bg-hover: #282828;
+  --glass-border: var(--wf-border);
+  --glass-border-strong: var(--wf-border-strong);
+  --glass-highlight: #242424;
+  --glass-blur: 0px;
+  --glass-blur-strong: 0px;
+  --glass-saturate: 1;
+  --glass-shadow: var(--wf-shadow);
+  --glass-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.32);
+
+  --accent: var(--pastel-green-strong);
+  --accent-soft: var(--pastel-green-text);
+  --accent-dim: var(--pastel-green-soft);
+  --accent-glow: transparent;
+  --accent-line: var(--pastel-green-strong);
+
+  --text: var(--wf-text);
+  --text-secondary: var(--wf-text-secondary);
+  --text-muted: var(--wf-text-muted);
+  --border: var(--wf-border);
+  --border-strong: var(--wf-border-strong);
+  --border-accent: var(--pastel-blue-strong);
+
+  --theme-color-meta: #161616;
+  --btn-primary-text: #ffffff;
+
+  --shadow-sm: var(--wf-shadow);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.32);
+  --shadow-card: var(--wf-shadow);
+  --shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.36);
+
+  --blue: #6ba3d4;
+  --blue-dim: var(--pastel-blue-soft);
+  --green: #5cb88a;
+  --green-dim: var(--pastel-green-soft);
+  --red: #e05a4f;
+  --red-dim: #3d2220;
+  --amber: #d4a843;
+  --amber-dim: #3d3420;
+  --purple: #9b8bc4;
+  --purple-dim: #2e2840;
+  --cyan: #4ab8b8;
+  --cyan-dim: #1e3333;
+  --orange: #d48a54;
+  --orange-dim: #3d2a1e;
+
+  --toggle-knob-bg: rgba(255, 255, 255, 0.16);
+  --toggle-track-bg: rgba(255, 255, 255, 0.08);
 }

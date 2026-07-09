@@ -305,6 +305,18 @@
   width: auto;
 }
 
+.theme-switch-wrap--toolbar {
+  flex-shrink: 0;
+}
+
+.theme-switch-wrap--toolbar .glass-toggle {
+  width: auto;
+}
+
+.theme-switch-wrap--toolbar .glass-toggle__label {
+  display: none;
+}
+
 .theme-switch-wrap--login .glass-toggle {
   padding: 8px 12px;
   border-radius: 99px;
