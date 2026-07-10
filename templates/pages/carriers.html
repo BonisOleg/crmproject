@@ -23,10 +23,18 @@
     <div class="trip-card__meta">
       {{ carrier.route }} · {{ carrier.cars }} авто · {{ carrier.departure }} → {{ carrier.eta }}
     </div>
-    <div class="trip-car-row">
-      <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=80&h=60&fit=crop" alt="" class="trip-car-row__thumb" loading="lazy">
-      <span>На возі ({{ carrier.cars }}/4)</span>
+    <div class="trip-card__info">
+      {% if carrier.driver %}<div class="trip-card__driver">👤 {{ carrier.driver }}</div>{% endif %}
+      {% if carrier.plate %}<div class="trip-card__plate">🚛 {{ carrier.plate }}</div>{% endif %}
     </div>
+    {% if carrier.assigned_deals %}
+    <div class="trip-card__deals">
+      <span class="trip-card__deals-label">Авто на борту:</span>
+      {% for deal_id in carrier.assigned_deals %}
+      <a href="/deals/{{ deal_id }}/" class="trip-card__deal-chip">{{ deal_id }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
   {% endfor %}
 </div>

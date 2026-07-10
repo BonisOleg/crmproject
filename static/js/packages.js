@@ -76,16 +76,11 @@ const CrmPackages = (() => {
   };
 
   function get() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return LEVEL[saved] != null ? saved : 'econom';
+    return 'vip';
   }
 
-  function set(pkg) {
-    if (LEVEL[pkg] == null) return;
-    localStorage.setItem(STORAGE_KEY, pkg);
-    document.documentElement.dataset.package = pkg;
-    applyAll();
-    document.dispatchEvent(new CustomEvent('crm:package-change', { detail: { package: pkg } }));
+  function set(_pkg) {
+    // Пакетний gate вимкнено — усі функції доступні
   }
 
   function has(feature) {
@@ -280,7 +275,7 @@ const CrmPackages = (() => {
     return false;
   }
 
-  document.documentElement.dataset.package = get();
+  document.documentElement.dataset.package = 'vip';
 
   return {
     get,

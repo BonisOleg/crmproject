@@ -36,14 +36,27 @@
       </div>
       <div class="timeline">
         {% for stage in stages %}
-        <div class="timeline__step {% if deal.execution == stage.key %}timeline__step--active{% elif stage.key == 'won' or stage.key == 'picked' %}timeline__step--done{% endif %}">
+        {% with is_active=deal.execution|slugify %}
+        <div class="timeline__step {% if deal.execution == stage.key %}timeline__step--active{% endif %}">
           <div class="timeline__dot">
-            {% if stage.key == 'won' or stage.key == 'picked' or deal.execution == stage.key %}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{% if deal.execution == stage.key %}var(--bg-deep){% else %}var(--accent){% endif %}" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            {% if deal.execution == stage.key %}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bg-deep)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
             {% endif %}
           </div>
           <div class="timeline__label">{{ stage.label }}</div>
+          {% if stage.key == 'confirmed' and deal.logistics.confirmed %}
+          <div class="timeline__date">{{ deal.logistics.confirmed }}</div>
+          {% elif stage.key == 'picked' and deal.logistics.picked %}
+          <div class="timeline__date">{{ deal.logistics.picked }}</div>
+          {% elif stage.key == 'in_transit' and deal.logistics.transit %}
+          <div class="timeline__date">{{ deal.logistics.transit }}</div>
+          {% elif stage.key == 'customs' and deal.logistics.customs %}
+          <div class="timeline__date">{{ deal.logistics.customs }}</div>
+          {% elif stage.key == 'delivered' and deal.logistics.delivered %}
+          <div class="timeline__date">{{ deal.logistics.delivered }}</div>
+          {% endif %}
         </div>
+        {% endwith %}
         {% endfor %}
       </div>
       <div class="info-grid" style="margin-top:20px">
@@ -107,20 +120,84 @@
           <span>Стадія</span>
           <select class="deal-unified__input" name="execution">
             <option value="won">Виграно</option>
+            <option value="confirmed">Підтверджено</option>
             <option value="picked">Забрано</option>
             <option value="in_transit">В дорозі</option>
             <option value="customs">Розмитнено</option>
             <option value="delivered">Доставлено</option>
           </select>
         </label>
-        <label class="deal-unified__group">
+
+        <div class="deal-unified__group deal-unified__group--full">
+          <span>Виграна</span>
+          <div class="deal-unified__amount-row">
+            <input class="deal-unified__input" type="text" name="won_price" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+            <select class="deal-unified__cur-select" name="won_currency">
+              <option{% if deal.won_currency == 'CHF' or not deal.won_currency %} selected{% endif %}>CHF</option>
+              <option{% if deal.won_currency == 'EUR' %} selected{% endif %}>EUR</option>
+              <option{% if deal.won_currency == 'USD' %} selected{% endif %}>USD</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="deal-unified__group deal-unified__group--full">
+          <span>Ставка</span>
+          <div class="deal-unified__amount-row">
+            <input class="deal-unified__input" type="text" name="bid" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+            <select class="deal-unified__cur-select" name="bid_currency">
+              <option{% if deal.bid_currency == 'CHF' or not deal.bid_currency %} selected{% endif %}>CHF</option>
+              <option{% if deal.bid_currency == 'EUR' %} selected{% endif %}>EUR</option>
+              <option{% if deal.bid_currency == 'USD' %} selected{% endif %}>USD</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="deal-unified__group deal-unified__group--full">
           <span>Собівартість</span>
-          <input class="deal-unified__input" type="text" name="cost" inputmode="numeric" maxlength="9" autocomplete="off">
+          <div class="deal-unified__amount-row">
+            <input class="deal-unified__input" type="text" name="cost" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+            <select class="deal-unified__cur-select" name="cost_currency">
+              <option{% if deal.cost_currency == 'CHF' or not deal.cost_currency %} selected{% endif %}>CHF</option>
+              <option{% if deal.cost_currency == 'EUR' %} selected{% endif %}>EUR</option>
+              <option{% if deal.cost_currency == 'USD' %} selected{% endif %}>USD</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="deal-unified__group deal-unified__group--full">
+          <span>Клієнту</span>
+          <div class="deal-unified__amount-row">
+            <input class="deal-unified__input" type="text" name="price" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+            <select class="deal-unified__cur-select" name="price_currency">
+              <option{% if deal.price_currency == 'CHF' or not deal.price_currency %} selected{% endif %}>CHF</option>
+              <option{% if deal.price_currency == 'EUR' %} selected{% endif %}>EUR</option>
+              <option{% if deal.price_currency == 'USD' %} selected{% endif %}>USD</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="deal-unified__group deal-unified__group--full">
+          <span>Доставка (якщо наша)</span>
+          <div class="deal-unified__amount-row">
+            <input class="deal-unified__input" type="text" name="delivery_cost" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+            <select class="deal-unified__cur-select" name="delivery_currency">
+              <option{% if deal.delivery_currency == 'CHF' or not deal.delivery_currency %} selected{% endif %}>CHF</option>
+              <option{% if deal.delivery_currency == 'EUR' %} selected{% endif %}>EUR</option>
+              <option{% if deal.delivery_currency == 'USD' %} selected{% endif %}>USD</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="deal-unified__group deal-unified__group--full">
+          <span>Комісія (вручну)</span>
+          <input class="deal-unified__input" type="text" name="commission" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
         </label>
-        <label class="deal-unified__group">
-          <span>Ціна клієнту</span>
-          <input class="deal-unified__input" type="text" name="price" inputmode="numeric" maxlength="9" autocomplete="off">
+
+        <label class="deal-unified__group deal-unified__group--full">
+          <span>Логістика (вручну)</span>
+          <input class="deal-unified__input" type="text" name="logistics_cost" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
         </label>
+
         <label class="deal-unified__group deal-unified__grid--wide">
           <span>Нотатки</span>
           <textarea class="deal-unified__textarea" name="notes" maxlength="500"></textarea>
@@ -145,18 +222,34 @@
 
     <div class="card animate-fade-up stagger-2" style="margin-top:16px" data-reveal>
       <div class="card__header">
-        <h3 class="card__title">Ціна клієнта</h3>
+        <h3 class="card__title">Фінанси</h3>
       </div>
       <div class="finance-block">
-        {% for row in price_breakdown %}
         <div class="finance-row">
-          <span class="text-secondary">{{ row.label }}</span>
-          <span class="finance-row__amount mono" data-money="{{ row.amount }}" data-money-currency="CHF">{{ row.amount|floatformat:0 }} CHF</span>
+          <span class="text-secondary">Виграна</span>
+          <span class="finance-row__amount mono">{{ deal.won_price|default:0|floatformat:0 }} {{ deal.won_currency|default:"CHF" }}</span>
         </div>
-        {% endfor %}
+        <div class="finance-row">
+          <span class="text-secondary">Ставка</span>
+          <span class="finance-row__amount mono">{{ deal.bid|default:0|floatformat:0 }} {{ deal.bid_currency|default:"CHF" }}</span>
+        </div>
+        <div class="finance-row">
+          <span class="text-secondary">Собівартість</span>
+          <span class="finance-row__amount mono">{{ deal.cost|default:0|floatformat:0 }} {{ deal.cost_currency|default:"CHF" }}</span>
+        </div>
+        <div class="finance-row">
+          <span class="text-secondary">Комісія</span>
+          <span class="finance-row__amount mono">{{ deal.commission|default:0|floatformat:0 }} {{ deal.cost_currency|default:"CHF" }}</span>
+        </div>
+        {% if deal.delivery_type == 'ours' and deal.delivery_cost %}
+        <div class="finance-row">
+          <span class="text-secondary">Доставка (наша)</span>
+          <span class="finance-row__amount mono">{{ deal.delivery_cost|floatformat:0 }} {{ deal.delivery_currency|default:"CHF" }}</span>
+        </div>
+        {% endif %}
         <div class="finance-row finance-row--total">
-          <span>Разом</span>
-          <span class="finance-row__amount text-accent mono" data-deal-price-total data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</span>
+          <span>Клієнту</span>
+          <span class="finance-row__amount text-accent mono" data-deal-price-total data-money="{{ deal.price }}" data-money-currency="{{ deal.price_currency|default:deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.price_currency|default:deal.currency }}</span>
         </div>
       </div>
       <div style="margin-top:16px">

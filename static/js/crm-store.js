@@ -159,18 +159,27 @@ const CrmStore = (() => {
     const paid = Number(deal.paid) || 0;
     const debt = Math.max(0, price - paid);
     const profit = deal.profit ?? Math.max(0, price - cost);
+    const deliveryType = deal.delivery_type || 'pickup';
     return {
       deal_id: deal.id,
       car: deal.car,
       client: deal.client,
-      auction: deal.auction || 'BCP',
       stage: deal.execution_label || deal.stage || 'Виграно',
+      won_price: Number(deal.won_price) || 0,
+      bid: Number(deal.bid) || 0,
       cost,
       price,
       paid,
       debt,
+      delivery_cost: deliveryType === 'ours' ? (Number(deal.delivery_cost) || 0) : 0,
+      delivery_type: deliveryType,
       profit,
       currency: deal.currency || 'CHF',
+      won_currency: deal.won_currency || deal.currency || 'CHF',
+      bid_currency: deal.bid_currency || deal.currency || 'CHF',
+      cost_currency: deal.cost_currency || deal.currency || 'CHF',
+      price_currency: deal.price_currency || deal.currency || 'CHF',
+      delivery_currency: deal.delivery_currency || deal.currency || 'CHF',
     };
   }
 

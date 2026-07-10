@@ -1,17 +1,61 @@
-.report-table__due-plan {
-  min-width: 120px;
-  max-width: 180px;
-  font-size: 11px;
-  line-height: 1.45;
+.report-table__cur {
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.6;
+  letter-spacing: 0.03em;
+  margin-left: 2px;
+}
+
+.report-table__delivery {
+  font-size: 13px;
+  white-space: nowrap;
   color: var(--wf-text-muted, var(--text-muted));
 }
 
-.report-table__due-item {
-  display: block;
+/* month selector */
+.report-month-form {
+  display: flex;
+  align-items: center;
 }
 
-.report-table__due-item + .report-table__due-item {
-  margin-top: 4px;
+.report-month-select {
+  height: 36px;
+  padding: 0 28px 0 10px;
+  border: 1px solid var(--border, var(--wf-border));
+  border-radius: 10px;
+  background: var(--wf-surface, var(--surface));
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  appearance: auto;
+}
+
+/* amount+currency inline */
+.report-edit__amount-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.report-edit__amount-row .report-edit__input {
+  flex: 1;
+  min-width: 0;
+}
+
+.report-edit__cur-select {
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid var(--border, var(--wf-border));
+  border-radius: 10px;
+  background: var(--wf-surface, var(--surface));
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 72px;
+}
+
+.report-edit__calc {
+  grid-template-columns: 1fr;
 }
 
 .report-table__deal-link {

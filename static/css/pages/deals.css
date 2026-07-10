@@ -435,3 +435,88 @@
 .deals-empty__text {
   font-size: 14px;
 }
+
+/* deal_detail per-field amount+currency */
+.deal-unified__amount-row {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.deal-unified__amount-row .deal-unified__input {
+  flex: 1;
+  min-width: 0;
+}
+
+.deal-unified__cur-select {
+  flex-shrink: 0;
+  width: 76px;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 1px solid var(--border, rgba(255,255,255,0.1));
+  border-radius: 10px;
+  background: var(--surface, rgba(255,255,255,0.06));
+  font-size: 13px;
+  font-weight: 700;
+  color: inherit;
+}
+
+.deal-unified__group--full {
+  grid-column: 1 / -1;
+}
+
+/* timeline dates */
+.timeline__date {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* carriers page */
+.trip-card__info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.trip-card__driver,
+.trip-card__plate {
+  background: var(--wf-bg, rgba(255,255,255,0.04));
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
+.trip-card__deals {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.trip-card__deals-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  width: 100%;
+}
+
+.trip-card__deal-chip {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--pastel-blue-soft, rgba(59,130,246,0.12));
+  color: var(--pastel-blue-text, #2563eb);
+  text-decoration: none;
+}
+
+.trip-card__deal-chip:hover {
+  background: var(--pastel-blue-soft);
+  text-decoration: underline;
+}

@@ -14,4 +14,5 @@ urlpatterns = [
     path("carriers/", views.carriers_view, name="carriers"),
     path("money/", views.money_view, name="money"),
     path("settings/", views.settings_view, name="settings"),
+    path("api/fetch-lot-photo/", views.fetch_lot_photo_view, name="fetch_lot_photo"),
 ]

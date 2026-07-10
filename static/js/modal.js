@@ -66,20 +66,20 @@ const CrmModal = (() => {
         { name: 'year', label: 'Рік', type: 'text', required: true, validate: 'year', placeholder: '2021' },
         { name: 'client', label: 'Клієнт', type: 'text', required: true, validate: 'name', placeholder: 'Олександр К.' },
         { name: 'phone', label: 'Телефон', type: 'tel', validate: 'phone', placeholder: '+380 67 123 4567' },
-        { name: 'price', label: 'Ціна', type: 'text', required: true, validate: 'price', placeholder: '42500' },
-        {
-          name: 'currency',
-          label: 'Валюта',
-          type: 'select',
-          options: [{ value: 'CHF', label: 'CHF' }, { value: 'EUR', label: 'EUR' }],
-          default: 'CHF',
-        },
+        { name: 'lot_url', label: 'Посилання auto-lot.com', type: 'lot_url', placeholder: 'https://auto-lot.com/lot/12345' },
+        { name: 'won_price', label: 'Виграна', type: 'amount_currency', currencyName: 'won_currency', validate: 'price', placeholder: '38000' },
+        { name: 'bid', label: 'Ставка', type: 'amount_currency', currencyName: 'bid_currency', validate: 'price', placeholder: '37500' },
+        { name: 'cost', label: 'Собівартість', type: 'amount_currency', currencyName: 'cost_currency', validate: 'price', placeholder: '34000' },
+        { name: 'price', label: 'Клієнту', type: 'amount_currency', currencyName: 'price_currency', required: true, validate: 'price', placeholder: '42500' },
+        { name: 'delivery_cost', label: 'Доставка (якщо наша)', type: 'amount_currency', currencyName: 'delivery_currency', validate: 'price', placeholder: '1800' },
+        { name: 'commission', label: 'Комісія', type: 'text', validate: 'price', placeholder: '2100', hint: 'Вводиться вручну' },
         {
           name: 'execution',
           label: 'Етап виконання',
           type: 'select',
           options: [
             { value: 'won', label: 'Виграно' },
+            { value: 'confirmed', label: 'Підтверджено' },
             { value: 'picked', label: 'Забрано' },
             { value: 'in_transit', label: 'В дорозі' },
             { value: 'customs', label: 'Розмитнено' },
@@ -87,36 +87,44 @@ const CrmModal = (() => {
           ],
           default: 'won',
         },
-        {
-          name: 'due_payments',
-          label: 'Місце оплати',
-          type: 'due_payments',
-        },
-        {
-          name: 'documents',
-          label: 'Документи',
-          type: 'documents',
-        },
+        { name: 'due_payments', label: 'Місце оплати', type: 'due_payments' },
+        { name: 'documents', label: 'Документи', type: 'documents' },
       ],
       build(data) {
         const price = Number(data.price) || 0;
+        const EXEC_LABELS = {
+          won: 'Виграно', confirmed: 'Підтверджено', picked: 'Забрано',
+          in_transit: 'В дорозі', customs: 'Розмитнено', delivered: 'Доставлено',
+        };
         return {
           id: CrmStore.nextId('deals'),
           car: data.car.trim(),
           year: Number(data.year),
           client: data.client.trim(),
           phone: data.phone.trim(),
+          lot_url: (data.lot_url || '').trim(),
+          won_price: Number(data.won_price) || 0,
+          bid: Number(data.bid) || 0,
+          cost: Number(data.cost) || Math.round(price * 0.82),
+          delivery_cost: Number(data.delivery_cost) || 0,
+          commission: Number(data.commission) || 0,
           execution: data.execution,
-          execution_label: CrmRender.EXECUTION_LABELS[data.execution] || data.execution,
+          execution_label: EXEC_LABELS[data.execution] || data.execution,
           payment: 'pending',
           payment_label: 'Очікує',
           price,
           paid: 0,
           debt: price,
-          currency: data.currency,
+          currency: data.price_currency || 'CHF',
+          won_currency: data.won_currency || 'CHF',
+          bid_currency: data.bid_currency || 'CHF',
+          cost_currency: data.cost_currency || 'CHF',
+          price_currency: data.price_currency || 'CHF',
+          delivery_currency: data.delivery_currency || 'CHF',
           profit: Math.round(price * 0.08),
-          vin: 'NEW***000000',
-          image: CrmRender.DEFAULT_CAR_IMAGE,
+          vin: '',
+          image: _fetchedLotImage || (window.CrmRender ? CrmRender.DEFAULT_CAR_IMAGE : ''),
+          delivery_type: Number(data.delivery_cost) > 0 ? 'ours' : 'pickup',
         };
       },
     },
@@ -125,6 +133,8 @@ const CrmModal = (() => {
       submit: 'Додати рейс',
       storeType: 'carriers',
       fields: [
+        { name: 'driver', label: 'Водій', type: 'text', required: true, placeholder: 'Михайло Коваль' },
+        { name: 'plate', label: 'Номер автовоза', type: 'text', required: true, placeholder: 'CH-ZH 4821' },
         { name: 'route', label: 'Маршрут', type: 'text', required: true, validate: 'route', autocomplete: 'route', placeholder: 'Цюрих', hint: 'Оберіть місто відправлення, потім прибуття' },
         { name: 'cars', label: 'Кількість авто', type: 'text', required: true, validate: 'integer', min: 1, max: 20, placeholder: '4', hint: 'Від 1 до 20 авто на рейс' },
         { name: 'departure', label: 'Відправлення', type: 'date', required: true, validate: 'date', hint: 'Дата завантаження на автовоз' },
@@ -139,17 +149,25 @@ const CrmModal = (() => {
           ],
           default: 'loading',
         },
+        { name: 'assigned_deals', label: 'Авто на борту (виграні/підтверджені)', type: 'carrier_deals' },
       ],
       build(data) {
         const labels = { loading: 'Завантаження', in_transit: 'В дорозі' };
+        const assigned = [];
+        document.querySelectorAll('[data-carrier-deal-check]:checked').forEach((el) => {
+          assigned.push(el.value);
+        });
         return {
           id: CrmStore.nextId('carriers'),
+          driver: (data.driver || '').trim(),
+          plate: (data.plate || '').trim(),
           route: data.route.trim(),
           cars: Number(data.cars) || 1,
           departure: data.departure,
           eta: data.eta,
           status: data.status,
           status_label: labels[data.status] || data.status,
+          assigned_deals: assigned,
         };
       },
     },
@@ -230,6 +248,7 @@ const CrmModal = (() => {
   let openOptions = {};
   let dealDueWidget = null;
   let dealDocWidget = null;
+  let _fetchedLotImage = '';
 
   function init() {
     modalEl = document.getElementById('crm-modal');
@@ -282,6 +301,40 @@ const CrmModal = (() => {
 
     if (window.CrmValidation) CrmValidation.bindForm(formEl, bindConfig);
 
+    _fetchedLotImage = '';
+
+    if (type === 'deal') {
+      const fetchBtn = formEl.querySelector('[data-fetch-lot-photo]');
+      const lotInput = formEl.querySelector('[name="lot_url"]');
+      const preview = formEl.querySelector('[data-lot-preview]');
+      if (fetchBtn && lotInput && preview) {
+        fetchBtn.addEventListener('click', () => {
+          const url = lotInput.value.trim();
+          if (!url) { if (typeof showToast === 'function') showToast('Введіть посилання', 'info'); return; }
+          fetchBtn.disabled = true;
+          fetchBtn.textContent = '…';
+          fetch('/api/fetch-lot-photo/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+            body: JSON.stringify({ url }),
+          })
+            .then((r) => r.json())
+            .then((resp) => {
+              if (resp.image_url) {
+                _fetchedLotImage = resp.image_url;
+                preview.src = resp.image_url;
+                preview.hidden = false;
+                if (typeof showToast === 'function') showToast('Фото підтягнуто', 'success');
+              } else {
+                if (typeof showToast === 'function') showToast(resp.error || 'Фото не знайдено', 'info');
+              }
+            })
+            .catch(() => { if (typeof showToast === 'function') showToast('Помилка мережі', 'info'); })
+            .finally(() => { fetchBtn.disabled = false; fetchBtn.textContent = 'Підтягнути фото'; });
+        });
+      }
+    }
+
     if (type === 'deal' && window.CrmDuePayments) {
       const dueRoot = formEl.querySelector('[data-due-root]');
       const currency = formEl.querySelector('[name="currency"]')?.value || 'CHF';
@@ -326,6 +379,7 @@ const CrmModal = (() => {
     formEl.innerHTML = '';
     activeType = null;
     openOptions = {};
+    _fetchedLotImage = '';
     dealDueWidget?.destroy?.();
     dealDueWidget = null;
     dealDocWidget = null;
@@ -401,6 +455,13 @@ const CrmModal = (() => {
       </div>`;
   }
 
+  const CURRENCIES = ['CHF', 'EUR', 'USD'];
+
+  function renderCurrencySelect(name, defaultVal) {
+    const opts = CURRENCIES.map((c) => `<option value="${c}"${c === (defaultVal || 'CHF') ? ' selected' : ''}>${c}</option>`).join('');
+    return `<select class="crm-modal__currency-select" name="${escapeHtml(name)}">${opts}</select>`;
+  }
+
   function renderField(field) {
     const req = field.required ? '<span aria-hidden="true"> *</span>' : '';
     const id = `crm-field-${field.name}`;
@@ -418,6 +479,50 @@ const CrmModal = (() => {
         <div class="crm-modal__group crm-modal__group--wide crm-modal__group--docs">
           <span class="crm-modal__group-label">${field.label}${req}</span>
           <div data-doc-root id="${id}"></div>
+        </div>`;
+    }
+
+    if (field.type === 'lot_url') {
+      return `
+        <div class="crm-modal__group crm-modal__group--wide">
+          <label for="${id}">${field.label}</label>
+          <div class="crm-modal__lot-row">
+            <input class="crm-modal__input" id="${id}" type="url" name="${field.name}" placeholder="${escapeHtml(field.placeholder || '')}">
+            <button type="button" class="btn btn--ghost btn--sm" data-fetch-lot-photo>Підтягнути фото</button>
+          </div>
+          <img class="crm-modal__lot-preview" data-lot-preview hidden alt="Фото авто">
+          <p class="crm-modal__error" data-error-for="${field.name}" hidden></p>
+        </div>`;
+    }
+
+    if (field.type === 'amount_currency') {
+      const hintHtml = field.hint ? `<p class="crm-modal__hint">${escapeHtml(field.hint)}</p>` : '';
+      return `
+        <div class="crm-modal__group">
+          <label for="${id}">${escapeHtml(field.label)}${req}</label>
+          <div class="crm-modal__amount-row">
+            <input class="crm-modal__input" id="${id}" type="text" name="${field.name}" inputmode="numeric" maxlength="9" placeholder="${escapeHtml(field.placeholder || '')}"${field.required ? ' required' : ''}>
+            ${renderCurrencySelect(field.currencyName, 'CHF')}
+          </div>
+          ${hintHtml}
+          <p class="crm-modal__error" data-error-for="${field.name}" hidden></p>
+        </div>`;
+    }
+
+    if (field.type === 'carrier_deals') {
+      const deals = window.CrmStore
+        ? CrmStore.listDealsForSelect().filter((d) => d.execution === 'won' || d.execution === 'confirmed')
+        : [];
+      if (!deals.length) return '';
+      const checkboxes = deals.map((d) => `
+        <label class="crm-modal__deal-check">
+          <input type="checkbox" name="assigned_deals" value="${escapeHtml(d.id)}" data-carrier-deal-check>
+          <span>${escapeHtml(d.id)} · ${escapeHtml(d.car)} (${escapeHtml(d.execution_label || d.execution)})</span>
+        </label>`).join('');
+      return `
+        <div class="crm-modal__group crm-modal__group--wide">
+          <span class="crm-modal__group-label">${escapeHtml(field.label)}</span>
+          <div class="crm-modal__deal-list">${checkboxes}</div>
         </div>`;
     }
 
@@ -536,14 +641,14 @@ const CrmModal = (() => {
     if (type === 'deal') {
       const dueRoot = formEl.querySelector('[data-due-root]');
       const docRoot = formEl.querySelector('[data-doc-root]');
-      const due_payments = dealDueWidget?.read() || CrmDuePayments.read(dueRoot);
+      const due_payments = dealDueWidget?.read() || (window.CrmDuePayments ? CrmDuePayments.read(dueRoot) : []);
       const documents = dealDocWidget?.read() || (window.CrmDocuments ? CrmDocuments.read(docRoot) : []);
       CrmStore.saveDealProfile(item.id, {
         auction: 'BCP',
-        cost: Math.round(item.price * 0.82),
         due_payments,
         documents,
         notes: '',
+        logistics: { confirmed: CrmStore.todayISO(), picked: null, transit: null, customs: null, delivered: null },
       });
       if (window.CrmReport) CrmReport.addDealFromStore(CrmStore.getDeal(item.id));
     }
@@ -631,6 +736,13 @@ const CrmModal = (() => {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function getCsrfToken() {
+    const meta = document.querySelector('[name="csrfmiddlewaretoken"]');
+    if (meta) return meta.value;
+    const cookie = document.cookie.split(';').find((c) => c.trim().startsWith('csrftoken='));
+    return cookie ? cookie.split('=')[1].trim() : '';
   }
 
   function confirm({ title, message, confirmLabel = 'Видалити', onConfirm }) {

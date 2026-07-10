@@ -1,7 +1,11 @@
 import json
+import re
+import urllib.error
+import urllib.request
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
@@ -123,13 +127,68 @@ def _report_sections_with_ids(sections):
 
 @login_required
 def reports_view(request):
+    available_months = [
+        {"key": k, "label": v["month"]}
+        for k, v in md.MONTHLY_REPORTS.items()
+    ]
+    month_key = request.GET.get("month", "2026-06")
+    if month_key not in md.MONTHLY_REPORTS:
+        month_key = "2026-06"
+    report = md.MONTHLY_REPORTS[month_key]
     sections = _report_sections_with_ids(md.REPORT_SECTIONS)
     return render(request, "pages/reports.html", {
-        "report": md.MONTHLY_REPORT,
+        "report": report,
         "report_sections": sections,
         "report_sections_json": json.dumps(sections, ensure_ascii=False),
+        "available_months": available_months,
+        "current_month": month_key,
         "page": "reports",
     })
+
+
+@login_required
+@require_http_methods(["POST"])
+def fetch_lot_photo_view(request):
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"error": "Невірний JSON"}, status=400)
+
+    url = body.get("url", "").strip()
+    if not url:
+        return JsonResponse({"error": "URL не передано"}, status=400)
+
+    if "auto-lot.com" not in url:
+        return JsonResponse({"error": "Дозволено лише auto-lot.com"}, status=400)
+
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; AutolotCRM/1.0)"},
+        )
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            html = resp.read().decode("utf-8", errors="replace")
+    except urllib.error.URLError as exc:
+        return JsonResponse({"error": f"Не вдалося завантажити: {exc}"}, status=502)
+    except Exception:
+        return JsonResponse({"error": "Помилка при отриманні сторінки"}, status=502)
+
+    pattern = r'<img[^>]+src=["\']([^"\']+)["\'][^>]*>'
+    matches = re.findall(pattern, html, re.IGNORECASE)
+    image_url = next(
+        (m for m in matches if any(ext in m.lower() for ext in (".jpg", ".jpeg", ".png", ".webp"))),
+        None,
+    )
+
+    if not image_url:
+        return JsonResponse({"error": "Фото не знайдено на сторінці"}, status=404)
+
+    if image_url.startswith("//"):
+        image_url = "https:" + image_url
+    elif image_url.startswith("/"):
+        image_url = "https://auto-lot.com" + image_url
+
+    return JsonResponse({"image_url": image_url})
 
 
 @login_required

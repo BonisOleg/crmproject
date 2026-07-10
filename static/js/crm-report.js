@@ -4,15 +4,13 @@
 const CrmReport = (() => {
   const OVERRIDE_KEY = 'autolot-report-overrides';
   const EXTRA_KEY = 'autolot-report-extras';
-  const COL_COUNT = 10;
+  const COL_COUNT = 8;
 
   let baseSections = [];
   let modalEl;
   let formEl;
   let tbodyEl;
   let lastFocus = null;
-  let reportDueWidget = null;
-  let reportDocWidget = null;
 
   function readJson(key, fallback) {
     try {
@@ -43,11 +41,18 @@ const CrmReport = (() => {
 
   function recalcRow(row) {
     const price = Number(row.price) || 0;
-    const paid = Number(row.paid) || 0;
     const cost = Number(row.cost) || 0;
-    const debt = Math.max(0, price - paid);
     const profit = Math.max(0, price - cost);
-    return { ...row, debt, profit, currency: row.currency || 'CHF' };
+    return {
+      ...row,
+      profit,
+      currency: row.currency || 'CHF',
+      won_currency: row.won_currency || row.currency || 'CHF',
+      bid_currency: row.bid_currency || row.currency || 'CHF',
+      cost_currency: row.cost_currency || row.currency || 'CHF',
+      price_currency: row.price_currency || row.currency || 'CHF',
+      delivery_currency: row.delivery_currency || row.currency || 'CHF',
+    };
   }
 
   function applyDealSync(row) {
@@ -58,8 +63,6 @@ const CrmReport = (() => {
     return {
       ...row,
       ...CrmStore.dealToReportRow(deal),
-      due_payments: deal.due_payments || [],
-      documents: deal.documents || [],
       id: row.id,
       deal_id: dealId,
     };
@@ -178,7 +181,10 @@ const CrmReport = (() => {
 
       const rows = section.rows.map((row) => {
         const edited = overrides[row.id] || isCustomRow(row.id) || row.deal_id;
-        const debtClass = row.debt > 0 ? 'text-red' : 'text-green';
+        const deliveryCost = Number(row.delivery_cost) || 0;
+        const deliveryCell = row.delivery_type === 'ours' && deliveryCost > 0
+          ? `<span class="mono">${formatNum(deliveryCost)}</span> <span class="report-table__cur">${escapeHtml(row.delivery_currency || row.currency)}</span>`
+          : '—';
         const dealAttr = row.deal_id ? ` data-deal-id="${escapeHtml(row.deal_id)}"` : '';
         return `
           <tr
@@ -192,14 +198,12 @@ const CrmReport = (() => {
           >
             <td>${renderCarCell(row)}</td>
             <td>${escapeHtml(row.client)}</td>
-            <td>${escapeHtml(row.auction)}</td>
-            <td>${escapeHtml(row.stage)}</td>
-            <td class="mono report-table__num" data-field="cost" data-money="${row.cost}" data-money-currency="${row.currency}">${formatNum(row.cost)}</td>
-            <td class="mono report-table__num" data-field="price" data-money="${row.price}" data-money-currency="${row.currency}">${formatNum(row.price)}</td>
-            <td class="mono report-table__num" data-field="paid" data-money="${row.paid}" data-money-currency="${row.currency}">${formatNum(row.paid)}</td>
-            <td class="mono report-table__num ${debtClass}" data-field="debt" data-money="${row.debt}" data-money-currency="${row.currency}">${formatNum(row.debt)}</td>
-            <td class="report-table__due-plan">${formatDuePlan(row)}</td>
-            <td class="mono report-table__num text-green" data-field="profit" data-money="${row.profit}" data-money-currency="${row.currency}" data-money-sign="+">+${formatNum(row.profit)}</td>
+            <td class="mono report-table__num" data-field="won_price" data-money="${row.won_price || 0}" data-money-currency="${row.won_currency || row.currency}">${formatNum(row.won_price || 0)} <span class="report-table__cur">${escapeHtml(row.won_currency || row.currency)}</span></td>
+            <td class="mono report-table__num" data-field="bid" data-money="${row.bid || 0}" data-money-currency="${row.bid_currency || row.currency}">${formatNum(row.bid || 0)} <span class="report-table__cur">${escapeHtml(row.bid_currency || row.currency)}</span></td>
+            <td class="mono report-table__num" data-field="cost" data-money="${row.cost}" data-money-currency="${row.cost_currency || row.currency}">${formatNum(row.cost)} <span class="report-table__cur">${escapeHtml(row.cost_currency || row.currency)}</span></td>
+            <td class="mono report-table__num" data-field="price" data-money="${row.price}" data-money-currency="${row.price_currency || row.currency}">${formatNum(row.price)} <span class="report-table__cur">${escapeHtml(row.price_currency || row.currency)}</span></td>
+            <td class="report-table__delivery">${deliveryCell}</td>
+            <td class="mono report-table__num text-green" data-field="profit" data-money="${row.profit}" data-money-currency="${row.currency}" data-money-sign="+">+${formatNum(row.profit)} <span class="report-table__cur">${escapeHtml(row.currency)}</span></td>
           </tr>`;
       }).join('');
 
@@ -227,13 +231,11 @@ const CrmReport = (() => {
   }
 
   function updateCalcPreview() {
-    const cost = Number(sanitizeDigits(formEl.cost.value)) || 0;
-    const price = Number(sanitizeDigits(formEl.price.value)) || 0;
-    const paid = Number(sanitizeDigits(formEl.paid.value)) || 0;
-    const debt = Math.max(0, price - paid);
+    const cost = Number(sanitizeDigits(formEl.cost?.value || '0')) || 0;
+    const price = Number(sanitizeDigits(formEl.price?.value || '0')) || 0;
     const profit = Math.max(0, price - cost);
-    document.getElementById('report-edit-debt').textContent = formatNum(debt);
-    document.getElementById('report-edit-profit').textContent = formatNum(profit);
+    const el = document.getElementById('report-edit-profit');
+    if (el) el.textContent = formatNum(profit);
   }
 
   function mountModal() {
@@ -254,43 +256,23 @@ const CrmReport = (() => {
     formEl.section_select.value = found.section;
     formEl.car.value = found.row.car;
     formEl.client.value = found.row.client;
-    formEl.auction.value = found.row.auction;
     formEl.stage.value = found.row.stage;
+    if (formEl.won_price) formEl.won_price.value = String(found.row.won_price || 0);
+    if (formEl.bid) formEl.bid.value = String(found.row.bid || 0);
     formEl.cost.value = String(found.row.cost || 0);
     formEl.price.value = String(found.row.price || 0);
-    formEl.paid.value = String(found.row.paid || 0);
+    if (formEl.delivery_cost) formEl.delivery_cost.value = String(found.row.delivery_cost || 0);
+    if (formEl.won_currency) formEl.won_currency.value = found.row.won_currency || 'CHF';
+    if (formEl.bid_currency) formEl.bid_currency.value = found.row.bid_currency || 'CHF';
+    if (formEl.cost_currency) formEl.cost_currency.value = found.row.cost_currency || 'CHF';
+    if (formEl.price_currency) formEl.price_currency.value = found.row.price_currency || 'CHF';
+    if (formEl.delivery_currency) formEl.delivery_currency.value = found.row.delivery_currency || 'CHF';
+    if (formEl.delivery_type) formEl.delivery_type.value = found.row.delivery_type || 'pickup';
 
     const deleteBtn = formEl.querySelector('[data-report-edit-delete]');
     const resetBtn = formEl.querySelector('[data-report-edit-reset]');
     if (deleteBtn) deleteBtn.hidden = !isCustomRow(found.row.id);
     if (resetBtn) resetBtn.hidden = !isEdited(found.row.id) || isCustomRow(found.row.id);
-
-    const dueSection = document.getElementById('report-edit-due');
-    const dueRoot = document.getElementById('report-edit-due-root');
-    if (window.CrmDuePayments && dueSection && dueRoot) {
-      dueSection.hidden = false;
-      reportDueWidget?.destroy?.();
-      reportDueWidget = CrmDuePayments.mount(dueRoot, {
-        items: getRowDuePayments(found.row),
-        currency: getRowCurrency(found.row),
-        inputClass: 'report-edit__input crm-due-widget__input',
-        syncWithToolbar: true,
-      });
-    } else {
-      reportDueWidget?.destroy?.();
-      reportDueWidget = null;
-      if (dueRoot) dueRoot.innerHTML = '';
-    }
-
-    const docRoot = document.getElementById('report-edit-doc-root');
-    if (window.CrmDocuments && docRoot) {
-      reportDocWidget = CrmDocuments.mount(docRoot, {
-        items: getRowDocuments(found.row),
-      });
-    } else {
-      reportDocWidget = null;
-      if (docRoot) docRoot.innerHTML = '';
-    }
 
     updateCalcPreview();
     modalEl.hidden = false;
@@ -308,16 +290,20 @@ const CrmReport = (() => {
       id,
       car: 'Нове авто',
       client: 'Клієнт',
-      auction: 'BCP',
       stage: 'Виграно',
+      won_price: 0,
+      bid: 0,
       cost: 0,
       price: 0,
-      paid: 0,
-      debt: 0,
+      delivery_cost: 0,
+      delivery_type: 'pickup',
       profit: 0,
       currency: 'CHF',
-      due_payments: [],
-      documents: [],
+      won_currency: 'CHF',
+      bid_currency: 'CHF',
+      cost_currency: 'CHF',
+      price_currency: 'CHF',
+      delivery_currency: 'CHF',
     });
     writeJson(EXTRA_KEY, extras);
     renderTable();
@@ -329,9 +315,6 @@ const CrmReport = (() => {
     modalEl.hidden = true;
     modalEl.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('modal-open');
-    reportDueWidget?.destroy?.();
-    reportDueWidget = null;
-    reportDocWidget = null;
     lastFocus?.focus?.();
   }
 
@@ -343,12 +326,19 @@ const CrmReport = (() => {
     const payload = recalcRow({
       car: formEl.car.value.trim(),
       client: formEl.client.value.trim(),
-      auction: formEl.auction.value,
       stage: formEl.stage.value,
+      won_price: Number(sanitizeDigits(formEl.won_price?.value || '0')) || 0,
+      bid: Number(sanitizeDigits(formEl.bid?.value || '0')) || 0,
       cost: Number(sanitizeDigits(formEl.cost.value)) || 0,
       price: Number(sanitizeDigits(formEl.price.value)) || 0,
-      paid: Number(sanitizeDigits(formEl.paid.value)) || 0,
-      currency: 'CHF',
+      delivery_cost: Number(sanitizeDigits(formEl.delivery_cost?.value || '0')) || 0,
+      delivery_type: formEl.delivery_type?.value || 'pickup',
+      currency: formEl.price_currency?.value || 'CHF',
+      won_currency: formEl.won_currency?.value || 'CHF',
+      bid_currency: formEl.bid_currency?.value || 'CHF',
+      cost_currency: formEl.cost_currency?.value || 'CHF',
+      price_currency: formEl.price_currency?.value || 'CHF',
+      delivery_currency: formEl.delivery_currency?.value || 'CHF',
     });
 
     if (!payload.car || !payload.client) {
@@ -358,40 +348,36 @@ const CrmReport = (() => {
 
     const found = findRow(id);
     const dealId = found?.row ? resolveRowDealId(found.row) : null;
-    const dueRoot = document.getElementById('report-edit-due-root');
-    const docRoot = document.getElementById('report-edit-doc-root');
-    const due_payments = reportDueWidget?.read() || (window.CrmDuePayments ? CrmDuePayments.read(dueRoot) : []);
-    const documents = reportDocWidget?.read() || (window.CrmDocuments ? CrmDocuments.read(docRoot) : []);
 
     if (dealId && window.CrmStore) {
       CrmStore.saveDealProfile(dealId, {
         car: payload.car,
         client: payload.client,
-        auction: payload.auction,
         execution_label: payload.stage,
+        won_price: payload.won_price,
+        bid: payload.bid,
         cost: payload.cost,
         price: payload.price,
-        paid: payload.paid,
-        debt: payload.debt,
+        delivery_cost: payload.delivery_cost,
+        delivery_type: payload.delivery_type,
         profit: payload.profit,
-        due_payments,
-        documents,
+        currency: payload.price_currency || payload.currency,
+        won_currency: payload.won_currency,
+        bid_currency: payload.bid_currency,
+        cost_currency: payload.cost_currency,
+        price_currency: payload.price_currency,
+        delivery_currency: payload.delivery_currency,
       });
     } else if (isCustomRow(id)) {
       const extras = readJson(EXTRA_KEY, {});
       Object.keys(extras).forEach((name) => {
-        extras[name] = extras[name].map((row) => (
-          row.id === id ? { ...row, ...payload, due_payments, documents, id } : row
-        ));
+        extras[name] = extras[name].map((row) => (row.id === id ? { ...row, ...payload, id } : row));
       });
       if (oldSection !== newSection) {
         let moved = null;
         Object.keys(extras).forEach((name) => {
           extras[name] = extras[name].filter((row) => {
-            if (row.id === id) {
-              moved = { ...row, ...payload, due_payments, documents, id };
-              return false;
-            }
+            if (row.id === id) { moved = { ...row, ...payload, id }; return false; }
             return true;
           });
         });
@@ -403,7 +389,7 @@ const CrmReport = (() => {
       writeJson(EXTRA_KEY, extras);
     } else {
       const overrides = readJson(OVERRIDE_KEY, {});
-      overrides[id] = { ...payload, due_payments, documents };
+      overrides[id] = { ...payload };
       writeJson(OVERRIDE_KEY, overrides);
     }
 
@@ -456,31 +442,32 @@ const CrmReport = (() => {
 
   function exportCsv() {
     const sections = mergeSections();
-    const lines = [['Секція', 'Авто', 'Клієнт', 'Аукціон', 'Стадія', 'Собівартість', 'Клієнту', 'Оплачено', 'Баланс', 'Місце оплати', 'Прибуток']];
+    const monthLabel = document.querySelector('[data-report-month]')?.dataset.reportMonth || '2026';
+    const lines = [['Секція', 'Авто', 'Клієнт', 'Стадія', 'Виграна', 'Ставка', 'Собівартість', 'Клієнту', 'Доставка', 'Прибуток']];
     sections.forEach((section) => {
       section.rows.forEach((row) => {
-        const duePlan = formatDuePlan(row).replace(/<[^>]+>/g, ' · ').replace(/\s+/g, ' ').trim();
+        const delivery = row.delivery_type === 'ours' ? (Number(row.delivery_cost) || 0) : '';
         lines.push([
           section.name,
           row.car,
           row.client,
-          row.auction,
           row.stage,
-          row.cost,
-          row.price,
-          row.paid,
-          row.debt,
-          duePlan === '—' ? '' : duePlan,
-          row.profit,
+          `${row.won_price || 0} ${row.won_currency || row.currency}`,
+          `${row.bid || 0} ${row.bid_currency || row.currency}`,
+          `${row.cost} ${row.cost_currency || row.currency}`,
+          `${row.price} ${row.price_currency || row.currency}`,
+          delivery ? `${delivery} ${row.delivery_currency || row.currency}` : '',
+          `${row.profit} ${row.currency}`,
         ]);
       });
     });
+    const safeMonth = String(monthLabel).replace(/\s+/g, '-').toLowerCase();
     const csv = `\ufeff${lines.map((line) => line.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(';')).join('\n')}`;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'zvit-cherven-2026.csv';
+    link.download = `zvit-${safeMonth}.csv`;
     link.click();
     URL.revokeObjectURL(url);
     if (typeof showToast === 'function') showToast('CSV завантажено', 'success');
@@ -505,7 +492,7 @@ const CrmReport = (() => {
   }
 
   function bindMoneyInputs() {
-    ['cost', 'price', 'paid'].forEach((name) => {
+    ['won_price', 'bid', 'cost', 'price', 'delivery_cost'].forEach((name) => {
       formEl[name]?.addEventListener('input', () => {
         formEl[name].value = sanitizeDigits(formEl[name].value).slice(0, 9);
         updateCalcPreview();
