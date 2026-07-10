@@ -223,18 +223,38 @@ const CrmRender = (() => {
     el.dataset.carrierId = carrier.id;
     el.dataset.crmCard = 'carriers';
     el.dataset.crmKey = carrier.id;
+    const detailUrl = `/carriers/${encodeURIComponent(carrier.id)}/`;
+    const driverHtml = carrier.driver
+      ? `<div class="trip-card__driver">👤 ${escapeHtml(carrier.driver)}</div>`
+      : '';
+    const plateHtml = carrier.plate
+      ? `<div class="trip-card__plate">🚛 ${escapeHtml(carrier.plate)}</div>`
+      : '';
+    const deals = Array.isArray(carrier.assigned_deals) ? carrier.assigned_deals : [];
+    const dealsHtml = deals.length
+      ? `<div class="trip-card__deals">
+          <span class="trip-card__deals-label">Авто на борту:</span>
+          ${deals.map((dealId) => (
+            `<a href="/deals/${encodeURIComponent(dealId)}/" class="trip-card__deal-chip">${escapeHtml(dealId)}</a>`
+          )).join('')}
+        </div>`
+      : '';
     el.innerHTML = `
-      <div class="trip-card__head">
-        <span class="trip-card__id">${escapeHtml(carrier.id)}</span>
-        <span class="wf-pill">${escapeHtml(carrier.status_label)}</span>
-      </div>
-      <div class="trip-card__meta">
-        ${escapeHtml(carrier.route)} · ${carrier.cars} авто · ${escapeHtml(carrier.departure)} → ${escapeHtml(carrier.eta)}
-      </div>
-      <div class="trip-car-row">
-        <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=80&h=60&fit=crop" alt="" class="trip-car-row__thumb" loading="lazy">
-        <span>На возі (${carrier.cars}/4)</span>
-      </div>`;
+      <a href="${detailUrl}" class="trip-card__main-link">
+        <div class="trip-card__head">
+          <span class="trip-card__id">${escapeHtml(carrier.id)}</span>
+          <span class="wf-pill">${escapeHtml(carrier.status_label)}</span>
+        </div>
+        <div class="trip-card__meta">
+          ${escapeHtml(carrier.route)} · ${carrier.cars} авто · ${escapeHtml(carrier.departure)} → ${escapeHtml(carrier.eta)}
+        </div>
+        <div class="trip-card__info">
+          ${driverHtml}
+          ${plateHtml}
+        </div>
+      </a>
+      ${dealsHtml}
+      <a href="${detailUrl}" class="trip-card__open">Відкрити</a>`;
     return markNew(el);
   }
 

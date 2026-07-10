@@ -168,6 +168,7 @@ const CrmModal = (() => {
           status: data.status,
           status_label: labels[data.status] || data.status,
           assigned_deals: assigned,
+          documents: [],
         };
       },
     },
@@ -335,8 +336,8 @@ const CrmModal = (() => {
             .then((r) => r.json())
             .then((resp) => {
               if (resp.image_url) {
+                _fetchedLotImage = resp.image_url;
                 preview.onload = () => {
-                  _fetchedLotImage = resp.image_url;
                   preview.hidden = false;
                   preview.setAttribute('aria-hidden', 'false');
                   preview.onload = null;

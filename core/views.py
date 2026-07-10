@@ -96,7 +96,49 @@ def deals_view(request):
 
 @login_required
 def deal_detail_view(request, deal_id):
-    deal = next((d for d in md.DEALS if d["id"] == deal_id), md.DEALS[0])
+    deal = next((d for d in md.DEALS if d["id"] == deal_id), None)
+    if deal is None:
+        deal = {
+            "id": deal_id,
+            "car": "",
+            "year": "",
+            "client": "",
+            "phone": "",
+            "vin": "",
+            "execution": "won",
+            "execution_label": "Виграно",
+            "payment": "pending",
+            "payment_label": "Очікує",
+            "price": 0,
+            "paid": 0,
+            "debt": 0,
+            "currency": "CHF",
+            "profit": 0,
+            "lot_url": "",
+            "image": "",
+            "logistics": {
+                "confirmed": None,
+                "picked": None,
+                "transit": None,
+                "customs": None,
+                "delivered": None,
+            },
+            "delivery_type": "pickup",
+            "auction": "BCP",
+            "won_price": 0,
+            "bid": 0,
+            "cost": 0,
+            "delivery_cost": 0,
+            "commission": 0,
+            "won_currency": "CHF",
+            "bid_currency": "CHF",
+            "cost_currency": "CHF",
+            "price_currency": "CHF",
+            "delivery_currency": "CHF",
+            "due_payments": [],
+            "documents": [],
+            "notes": "",
+        }
     deal = {
         **deal,
         "due_payments": deal.get("due_payments", []),
@@ -238,6 +280,34 @@ def leads_view(request):
 def carriers_view(request):
     return render(request, "pages/carriers.html", {
         "carriers": md.CARRIERS,
+        "page": "carriers",
+    })
+
+
+@login_required
+def carrier_detail_view(request, carrier_id):
+    carrier = next((c for c in md.CARRIERS if c["id"] == carrier_id), None)
+    if carrier is None:
+        carrier = {
+            "id": carrier_id,
+            "route": "",
+            "status": "loading",
+            "status_label": "Завантаження",
+            "cars": 0,
+            "departure": "",
+            "eta": "",
+            "driver": "",
+            "plate": "",
+            "assigned_deals": [],
+            "documents": [],
+        }
+    carrier = {
+        **carrier,
+        "assigned_deals": carrier.get("assigned_deals", []),
+        "documents": carrier.get("documents", []),
+    }
+    return render(request, "pages/carrier_detail.html", {
+        "carrier": carrier,
         "page": "carriers",
     })
 

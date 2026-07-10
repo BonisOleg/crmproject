@@ -58,6 +58,7 @@
 </head>
 <body>
   <script type="application/json" id="crm-deals-catalog">{{ crm_deals_catalog_json|safe }}</script>
+  <script type="application/json" id="crm-carriers-catalog">{{ crm_carriers_catalog_json|safe }}</script>
   {% block body %}{% endblock %}
   {% include "partials/crm_modal.html" %}
   <script src="{% static 'js/theme.js' %}" defer></script>

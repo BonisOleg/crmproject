@@ -42,4 +42,23 @@ def crm_catalog(request):
         }
         for deal in md.DEALS
     ]
-    return {"crm_deals_catalog_json": json.dumps(catalog, ensure_ascii=False)}
+    carriers_catalog = [
+        {
+            "id": carrier["id"],
+            "route": carrier.get("route", ""),
+            "status": carrier.get("status", "loading"),
+            "status_label": carrier.get("status_label", "Завантаження"),
+            "cars": carrier.get("cars", 0),
+            "departure": carrier.get("departure", ""),
+            "eta": carrier.get("eta", ""),
+            "driver": carrier.get("driver", ""),
+            "plate": carrier.get("plate", ""),
+            "assigned_deals": carrier.get("assigned_deals", []),
+            "documents": carrier.get("documents", []),
+        }
+        for carrier in md.CARRIERS
+    ]
+    return {
+        "crm_deals_catalog_json": json.dumps(catalog, ensure_ascii=False),
+        "crm_carriers_catalog_json": json.dumps(carriers_catalog, ensure_ascii=False),
+    }

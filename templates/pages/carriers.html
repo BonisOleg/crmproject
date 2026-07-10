@@ -1,6 +1,11 @@
 {% extends "layout_app.html" %}
+{% load static %}
 
 {% block title %}Автовози — Autolot CRM{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/carrier-card.css' %}">
+{% endblock %}
 
 {% block toolbar_action %}
 <button type="button" class="wf-panel-btn wf-panel-btn--green" data-open-modal="carrier">+ Рейс</button>
@@ -16,25 +21,28 @@
 <div class="carriers-list" data-carriers-list>
   {% for carrier in carriers %}
   <div class="card trip-card crm-card--deletable" data-crm-card="carriers" data-crm-key="{{ carrier.id }}" data-carrier-id="{{ carrier.id }}">
-    <div class="trip-card__head">
-      <span class="trip-card__id">{{ carrier.id }}</span>
-      <span class="wf-pill">{{ carrier.status_label }}</span>
-    </div>
-    <div class="trip-card__meta">
-      {{ carrier.route }} · {{ carrier.cars }} авто · {{ carrier.departure }} → {{ carrier.eta }}
-    </div>
-    <div class="trip-card__info">
-      {% if carrier.driver %}<div class="trip-card__driver">👤 {{ carrier.driver }}</div>{% endif %}
-      {% if carrier.plate %}<div class="trip-card__plate">🚛 {{ carrier.plate }}</div>{% endif %}
-    </div>
+    <a href="{% url 'carrier_detail' carrier.id %}" class="trip-card__main-link">
+      <div class="trip-card__head">
+        <span class="trip-card__id">{{ carrier.id }}</span>
+        <span class="wf-pill">{{ carrier.status_label }}</span>
+      </div>
+      <div class="trip-card__meta">
+        {{ carrier.route }} · {{ carrier.cars }} авто · {{ carrier.departure }} → {{ carrier.eta }}
+      </div>
+      <div class="trip-card__info">
+        {% if carrier.driver %}<div class="trip-card__driver">👤 {{ carrier.driver }}</div>{% endif %}
+        {% if carrier.plate %}<div class="trip-card__plate">🚛 {{ carrier.plate }}</div>{% endif %}
+      </div>
+    </a>
     {% if carrier.assigned_deals %}
     <div class="trip-card__deals">
       <span class="trip-card__deals-label">Авто на борту:</span>
       {% for deal_id in carrier.assigned_deals %}
-      <a href="/deals/{{ deal_id }}/" class="trip-card__deal-chip">{{ deal_id }}</a>
+      <a href="{% url 'deal_detail' deal_id %}" class="trip-card__deal-chip">{{ deal_id }}</a>
       {% endfor %}
     </div>
     {% endif %}
+    <a href="{% url 'carrier_detail' carrier.id %}" class="trip-card__open">Відкрити</a>
   </div>
   {% endfor %}
 </div>

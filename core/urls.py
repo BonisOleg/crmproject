@@ -12,6 +12,7 @@ urlpatterns = [
     path("clients/", views.clients_view, name="clients"),
     path("leads/", views.leads_view, name="leads"),
     path("carriers/", views.carriers_view, name="carriers"),
+    path("carriers/<str:carrier_id>/", views.carrier_detail_view, name="carrier_detail"),
     path("money/", views.money_view, name="money"),
     path("settings/", views.settings_view, name="settings"),
     path("api/fetch-lot-photo/", views.fetch_lot_photo_view, name="fetch_lot_photo"),

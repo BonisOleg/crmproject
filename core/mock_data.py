@@ -364,6 +364,7 @@ CARRIERS = [
         "driver": "Михайло Коваль",
         "plate": "CH-ZH 4821",
         "assigned_deals": ["AL-2026-047", "AL-2026-043"],
+        "documents": [],
     },
     {
         "id": "TR-011",
@@ -376,6 +377,7 @@ CARRIERS = [
         "driver": "Василь Петренко",
         "plate": "CH-BE 3109",
         "assigned_deals": ["AL-2026-045", "AL-2026-042"],
+        "documents": [],
     },
 ]
 

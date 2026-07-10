@@ -1,0 +1,134 @@
+{% extends "layout_app.html" %}
+{% load static %}
+
+{% block title %}{{ carrier.id }} — Автовоз — Autolot CRM{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/deal-card.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/carrier-card.css' %}">
+{% endblock %}
+
+{% block toolbar_action %}
+<a href="{% url 'carriers' %}" class="wf-panel-btn wf-panel-btn--dark">← До рейсів</a>
+{% endblock %}
+
+{% block content %}
+<div class="carrier-detail" data-carrier-page data-carrier-id="{{ carrier.id }}">
+  <div class="page-head">
+    <div>
+      <h1 class="page-head__title" data-carrier-page-title>{{ carrier.id }}</h1>
+      <p class="page-head__sub" data-carrier-page-sub>{{ carrier.route }} · {{ carrier.status_label }}</p>
+    </div>
+    <span class="wf-pill" data-carrier-status-pill>{{ carrier.status_label }}</span>
+  </div>
+
+  <div class="carrier-detail-grid">
+    <div class="carrier-detail-grid__info">
+      <div class="card carrier-info-card">
+        <div class="card__header">
+          <h3 class="card__title">Інформація про рейс</h3>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-item__label">Водій</div>
+            <div class="info-item__value" data-carrier-info="driver">{{ carrier.driver|default:"—" }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item__label">Номер автовоза</div>
+            <div class="info-item__value mono" data-carrier-info="plate">{{ carrier.plate|default:"—" }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item__label">Маршрут</div>
+            <div class="info-item__value" data-carrier-info="route">{{ carrier.route|default:"—" }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item__label">Кількість авто</div>
+            <div class="info-item__value" data-carrier-info="cars">{{ carrier.cars }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item__label">Відправлення</div>
+            <div class="info-item__value mono" data-carrier-info="departure">{{ carrier.departure|default:"—" }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item__label">ETA</div>
+            <div class="info-item__value mono" data-carrier-info="eta">{{ carrier.eta|default:"—" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card carrier-deals-card">
+        <div class="card__header">
+          <h3 class="card__title">Авто на борту</h3>
+          <span class="badge-tag" data-carrier-deals-count>{{ carrier.assigned_deals|length }}</span>
+        </div>
+        <div class="carrier-deals-list" data-carrier-deals-list>
+          {% if carrier.assigned_deals %}
+            {% for deal_id in carrier.assigned_deals %}
+            <a href="{% url 'deal_detail' deal_id %}" class="carrier-deal-chip">{{ deal_id }}</a>
+            {% endfor %}
+          {% else %}
+            <p class="carrier-deals-empty text-muted">Немає призначених угод</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="carrier-detail-grid__form">
+      <form class="card deal-unified" id="carrier-unified-form">
+        <div class="deal-unified__head">
+          <div>
+            <h2 class="deal-unified__title">Редагувати рейс</h2>
+            <p class="deal-unified__status" data-carrier-save-status>Зміни зберігаються у картці автовоза</p>
+          </div>
+          <span class="mono" style="font-size:12px;font-weight:700">{{ carrier.id }}</span>
+        </div>
+
+        <div class="deal-unified__grid">
+          <label class="deal-unified__group">
+            <span>Водій</span>
+            <input class="deal-unified__input" type="text" name="driver" required maxlength="80" autocomplete="name">
+          </label>
+          <label class="deal-unified__group">
+            <span>Номер автовоза</span>
+            <input class="deal-unified__input" type="text" name="plate" required maxlength="40" autocomplete="off">
+          </label>
+          <label class="deal-unified__group deal-unified__grid--wide">
+            <span>Маршрут</span>
+            <input class="deal-unified__input" type="text" name="route" required maxlength="120" autocomplete="off">
+          </label>
+          <label class="deal-unified__group">
+            <span>Кількість авто</span>
+            <input class="deal-unified__input" type="text" name="cars" required inputmode="numeric" maxlength="2" autocomplete="off">
+          </label>
+          <label class="deal-unified__group">
+            <span>Статус</span>
+            <select class="deal-unified__input" name="status">
+              <option value="loading">Завантаження</option>
+              <option value="in_transit">В дорозі</option>
+            </select>
+          </label>
+          <label class="deal-unified__group">
+            <span>Відправлення</span>
+            <input class="deal-unified__input" type="date" name="departure" required>
+          </label>
+          <label class="deal-unified__group">
+            <span>ETA</span>
+            <input class="deal-unified__input" type="date" name="eta" required>
+          </label>
+        </div>
+
+        <section class="deal-unified__section deal-unified__section--docs">
+          <div data-doc-root></div>
+        </section>
+
+        <div class="deal-unified__actions">
+          <button type="submit" class="btn btn--primary btn--sm">Зберегти картку</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/crm-carrier-card.js' %}" defer></script>
+{% endblock %}

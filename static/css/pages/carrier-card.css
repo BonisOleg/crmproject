@@ -1,0 +1,128 @@
+.carrier-detail .page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.carrier-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+@media (min-width: 1024px) {
+  .carrier-detail-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+    align-items: start;
+  }
+}
+
+@media (max-width: 1023px) {
+  .carrier-detail-grid__form {
+    order: -1;
+  }
+}
+
+.carrier-detail-grid__info {
+  display: grid;
+  gap: 16px;
+}
+
+.carrier-info-card .info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .carrier-info-card .info-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.carrier-deals-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.carrier-deal-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border, var(--wf-border));
+  background: var(--wf-surface, var(--surface));
+  color: var(--text, var(--wf-text));
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.carrier-deal-chip:hover {
+  border-color: var(--accent, #3b82f6);
+  color: var(--accent, #3b82f6);
+}
+
+.carrier-deals-empty {
+  margin: 0;
+  font-size: 13px;
+}
+
+.trip-card {
+  position: relative;
+}
+
+.trip-card__main-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.trip-card__open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border, var(--wf-border));
+  background: var(--wf-surface, var(--surface));
+  color: var(--text, var(--wf-text));
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.trip-card__open:hover {
+  border-color: var(--accent, #3b82f6);
+  color: var(--accent, #3b82f6);
+}
+
+@supports (-webkit-touch-callout: none) {
+  .carrier-detail .deal-unified__input {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .carrier-detail .deal-unified__actions {
+    flex-direction: column;
+  }
+
+  .carrier-detail .deal-unified__actions .btn {
+    width: 100%;
+  }
+
+  .trip-card__open {
+    width: 100%;
+  }
+}

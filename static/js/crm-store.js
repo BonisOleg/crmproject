@@ -6,6 +6,7 @@ const CrmStore = (() => {
     carriers: 'autolot-custom-carriers',
     payments: 'autolot-custom-payments',
     dealOverrides: 'autolot-deal-overrides',
+    carrierOverrides: 'autolot-carrier-overrides',
   };
 
   const HIDDEN_KEY = 'autolot-hidden-items';
@@ -153,6 +154,55 @@ const CrmStore = (() => {
     return overrides[dealId];
   }
 
+  function readCarrierCatalog() {
+    const node = document.getElementById('crm-carriers-catalog');
+    if (!node) return [];
+    try {
+      const parsed = JSON.parse(node.textContent || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function readCarrierOverrides() {
+    try {
+      const raw = localStorage.getItem(KEYS.carrierOverrides);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function writeCarrierOverrides(data) {
+    localStorage.setItem(KEYS.carrierOverrides, JSON.stringify(data));
+  }
+
+  function getCarrier(carrierId) {
+    const custom = read('carriers').find((item) => item.id === carrierId);
+    const base = readCarrierCatalog().find((item) => item.id === carrierId);
+    const source = custom || base;
+    if (!source) return null;
+    const override = readCarrierOverrides()[carrierId] || {};
+    return { ...source, ...override };
+  }
+
+  function saveCarrierProfile(carrierId, patch) {
+    const overrides = readCarrierOverrides();
+    overrides[carrierId] = { ...(overrides[carrierId] || {}), ...patch };
+    writeCarrierOverrides(overrides);
+
+    const items = read('carriers');
+    const idx = items.findIndex((item) => item.id === carrierId);
+    if (idx >= 0) {
+      items[idx] = { ...items[idx], ...patch };
+      write('carriers', items);
+    }
+
+    document.dispatchEvent(new CustomEvent('crm:carrier-updated', { detail: { carrierId } }));
+    return overrides[carrierId];
+  }
+
   function dealToReportRow(deal) {
     const cost = deal.cost ?? Math.round((Number(deal.price) || 0) * 0.82);
     const price = Number(deal.price) || 0;
@@ -208,6 +258,8 @@ const CrmStore = (() => {
     todayISO,
     getDeal,
     saveDealProfile,
+    getCarrier,
+    saveCarrierProfile,
     dealToReportRow,
     listDealsForSelect,
     saveDealOverride,
