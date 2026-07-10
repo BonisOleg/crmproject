@@ -73,6 +73,55 @@ const CrmDealCard = (() => {
     root.addEventListener('crm:doc-changed', () => saveProfile(false));
   }
 
+  function refreshMedia() {
+    if (!deal) return;
+
+    const fallback = window.CrmRender?.DEFAULT_CAR_IMAGE || '';
+    const imageUrl = deal.image || fallback;
+    const mainImg = document.querySelector('[data-deal-gallery-main]');
+    const thumbImg = document.querySelector('[data-deal-gallery-thumb]');
+
+    if (mainImg && imageUrl) {
+      mainImg.src = imageUrl;
+      mainImg.alt = deal.car || '';
+      mainImg.onerror = () => {
+        if (fallback && mainImg.src !== fallback) mainImg.src = fallback;
+      };
+    }
+    if (thumbImg && imageUrl) {
+      thumbImg.src = imageUrl;
+      thumbImg.onerror = () => {
+        if (fallback && thumbImg.src !== fallback) thumbImg.src = fallback;
+      };
+    }
+
+    const setText = (selector, value) => {
+      const el = document.querySelector(selector);
+      if (el) el.textContent = value;
+    };
+
+    const deliveryLabel = deal.delivery_type === 'ours'
+      ? 'Наша'
+      : deal.delivery_type === 'theirs'
+        ? 'Їхня'
+        : 'Самовивіз';
+    setText('[data-deal-info-delivery]', deliveryLabel);
+    setText('[data-deal-info-vin]', deal.vin || 'Не вказано');
+    setText('[data-deal-info-client]', `${deal.client || '—'} · ${deal.phone || ''}`.trim());
+
+    const lotLink = document.querySelector('[data-deal-info-lot]');
+    if (lotLink) {
+      if (deal.lot_url) {
+        lotLink.href = deal.lot_url;
+        lotLink.hidden = false;
+        lotLink.textContent = 'auto-lot.com ↗';
+      } else {
+        lotLink.removeAttribute('href');
+        lotLink.hidden = true;
+      }
+    }
+  }
+
   function refreshFinance() {
     if (!deal) return;
     CrmPayments.updateDealDetailFinance(deal);
@@ -82,6 +131,7 @@ const CrmDealCard = (() => {
     if (titleEl) titleEl.textContent = deal.car;
     const subEl = document.querySelector('[data-deal-page-sub]');
     if (subEl) subEl.textContent = `${deal.year || ''} · ${deal.client}`;
+    refreshMedia();
   }
 
   function saveProfile(showNotice = true) {
@@ -132,6 +182,9 @@ const CrmDealCard = (() => {
       notes: form.notes.value.trim(),
       due_payments,
       documents,
+      image: deal.image || '',
+      lot_url: deal.lot_url || '',
+      year: deal.year || '',
     };
 
     CrmStore.saveDealProfile(dealId, patch);

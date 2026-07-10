@@ -9,7 +9,7 @@
   data-deal-debt="{{ deal.debt }}"
   data-deal-search="{{ deal.id|lower }} {{ deal.car|lower }} {{ deal.client|lower }} {{ deal.year }} {{ deal.vin|lower }}"
 >
-  <img src="{{ deal.image }}" alt="{{ deal.car }}" class="deal-row__thumb" loading="lazy">
+  <img src="{{ deal.image }}" alt="{{ deal.car }}" class="deal-row__thumb" loading="lazy" referrerpolicy="no-referrer">
   <div class="deal-row__main">
     <div class="deal-row__top">
       <span class="deal-row__title">{{ deal.car }}</span>

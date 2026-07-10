@@ -146,7 +146,7 @@ const CrmRender = (() => {
       ? `<div class="deal-row__debt">${moneyText(deal.debt, deal.currency, { prefix: 'борг ' })}</div>`
       : '<div class="deal-row__debt text-green">✓ оплачено</div>';
     el.innerHTML = `
-      <img src="${escapeHtml(deal.image || DEFAULT_CAR_IMAGE)}" alt="${escapeHtml(deal.car)}" class="deal-row__thumb" loading="lazy">
+      <img src="${escapeHtml(deal.image || DEFAULT_CAR_IMAGE)}" alt="${escapeHtml(deal.car)}" class="deal-row__thumb" loading="lazy" referrerpolicy="no-referrer">
       <div class="deal-row__main">
         <div class="deal-row__top">
           <span class="deal-row__title">${escapeHtml(deal.car)}</span>

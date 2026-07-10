@@ -11,7 +11,7 @@
   data-deal-search="{{ deal.id|lower }} {{ deal.car|lower }} {{ deal.client|lower }} {{ deal.year }} {{ deal.vin|lower }}"
 >
   <div class="deal-card__image-wrap">
-    <img src="{{ deal.image }}" alt="{{ deal.car }}" class="deal-card__image" loading="lazy">
+    <img src="{{ deal.image }}" alt="{{ deal.car }}" class="deal-card__image" loading="lazy" referrerpolicy="no-referrer">
     <div class="deal-card__badges">
       <span class="pill pill--{{ deal.execution }}"><span class="pill__dot"></span>{{ deal.execution_label }}</span>
       <span class="pill pill--{{ deal.payment }}"><span class="pill__dot"></span>{{ deal.payment_label }}</span>

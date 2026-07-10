@@ -22,10 +22,9 @@
 <div class="deal-detail-grid" data-deal-page data-deal-id="{{ deal.id }}">
   <div class="deal-detail-grid__media">
     <div class="deal-gallery animate-fade-up" data-reveal>
-      <img src="{{ deal.image }}" alt="{{ deal.car }}" class="deal-gallery__main">
+      <img src="{{ deal.image }}" alt="{{ deal.car }}" class="deal-gallery__main" data-deal-gallery-main referrerpolicy="no-referrer">
       <div class="deal-gallery__thumbs">
-        <img src="{{ deal.image }}" alt="" class="deal-gallery__thumb">
-        <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=200&h=120&fit=crop" alt="" class="deal-gallery__thumb">
+        <img src="{{ deal.image }}" alt="" class="deal-gallery__thumb" data-deal-gallery-thumb referrerpolicy="no-referrer">
       </div>
     </div>
 
@@ -62,19 +61,22 @@
       <div class="info-grid" style="margin-top:20px">
         <div class="info-item">
           <div class="info-item__label">Тип доставки</div>
-          <div class="info-item__value">{% if deal.delivery_type == 'ours' %}Наша{% elif deal.delivery_type == 'theirs' %}Їхня{% else %}Самовивіз{% endif %}</div>
+          <div class="info-item__value" data-deal-info-delivery>{% if deal.delivery_type == 'ours' %}Наша{% elif deal.delivery_type == 'theirs' %}Їхня{% else %}Самовивіз{% endif %}</div>
         </div>
         <div class="info-item">
           <div class="info-item__label">Лот</div>
-          <div class="info-item__value"><a href="{{ deal.lot_url }}" class="text-accent" target="_blank" rel="noopener">auto-lot.com ↗</a></div>
+          <div class="info-item__value">
+            <a href="{{ deal.lot_url }}" class="text-accent" target="_blank" rel="noopener" data-deal-info-lot {% if not deal.lot_url %}hidden{% endif %}>auto-lot.com ↗</a>
+            {% if not deal.lot_url %}<span class="text-muted" data-deal-info-lot-empty>—</span>{% endif %}
+          </div>
         </div>
         <div class="info-item">
           <div class="info-item__label">VIN</div>
-          <div class="info-item__value mono">{% if deal.vin %}{{ deal.vin }}{% else %}<span class="text-amber">Не вказано</span>{% endif %}</div>
+          <div class="info-item__value mono" data-deal-info-vin>{% if deal.vin %}{{ deal.vin }}{% else %}<span class="text-amber">Не вказано</span>{% endif %}</div>
         </div>
         <div class="info-item">
           <div class="info-item__label">Клієнт</div>
-          <div class="info-item__value">{{ deal.client }} · {{ deal.phone }}</div>
+          <div class="info-item__value" data-deal-info-client>{{ deal.client }} · {{ deal.phone }}</div>
         </div>
       </div>
     </div>

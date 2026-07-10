@@ -150,6 +150,14 @@ const CrmStore = (() => {
     const overrides = readOverrides();
     overrides[dealId] = { ...(overrides[dealId] || {}), ...patch };
     writeOverrides(overrides);
+
+    const items = read('deals');
+    const idx = items.findIndex((item) => item.id === dealId);
+    if (idx >= 0) {
+      items[idx] = { ...items[idx], ...patch };
+      write('deals', items);
+    }
+
     document.dispatchEvent(new CustomEvent('crm:deal-updated', { detail: { dealId } }));
     return overrides[dealId];
   }

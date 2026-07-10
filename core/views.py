@@ -115,7 +115,7 @@ def deal_detail_view(request, deal_id):
             "currency": "CHF",
             "profit": 0,
             "lot_url": "",
-            "image": "",
+            "image": "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&h=260&fit=crop",
             "logistics": {
                 "confirmed": None,
                 "picked": None,
@@ -215,12 +215,32 @@ def fetch_lot_photo_view(request):
     except Exception:
         return JsonResponse({"error": "Помилка при отриманні сторінки"}, status=502)
 
-    pattern = r'<img[^>]+src=["\']([^"\']+)["\'][^>]*>'
-    matches = re.findall(pattern, html, re.IGNORECASE)
-    image_url = next(
-        (m for m in matches if any(ext in m.lower() for ext in (".jpg", ".jpeg", ".png", ".webp"))),
-        None,
+    og_match = re.search(
+        r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']',
+        html,
+        re.IGNORECASE,
     )
+    if not og_match:
+        og_match = re.search(
+            r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']',
+            html,
+            re.IGNORECASE,
+        )
+
+    pattern = r'(?:src|data-src)=["\']([^"\']+)["\']'
+    matches = re.findall(pattern, html, re.IGNORECASE)
+    image_candidates = [
+        m for m in matches
+        if any(ext in m.lower() for ext in (".jpg", ".jpeg", ".png", ".webp"))
+        and "logo" not in m.lower()
+        and "icon" not in m.lower()
+    ]
+
+    image_url = None
+    if og_match:
+        image_url = og_match.group(1)
+    elif image_candidates:
+        image_url = image_candidates[0]
 
     if not image_url:
         return JsonResponse({"error": "Фото не знайдено на сторінці"}, status=404)

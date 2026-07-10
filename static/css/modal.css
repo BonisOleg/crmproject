@@ -284,9 +284,11 @@
 
   .crm-modal__dialog {
     width: 100%;
-    max-height: min(92vh, 100%);
+    max-height: min(92dvh, 100%);
+    max-height: min(92svh, 100%);
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .crm-modal__row {
@@ -295,11 +297,31 @@
 
   .crm-modal__actions {
     flex-direction: column-reverse;
+    position: sticky;
+    bottom: 0;
+    background: var(--surface, var(--wf-surface, #111));
+    padding-top: 12px;
+    margin-top: 8px;
   }
 
   .crm-modal__actions .btn {
     width: 100%;
     min-width: 0;
+    min-height: 44px;
+  }
+
+  .crm-modal__lot-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .crm-modal__lot-row .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .crm-modal__amount-row {
+    flex-wrap: wrap;
   }
 }
 
@@ -311,8 +333,11 @@
 }
 
 body.modal-open {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
   overflow: hidden;
-  touch-action: none;
 }
 
 .crm-modal__message {

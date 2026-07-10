@@ -250,6 +250,19 @@ const CrmModal = (() => {
   let dealDueWidget = null;
   let dealDocWidget = null;
   let _fetchedLotImage = '';
+  let scrollLockY = 0;
+
+  function lockBodyScroll() {
+    scrollLockY = window.scrollY || window.pageYOffset || 0;
+    document.body.classList.add('modal-open');
+    document.body.style.top = `-${scrollLockY}px`;
+  }
+
+  function unlockBodyScroll() {
+    document.body.classList.remove('modal-open');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollLockY);
+  }
 
   function init() {
     modalEl = document.getElementById('crm-modal');
@@ -384,17 +397,23 @@ const CrmModal = (() => {
 
     modalEl.hidden = false;
     modalEl.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('modal-open');
+    lockBodyScroll();
 
-    const firstInput = formEl.querySelector('.crm-modal__input, .crm-modal__select, .crm-modal__textarea');
-    window.requestAnimationFrame(() => firstInput?.focus());
+    const isMobile = window.matchMedia('(max-width: 640px)').matches;
+    if (!isMobile) {
+      const firstInput = formEl.querySelector('.crm-modal__input, .crm-modal__select, .crm-modal__textarea');
+      window.requestAnimationFrame(() => firstInput?.focus());
+    } else {
+      formEl.scrollTop = 0;
+      modalEl.querySelector('.crm-modal__dialog')?.scrollTo?.(0, 0);
+    }
   }
 
   function close() {
     if (!modalEl) return;
     modalEl.hidden = true;
     modalEl.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('modal-open');
+    unlockBodyScroll();
     formEl.innerHTML = '';
     activeType = null;
     openOptions = {};
@@ -509,7 +528,7 @@ const CrmModal = (() => {
             <input class="crm-modal__input" id="${id}" type="url" name="${field.name}" placeholder="${escapeHtml(field.placeholder || '')}">
             <button type="button" class="btn btn--ghost btn--sm" data-fetch-lot-photo>Підтягнути фото</button>
           </div>
-          <img class="crm-modal__lot-preview" data-lot-preview hidden alt="" aria-hidden="true">
+          <img class="crm-modal__lot-preview" data-lot-preview hidden alt="" aria-hidden="true" referrerpolicy="no-referrer">
           <p class="crm-modal__error" data-error-for="${field.name}" hidden></p>
         </div>`;
     }
@@ -667,6 +686,9 @@ const CrmModal = (() => {
         due_payments,
         documents,
         notes: '',
+        image: item.image || '',
+        lot_url: item.lot_url || '',
+        year: item.year || '',
         logistics: { confirmed: CrmStore.todayISO(), picked: null, transit: null, customs: null, delivered: null },
       });
       if (window.CrmReport) CrmReport.addDealFromStore(CrmStore.getDeal(item.id));
@@ -779,7 +801,7 @@ const CrmModal = (() => {
 
     modalEl.hidden = false;
     modalEl.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('modal-open');
+    lockBodyScroll();
 
     const confirmBtn = document.getElementById('crm-modal-confirm-btn');
     confirmBtn?.focus();
