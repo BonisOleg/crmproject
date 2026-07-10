@@ -394,12 +394,17 @@ body.modal-open {
 }
 
 .crm-modal__lot-preview {
+  display: block;
   width: 100%;
   max-height: 140px;
   object-fit: cover;
   border-radius: 10px;
   margin-top: 8px;
   border: 1px solid var(--border, var(--wf-border));
+}
+
+.crm-modal__lot-preview[hidden] {
+  display: none;
 }
 
 /* amount+currency inline */

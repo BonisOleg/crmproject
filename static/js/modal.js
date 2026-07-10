@@ -308,11 +308,25 @@ const CrmModal = (() => {
       const lotInput = formEl.querySelector('[name="lot_url"]');
       const preview = formEl.querySelector('[data-lot-preview]');
       if (fetchBtn && lotInput && preview) {
+        const hidePreview = () => {
+          preview.hidden = true;
+          preview.removeAttribute('src');
+          preview.setAttribute('aria-hidden', 'true');
+        };
+        hidePreview();
+
+        preview.addEventListener('error', () => {
+          _fetchedLotImage = '';
+          hidePreview();
+          if (typeof showToast === 'function') showToast('Не вдалося завантажити фото', 'info');
+        });
+
         fetchBtn.addEventListener('click', () => {
           const url = lotInput.value.trim();
           if (!url) { if (typeof showToast === 'function') showToast('Введіть посилання', 'info'); return; }
           fetchBtn.disabled = true;
           fetchBtn.textContent = '…';
+          hidePreview();
           fetch('/api/fetch-lot-photo/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
@@ -321,10 +335,14 @@ const CrmModal = (() => {
             .then((r) => r.json())
             .then((resp) => {
               if (resp.image_url) {
-                _fetchedLotImage = resp.image_url;
+                preview.onload = () => {
+                  _fetchedLotImage = resp.image_url;
+                  preview.hidden = false;
+                  preview.setAttribute('aria-hidden', 'false');
+                  preview.onload = null;
+                  if (typeof showToast === 'function') showToast('Фото підтягнуто', 'success');
+                };
                 preview.src = resp.image_url;
-                preview.hidden = false;
-                if (typeof showToast === 'function') showToast('Фото підтягнуто', 'success');
               } else {
                 if (typeof showToast === 'function') showToast(resp.error || 'Фото не знайдено', 'info');
               }
@@ -490,7 +508,7 @@ const CrmModal = (() => {
             <input class="crm-modal__input" id="${id}" type="url" name="${field.name}" placeholder="${escapeHtml(field.placeholder || '')}">
             <button type="button" class="btn btn--ghost btn--sm" data-fetch-lot-photo>Підтягнути фото</button>
           </div>
-          <img class="crm-modal__lot-preview" data-lot-preview hidden alt="Фото авто">
+          <img class="crm-modal__lot-preview" data-lot-preview hidden alt="" aria-hidden="true">
           <p class="crm-modal__error" data-error-for="${field.name}" hidden></p>
         </div>`;
     }
