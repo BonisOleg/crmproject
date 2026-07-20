@@ -141,7 +141,11 @@ CSRF_COOKIE_SECURE = _is_prod
 
 if _is_prod:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() in ('1', 'true', 'yes')
+    # На Vercel дефолт без примусового редіректу (їхній edge уже HTTPS)
+    _ssl_default = 'False' if _on_vercel else 'True'
+    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', _ssl_default).lower() in (
+        '1', 'true', 'yes',
+    )
     SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '31536000'))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -184,17 +188,39 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Vercel: лише /tmp доступний для запису
+if _on_vercel:
+    MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', '/tmp/media'))
+else:
+    MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', str(BASE_DIR / 'media')))
+try:
+    MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+except OSError:
+    MEDIA_ROOT = Path('/tmp/media')
+    MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', str(BASE_DIR / 'media')))
-MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+        # На Vercel collectstatic часто відсутній — без compressed-manifest
+        'BACKEND': (
+            'django.contrib.staticfiles.storage.StaticFilesStorage'
+            if _on_vercel
+            else 'whitenoise.storage.CompressedStaticFilesStorage'
+        ),
     },
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# На Vercel без явного DATABASE_URL — ephemeral SQLite у /tmp
+if _on_vercel and not _database_url:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/tmp/db.sqlite3',
+    }
 

@@ -36,28 +36,28 @@ class Command(BaseCommand):
         is_prod = bool(
             os.environ.get('RENDER')
             or os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-            or os.environ.get('VERCEL')
         )
+        # Vercel ephemeral: дозволяємо дефолтні паролі, якщо env не задано
+        on_vercel = bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
         force_reset = os.environ.get('CRM_FORCE_DEMO_PASSWORD', '').lower() in (
             '1', 'true', 'yes',
         )
-        # У prod пароль з env застосовуємо лише при створенні, або з CRM_FORCE_DEMO_PASSWORD
-        reset_existing = (not is_prod) or force_reset
+        reset_existing = (not is_prod) or force_reset or on_vercel
 
         demo_password = os.environ.get('CRM_DEMO_PASSWORD')
         admin_password = os.environ.get('CRM_ADMIN_PASSWORD')
 
-        if is_prod and not demo_password:
+        if is_prod and not on_vercel and not demo_password:
             self.stdout.write(
                 self.style.WARNING('CRM_DEMO_PASSWORD не задано — demo-користувача пропущено')
             )
-        if is_prod and not admin_password:
+        if is_prod and not on_vercel and not admin_password:
             self.stdout.write(
                 self.style.WARNING('CRM_ADMIN_PASSWORD не задано — admin-користувача пропущено')
             )
 
         accounts = []
-        if demo_password or not is_prod:
+        if demo_password or not is_prod or on_vercel:
             accounts.append({
                 'email': os.environ.get('CRM_DEMO_EMAIL', 'timofiy@auto-lot.com'),
                 'password': demo_password or 'AutoLot2026!',
@@ -65,7 +65,7 @@ class Command(BaseCommand):
                 'is_superuser': False,
                 'label': 'demo',
             })
-        if admin_password or not is_prod:
+        if admin_password or not is_prod or on_vercel:
             accounts.append({
                 'email': os.environ.get('CRM_ADMIN_EMAIL', 'admin@auto-lot.com'),
                 'password': admin_password or 'AdminLot2026!',
@@ -80,7 +80,7 @@ class Command(BaseCommand):
                 account['password'],
                 account['first_name'],
                 is_superuser=account['is_superuser'],
-                reset_password=created or reset_existing,
+                reset_password=reset_existing,
             )
             action = 'Створено' if created else 'Оновлено'
             self.stdout.write(f'{action} {account["label"]}-користувача: {user.username}')
