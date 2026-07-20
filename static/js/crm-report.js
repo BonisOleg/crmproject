@@ -1,14 +1,14 @@
 /**
- * Місячні звіти Виграні / Підтверджені (localStorage + rollover)
+ * Місячні звіти Виграні / Підтверджені (сервер / API)
  */
 const CrmReport = (() => {
-  const ACTIVE_MONTH_KEY = 'autolot-report-active-month';
-  const ARCHIVE_KEY = 'autolot-report-archive';
   const COL_COUNT = 8;
   const TYPE_STAGE = { won: 'Виграно', confirmed: 'Підтверджено' };
   const STAGE_TYPE = { Виграно: 'won', Підтверджено: 'confirmed' };
 
   let baseRows = [];
+  let extras = [];
+  let overrides = {};
   let reportType = 'won';
   let monthKey = '';
   let monthLabel = '';
@@ -19,25 +19,20 @@ const CrmReport = (() => {
   let tbodyEl;
   let lastFocus = null;
 
-  function readJson(key, fallback) {
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch {
-      return fallback;
-    }
+  function readJson(_key, fallback) {
+    return fallback;
   }
 
-  function writeJson(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+  function writeJson() {
+    /* SoT — сервер */
   }
 
-  function overrideKey(month, type) {
-    return `autolot-report-overrides:${month}:${type}`;
+  function overrideKey() {
+    return '';
   }
 
-  function extraKey(month, type) {
-    return `autolot-report-extras:${month}:${type}`;
+  function extraKey() {
+    return '';
   }
 
   function readMeta() {
@@ -124,32 +119,22 @@ const CrmReport = (() => {
     return recalcRow({ ...row, ...(overrides[row.id] || {}) });
   }
 
-  function getArchiveSnap() {
-    if (!readonly) return null;
-    const archive = readJson(ARCHIVE_KEY, {});
-    return archive[monthKey]?.[reportType] || null;
-  }
-
   function getOverrides() {
-    const snap = getArchiveSnap();
-    if (snap?.overrides) return snap.overrides;
-    return readJson(overrideKey(monthKey, reportType), {});
+    return overrides;
   }
 
   function getExtras() {
-    const snap = getArchiveSnap();
-    if (Array.isArray(snap?.extras)) return snap.extras;
-    return readJson(extraKey(monthKey, reportType), []);
+    return extras;
   }
 
   function setOverrides(value) {
     if (readonly) return;
-    writeJson(overrideKey(monthKey, reportType), value);
+    overrides = value || {};
   }
 
   function setExtras(value) {
     if (readonly) return;
-    writeJson(extraKey(monthKey, reportType), value);
+    extras = Array.isArray(value) ? value : [];
   }
 
   function mergeRows() {
@@ -191,33 +176,10 @@ const CrmReport = (() => {
     return Boolean(getOverrides()[id]) || isCustomRow(id);
   }
 
-  function snapshotMonth(prevMonth) {
-    if (!prevMonth) return;
-    const archive = readJson(ARCHIVE_KEY, {});
-    const snapshot = { won: [], confirmed: [] };
-    ['won', 'confirmed'].forEach((type) => {
-      const overrides = readJson(overrideKey(prevMonth, type), {});
-      const extras = readJson(extraKey(prevMonth, type), []);
-      snapshot[type] = {
-        overrides,
-        extras,
-        savedAt: new Date().toISOString(),
-      };
-    });
-    archive[prevMonth] = snapshot;
-    writeJson(ARCHIVE_KEY, archive);
-  }
-
   function ensureMonthRollover(serverActiveMonth) {
     const nowMonth = serverActiveMonth || calendarMonthKey();
-    const stored = localStorage.getItem(ACTIVE_MONTH_KEY);
-    if (!stored) {
-      localStorage.setItem(ACTIVE_MONTH_KEY, nowMonth);
-      return nowMonth;
-    }
-    if (stored !== nowMonth) {
-      snapshotMonth(stored);
-      localStorage.setItem(ACTIVE_MONTH_KEY, nowMonth);
+    if (window.CrmApi) {
+      CrmApi.reports.rollover().catch(() => {});
     }
     return nowMonth;
   }

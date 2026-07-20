@@ -348,15 +348,16 @@ const CrmModal = (() => {
           })
             .then((r) => r.json())
             .then((resp) => {
-              if (resp.image_url) {
-                _fetchedLotImage = resp.image_url;
+              const imageUrl = resp.image_url || resp.data?.image_url;
+              if (imageUrl) {
+                _fetchedLotImage = imageUrl;
                 preview.onload = () => {
                   preview.hidden = false;
                   preview.setAttribute('aria-hidden', 'false');
                   preview.onload = null;
                   if (typeof showToast === 'function') showToast('Фото підтягнуто', 'success');
                 };
-                preview.src = resp.image_url;
+                preview.src = imageUrl;
               } else {
                 if (typeof showToast === 'function') showToast(resp.error || 'Фото не знайдено', 'info');
               }
@@ -633,7 +634,7 @@ const CrmModal = (() => {
     }
   }
 
-  function onSubmit(event) {
+  async function onSubmit(event) {
     event.preventDefault();
     const type = formEl.dataset.modalType;
     const config = FORMS[type];
@@ -659,50 +660,64 @@ const CrmModal = (() => {
     const storeType = config.storeType;
 
     if (storeType === 'payments') {
-      const result = CrmPayments.record(item);
-      if (!result) {
-        if (typeof showToast === 'function') showToast('Угоду не знайдено', 'info');
-        return;
-      }
-      CrmPayments.refreshUI(result);
-      close();
-      if (typeof showToast === 'function') {
-        showToast(successMessage('payment', item, result.deal), 'success');
+      try {
+        const result = await CrmPayments.record(item);
+        if (!result) {
+          if (typeof showToast === 'function') showToast('Угоду не знайдено', 'info');
+          return;
+        }
+        CrmPayments.refreshUI(result);
+        close();
+        if (typeof showToast === 'function') {
+          showToast(successMessage('payment', item, result.deal), 'success');
+        }
+      } catch {
+        /* toast у CrmApi/CrmStore */
       }
       return;
     }
 
-    CrmStore.addItem(storeType, item);
-    CrmRender.append(storeType, item);
-    CrmRender.notifyAdded(storeType, item);
+    try {
+      const saved = await CrmStore.addItem(storeType, item);
+      CrmRender.append(storeType, saved);
+      CrmRender.notifyAdded(storeType, saved);
 
-    if (type === 'deal') {
-      const dueRoot = formEl.querySelector('[data-due-root]');
-      const docRoot = formEl.querySelector('[data-doc-root]');
-      const due_payments = dealDueWidget?.read() || (window.CrmDuePayments ? CrmDuePayments.read(dueRoot) : []);
-      const documents = dealDocWidget?.read() || (window.CrmDocuments ? CrmDocuments.read(docRoot) : []);
-      CrmStore.saveDealProfile(item.id, {
-        auction: 'BCP',
-        due_payments,
-        documents,
-        notes: '',
-        image: item.image || '',
-        lot_url: item.lot_url || '',
-        year: item.year || '',
-        logistics: { confirmed: CrmStore.todayISO(), picked: null, transit: null, customs: null, delivered: null },
-      });
-      if (window.CrmReport) CrmReport.addDealFromStore(CrmStore.getDeal(item.id));
-    }
+      if (type === 'deal') {
+        const dueRoot = formEl.querySelector('[data-due-root]');
+        const docRoot = formEl.querySelector('[data-doc-root]');
+        const due_payments = dealDueWidget?.read() || (window.CrmDuePayments ? CrmDuePayments.read(dueRoot) : []);
+        const documents = dealDocWidget?.read() || (window.CrmDocuments ? CrmDocuments.read(docRoot) : []);
+        await CrmStore.saveDealProfile(saved.id, {
+          auction: 'BCP',
+          due_payments,
+          documents,
+          notes: '',
+          image: saved.image || item.image || '',
+          lot_url: saved.lot_url || item.lot_url || '',
+          year: saved.year || item.year || '',
+          logistics: {
+            confirmed: CrmStore.todayISO(),
+            picked: null,
+            transit: null,
+            customs: null,
+            delivered: null,
+          },
+        });
+        if (window.CrmReport) CrmReport.addDealFromStore(CrmStore.getDeal(saved.id));
+      }
 
-    close();
-    if (typeof showToast === 'function') {
-      showToast(successMessage(type, item), 'success');
-    }
+      close();
+      if (typeof showToast === 'function') {
+        showToast(successMessage(type, saved), 'success');
+      }
 
-    if (type === 'carrier' && window.location.pathname.includes('/cockpit')) {
-      window.setTimeout(() => {
-        window.location.href = '/carriers/';
-      }, 700);
+      if (type === 'carrier' && window.location.pathname.includes('/cockpit')) {
+        window.setTimeout(() => {
+          window.location.href = '/carriers/';
+        }, 700);
+      }
+    } catch {
+      /* toast у CrmApi/CrmStore */
     }
   }
 

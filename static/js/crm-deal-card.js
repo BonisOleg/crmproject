@@ -134,7 +134,7 @@ const CrmDealCard = (() => {
     refreshMedia();
   }
 
-  function saveProfile(showNotice = true) {
+  async function saveProfile(showNotice = true) {
     const form = document.getElementById('deal-unified-form');
     if (!form || !dealId) return;
 
@@ -187,12 +187,15 @@ const CrmDealCard = (() => {
       year: deal.year || '',
     };
 
-    CrmStore.saveDealProfile(dealId, patch);
-    deal = CrmStore.getDeal(dealId);
-    refreshFinance();
-
-    if (showNotice && typeof showToast === 'function') {
-      showToast('Картку угоди збережено · звіт оновлено', 'success');
+    try {
+      await CrmStore.saveDealProfile(dealId, patch);
+      deal = CrmStore.getDeal(dealId);
+      refreshFinance();
+      if (showNotice && typeof showToast === 'function') {
+        showToast('Картку угоди збережено · звіт оновлено', 'success');
+      }
+    } catch {
+      /* toast у CrmStore */
     }
   }
 

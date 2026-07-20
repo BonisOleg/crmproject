@@ -170,11 +170,11 @@ const CrmDelete = (() => {
     });
   }
 
-  function performDelete(type, key, isCustom) {
-    if (isCustom) {
-      CrmStore.removeItem(type, key);
-    } else {
-      CrmStore.markHidden(type, key);
+  async function performDelete(type, key, isCustom) {
+    try {
+      await CrmStore.removeItem(type, key);
+    } catch {
+      return;
     }
 
     removeFromDom(type, key);

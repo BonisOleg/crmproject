@@ -58,12 +58,16 @@
   {% block extra_css %}{% endblock %}
 </head>
 <body>
+  {% csrf_token %}
   <script type="application/json" id="crm-deals-catalog">{{ crm_deals_catalog_json|safe }}</script>
   <script type="application/json" id="crm-carriers-catalog">{{ crm_carriers_catalog_json|safe }}</script>
   {% block body %}{% endblock %}
   {% include "partials/crm_modal.html" %}
   <script src="{% static 'js/theme.js' %}" defer></script>
+  <script src="{% static 'js/crm-api.js' %}" defer></script>
   <script src="{% static 'js/crm-store.js' %}" defer></script>
+  <script src="{% static 'js/crm-report.js' %}" defer></script>
+  <script src="{% static 'js/crm-report-2.js' %}" defer></script>
   <script src="{% static 'js/crm-payments.js' %}" defer></script>
   <script src="{% static 'js/crm-validation.js' %}" defer></script>
   <script src="{% static 'js/crm-route.js' %}" defer></script>

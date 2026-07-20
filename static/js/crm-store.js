@@ -1,165 +1,24 @@
+/**
+ * CRM store — in-memory cache + Django API (не localStorage як SoT).
+ */
 const CrmStore = (() => {
-  const KEYS = {
-    clients: 'autolot-custom-clients',
-    leads: 'autolot-custom-leads',
-    deals: 'autolot-custom-deals',
-    carriers: 'autolot-custom-carriers',
-    payments: 'autolot-custom-payments',
-    dealOverrides: 'autolot-deal-overrides',
-    carrierOverrides: 'autolot-carrier-overrides',
+  const cache = {
+    clients: [],
+    leads: [],
+    deals: [],
+    carriers: [],
+    payments: [],
   };
-
-  const HIDDEN_KEY = 'autolot-hidden-items';
-
-  const BASE_IDS = {
-    leads: 21,
-    deals: 47,
-    carriers: 12,
-  };
-
-  function read(type) {
-    try {
-      const raw = localStorage.getItem(KEYS[type]);
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  function write(type, items) {
-    localStorage.setItem(KEYS[type], JSON.stringify(items));
-  }
-
-  function readHidden() {
-    try {
-      const raw = localStorage.getItem(HIDDEN_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
-  }
-
-  function writeHidden(data) {
-    localStorage.setItem(HIDDEN_KEY, JSON.stringify(data));
-  }
-
-  function itemKey(type, item) {
-    if (type === 'clients') return item.name;
-    return item.id;
-  }
-
-  function getItems(type) {
-    return read(type);
-  }
-
-  function addItem(type, item) {
-    const items = read(type);
-    items.unshift(item);
-    write(type, items);
-    return item;
-  }
-
-  function removeItem(type, key) {
-    const items = read(type).filter((item) => itemKey(type, item) !== key);
-    write(type, items);
-  }
-
-  function markHidden(type, key) {
-    const hidden = readHidden();
-    if (!hidden[type]) hidden[type] = [];
-    if (!hidden[type].includes(key)) hidden[type].push(key);
-    writeHidden(hidden);
-  }
-
-  function isHidden(type, key) {
-    return readHidden()[type]?.includes(key) ?? false;
-  }
-
-  function nextId(type) {
-    const items = read(type);
-    let max = BASE_IDS[type] || 0;
-
-    items.forEach((item) => {
-      const match = String(item.id || '').match(/(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > max) max = num;
-      }
-    });
-
-    const next = max + 1;
-
-    if (type === 'leads') return `RQ-${String(next).padStart(3, '0')}`;
-    if (type === 'deals') return `AL-2026-${String(next).padStart(3, '0')}`;
-    if (type === 'carriers') return `TR-${String(next).padStart(3, '0')}`;
-    return String(next);
-  }
-
-  function todayISO() {
-    return new Date().toISOString().slice(0, 10);
-  }
-
-  const FALLBACK_CATALOG = [
-    { id: 'AL-2026-047', car: 'BMW X5 xDrive40i', debt: 18500, currency: 'CHF', paid: 0, price: 18500 },
-    { id: 'AL-2026-046', car: 'Mercedes GLC 300', debt: 9200, currency: 'EUR', paid: 0, price: 9200 },
-    { id: 'AL-2026-045', car: 'Audi Q7 55 TFSI', debt: 0, currency: 'CHF', paid: 42000, price: 42000 },
-  ];
 
   function readCatalog() {
     const node = document.getElementById('crm-deals-catalog');
-    if (!node) return FALLBACK_CATALOG;
+    if (!node) return [];
     try {
       const parsed = JSON.parse(node.textContent || '[]');
-      return parsed.length ? parsed : FALLBACK_CATALOG;
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
-      return FALLBACK_CATALOG;
+      return [];
     }
-  }
-
-  function readOverrides() {
-    try {
-      const raw = localStorage.getItem(KEYS.dealOverrides);
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
-  }
-
-  function writeOverrides(data) {
-    localStorage.setItem(KEYS.dealOverrides, JSON.stringify(data));
-  }
-
-  function readPayments() {
-    return read('payments');
-  }
-
-  function addPayment(payment) {
-    return addItem('payments', payment);
-  }
-
-  function getDeal(dealId) {
-    const custom = read('deals').find((item) => item.id === dealId);
-    const base = readCatalog().find((item) => item.id === dealId);
-    const source = custom || base;
-    if (!source) return null;
-    const override = readOverrides()[dealId] || {};
-    return { ...source, ...override };
-  }
-
-  function saveDealProfile(dealId, patch) {
-    const overrides = readOverrides();
-    overrides[dealId] = { ...(overrides[dealId] || {}), ...patch };
-    writeOverrides(overrides);
-
-    const items = read('deals');
-    const idx = items.findIndex((item) => item.id === dealId);
-    if (idx >= 0) {
-      items[idx] = { ...items[idx], ...patch };
-      write('deals', items);
-    }
-
-    document.dispatchEvent(new CustomEvent('crm:deal-updated', { detail: { dealId } }));
-    return overrides[dealId];
   }
 
   function readCarrierCatalog() {
@@ -173,42 +32,179 @@ const CrmStore = (() => {
     }
   }
 
-  function readCarrierOverrides() {
+  function hydrate() {
+    const deals = readCatalog();
+    if (deals.length) cache.deals = deals.slice();
+    const carriers = readCarrierCatalog();
+    if (carriers.length) cache.carriers = carriers.slice();
+  }
+
+  hydrate();
+
+  function todayISO() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function upsert(type, item, keyFn) {
+    const key = keyFn(item);
+    const idx = cache[type].findIndex((row) => keyFn(row) === key);
+    if (idx >= 0) cache[type][idx] = { ...cache[type][idx], ...item };
+    else cache[type].unshift(item);
+    return item;
+  }
+
+  function getItems(type) {
+    return (cache[type] || []).slice();
+  }
+
+  function itemKey(type, item) {
+    if (type === 'clients') return item.name || item.pk || item.id;
+    return item.id || item.pk;
+  }
+
+  async function addItem(type, item) {
+    if (!window.CrmApi) {
+      upsert(type, item, (row) => itemKey(type, row));
+      return item;
+    }
+    let saved = item;
     try {
-      const raw = localStorage.getItem(KEYS.carrierOverrides);
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
+      if (type === 'clients') {
+        saved = await CrmApi.clients.create(item);
+      } else if (type === 'leads') {
+        saved = await CrmApi.leads.create(item);
+      } else if (type === 'deals') {
+        saved = await CrmApi.deals.create(item);
+      } else if (type === 'carriers') {
+        saved = await CrmApi.carriers.create(item);
+      } else if (type === 'payments') {
+        const result = await CrmApi.payments.create(item);
+        saved = result.payment || item;
+        if (result.deal) {
+          upsert('deals', { id: result.deal.id, ...result.deal }, (row) => row.id);
+        }
+      }
+    } catch (err) {
+      if (typeof showToast === 'function') showToast(err.message || 'Помилка збереження', 'info');
+      throw err;
+    }
+    upsert(type, saved, (row) => itemKey(type, row));
+    return saved;
+  }
+
+  async function removeItem(type, key) {
+    const item = (cache[type] || []).find((row) => itemKey(type, row) === key);
+    cache[type] = (cache[type] || []).filter((row) => itemKey(type, row) !== key);
+    if (!window.CrmApi) return;
+    try {
+      if (type === 'clients') {
+        let pk = item?.pk;
+        if (!pk) {
+          const list = await CrmApi.clients.list();
+          pk = list.find((row) => row.name === key)?.pk;
+        }
+        if (pk) await CrmApi.clients.remove(pk);
+      } else if (type === 'leads') {
+        await CrmApi.leads.remove(item?.id || key);
+      } else if (type === 'deals') {
+        await CrmApi.deals.remove(item?.id || key);
+      } else if (type === 'carriers') {
+        await CrmApi.carriers.remove(item?.id || key);
+      }
+    } catch (err) {
+      if (typeof showToast === 'function') showToast(err.message || 'Помилка видалення', 'info');
+      throw err;
     }
   }
 
-  function writeCarrierOverrides(data) {
-    localStorage.setItem(KEYS.carrierOverrides, JSON.stringify(data));
+  function markHidden() {
+    /* soft-delete йде через API; hidden LS більше не SoT */
+  }
+
+  function isHidden() {
+    return false;
+  }
+
+  function nextId(type) {
+    const items = getItems(type).concat(type === 'deals' ? readCatalog() : []);
+    let max = type === 'leads' ? 21 : type === 'deals' ? 47 : type === 'carriers' ? 12 : 0;
+    items.forEach((item) => {
+      const match = String(item.id || '').match(/(\d+)$/);
+      if (match) max = Math.max(max, parseInt(match[1], 10));
+    });
+    const next = max + 1;
+    if (type === 'leads') return `RQ-${String(next).padStart(3, '0')}`;
+    if (type === 'deals') {
+      const year = new Date().getFullYear();
+      return `AL-${year}-${String(next).padStart(3, '0')}`;
+    }
+    if (type === 'carriers') return `TR-${String(next).padStart(3, '0')}`;
+    return String(next);
+  }
+
+  function getDeal(dealId) {
+    return cache.deals.find((item) => item.id === dealId)
+      || readCatalog().find((item) => item.id === dealId)
+      || null;
+  }
+
+  async function saveDealProfile(dealId, patch) {
+    const current = getDeal(dealId) || { id: dealId };
+    const merged = { ...current, ...patch, id: dealId };
+    upsert('deals', merged, (row) => row.id);
+    document.dispatchEvent(new CustomEvent('crm:deal-updated', { detail: { dealId } }));
+
+    if (!window.CrmApi) return merged;
+    try {
+      const saved = await CrmApi.deals.update(dealId, patch);
+      upsert('deals', saved, (row) => row.id);
+      if (Array.isArray(patch.due_payments)) {
+        await CrmApi.deals.duePayments(dealId, patch.due_payments);
+      }
+      document.dispatchEvent(new CustomEvent('crm:deal-updated', { detail: { dealId } }));
+      return saved;
+    } catch (err) {
+      if (typeof showToast === 'function') showToast(err.message || 'Помилка оновлення угоди', 'info');
+      throw err;
+    }
+  }
+
+  function saveDealOverride(dealId, patch) {
+    return saveDealProfile(dealId, patch);
+  }
+
+  function putDeal(deal) {
+    if (!deal?.id) return deal;
+    return upsert('deals', deal, (row) => row.id);
+  }
+
+  function putCarrier(carrier) {
+    if (!carrier?.id) return carrier;
+    return upsert('carriers', carrier, (row) => row.id);
   }
 
   function getCarrier(carrierId) {
-    const custom = read('carriers').find((item) => item.id === carrierId);
-    const base = readCarrierCatalog().find((item) => item.id === carrierId);
-    const source = custom || base;
-    if (!source) return null;
-    const override = readCarrierOverrides()[carrierId] || {};
-    return { ...source, ...override };
+    return cache.carriers.find((item) => item.id === carrierId)
+      || readCarrierCatalog().find((item) => item.id === carrierId)
+      || null;
   }
 
-  function saveCarrierProfile(carrierId, patch) {
-    const overrides = readCarrierOverrides();
-    overrides[carrierId] = { ...(overrides[carrierId] || {}), ...patch };
-    writeCarrierOverrides(overrides);
-
-    const items = read('carriers');
-    const idx = items.findIndex((item) => item.id === carrierId);
-    if (idx >= 0) {
-      items[idx] = { ...items[idx], ...patch };
-      write('carriers', items);
-    }
-
+  async function saveCarrierProfile(carrierId, patch) {
+    const current = getCarrier(carrierId) || { id: carrierId };
+    const merged = { ...current, ...patch, id: carrierId };
+    upsert('carriers', merged, (row) => row.id);
     document.dispatchEvent(new CustomEvent('crm:carrier-updated', { detail: { carrierId } }));
-    return overrides[carrierId];
+
+    if (!window.CrmApi) return merged;
+    try {
+      const saved = await CrmApi.carriers.update(carrierId, patch);
+      upsert('carriers', saved, (row) => row.id);
+      document.dispatchEvent(new CustomEvent('crm:carrier-updated', { detail: { carrierId } }));
+      return saved;
+    } catch (err) {
+      if (typeof showToast === 'function') showToast(err.message || 'Помилка оновлення рейсу', 'info');
+      throw err;
+    }
   }
 
   function dealToReportRow(deal) {
@@ -243,16 +239,17 @@ const CrmStore = (() => {
 
   function listDealsForSelect() {
     const map = new Map();
-    readCatalog().forEach((deal) => map.set(deal.id, { ...deal, ...(readOverrides()[deal.id] || {}) }));
-    read('deals').forEach((deal) => map.set(deal.id, { ...deal, ...(readOverrides()[deal.id] || {}) }));
+    readCatalog().forEach((deal) => map.set(deal.id, deal));
+    cache.deals.forEach((deal) => map.set(deal.id, deal));
     return Array.from(map.values());
   }
 
-  function saveDealOverride(dealId, patch) {
-    const overrides = readOverrides();
-    overrides[dealId] = { ...(overrides[dealId] || {}), ...patch };
-    writeOverrides(overrides);
-    return overrides[dealId];
+  async function addPayment(payment) {
+    return addItem('payments', payment);
+  }
+
+  function readPayments() {
+    return getItems('payments');
   }
 
   return {
@@ -273,6 +270,9 @@ const CrmStore = (() => {
     saveDealOverride,
     addPayment,
     readPayments,
+    hydrate,
+    putDeal,
+    putCarrier,
   };
 })();
 

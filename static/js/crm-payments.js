@@ -18,30 +18,38 @@ const CrmPayments = (() => {
     return amount;
   }
 
-  function record(payment) {
+  async function record(payment) {
     const deal = CrmStore.getDeal(payment.dealId);
     if (!deal) return null;
+
+    if (window.CrmApi) {
+      const result = await CrmApi.payments.create(payment);
+      const updated = {
+        ...deal,
+        ...(result.deal || {}),
+        id: (result.deal && result.deal.id) || payment.dealId,
+      };
+      CrmStore.putDeal?.(updated);
+      document.dispatchEvent(new CustomEvent('crm:deal-updated', { detail: { dealId: updated.id } }));
+      return {
+        dealId: payment.dealId,
+        deal: updated,
+        payment: result.payment || payment,
+      };
+    }
 
     const amountInDealCurrency = convertAmount(payment.amount, payment.currency, deal.currency);
     const paid = Math.min(deal.price, (deal.paid || 0) + amountInDealCurrency);
     const debt = Math.max(0, deal.price - paid);
     const status = paymentStatus(paid, deal.price, debt);
-
     const patch = {
       paid,
       debt,
       payment: status.payment,
       payment_label: status.payment_label,
     };
-
-    CrmStore.saveDealOverride(payment.dealId, patch);
-    CrmStore.addPayment(payment);
-
-    return {
-      dealId: payment.dealId,
-      deal: { ...deal, ...patch },
-      payment,
-    };
+    await CrmStore.saveDealOverride(payment.dealId, patch);
+    return { dealId: payment.dealId, deal: { ...deal, ...patch }, payment };
   }
 
   function formatMoney(amount, currency) {

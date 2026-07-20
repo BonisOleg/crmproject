@@ -40,12 +40,9 @@
     window.requestAnimationFrame(() => formEl.car.focus());
   }
 
-  function openNewRow() {
+  async function openNewRow() {
     if (R.state.readonly) return;
-    const id = `RPT-NEW-${Date.now()}`;
-    const extras = R.getExtras();
-    extras.push({
-      id,
+    const draft = {
       car: 'Нове авто',
       client: 'Клієнт',
       stage: R.defaultStage(),
@@ -62,7 +59,26 @@
       cost_currency: 'CHF',
       price_currency: 'CHF',
       delivery_currency: 'CHF',
-    });
+      month: R.state.monthKey,
+      type: R.state.reportType,
+    };
+    try {
+      if (window.CrmApi) {
+        const saved = await CrmApi.reports.add(draft);
+        const extras = R.getExtras();
+        extras.push(saved);
+        R.setExtras(extras);
+        R.renderTable();
+        openEditor(saved.id);
+        return;
+      }
+    } catch (err) {
+      if (typeof showToast === 'function') showToast(err.message || 'Не вдалося додати рядок', 'info');
+      return;
+    }
+    const id = `RPT-NEW-${Date.now()}`;
+    const extras = R.getExtras();
+    extras.push({ ...draft, id });
     R.setExtras(extras);
     R.renderTable();
     openEditor(id);
@@ -77,7 +93,7 @@
     lastFocus?.focus?.();
   }
 
-  function saveRow(event) {
+  async function saveRow(event) {
     event.preventDefault();
     if (R.state.readonly) return;
     const formEl = R.state.formEl;
@@ -107,35 +123,47 @@
 
     const found = R.findRow(id);
     const dealId = found ? R.resolveRowDealId(found) : null;
+    const pk = found?.pk;
 
-    if (dealId && window.CrmStore) {
-      CrmStore.saveDealProfile(dealId, {
-        car: payload.car,
-        client: payload.client,
-        execution_label: payload.stage,
-        won_price: payload.won_price,
-        bid: payload.bid,
-        cost: payload.cost,
-        price: payload.price,
-        delivery_cost: payload.delivery_cost,
-        delivery_type: payload.delivery_type,
-        profit: payload.profit,
-        currency: payload.price_currency || payload.currency,
-        won_currency: payload.won_currency,
-        bid_currency: payload.bid_currency,
-        cost_currency: payload.cost_currency,
-        price_currency: payload.price_currency,
-        delivery_currency: payload.delivery_currency,
-      });
-    } else if (R.isCustomRow(id)) {
-      const extras = R.getExtras().map((row) => (
-        row.id === id ? { ...row, ...payload, id } : row
-      ));
-      R.setExtras(extras);
-    } else {
-      const overrides = R.getOverrides();
-      overrides[id] = { ...payload };
-      R.setOverrides(overrides);
+    try {
+      if (dealId && window.CrmStore) {
+        await CrmStore.saveDealProfile(dealId, {
+          car: payload.car,
+          client: payload.client,
+          execution_label: payload.stage,
+          won_price: payload.won_price,
+          bid: payload.bid,
+          cost: payload.cost,
+          price: payload.price,
+          delivery_cost: payload.delivery_cost,
+          delivery_type: payload.delivery_type,
+          profit: payload.profit,
+          currency: payload.price_currency || payload.currency,
+          won_currency: payload.won_currency,
+          bid_currency: payload.bid_currency,
+          cost_currency: payload.cost_currency,
+          price_currency: payload.price_currency,
+          delivery_currency: payload.delivery_currency,
+        });
+      } else if (pk && window.CrmApi) {
+        const saved = await CrmApi.reports.update(pk, payload);
+        if (R.isCustomRow(id)) {
+          R.setExtras(R.getExtras().map((row) => (row.id === id ? { ...row, ...saved } : row)));
+        } else {
+          const overrides = R.getOverrides();
+          overrides[id] = { ...payload };
+          R.setOverrides(overrides);
+        }
+      } else if (R.isCustomRow(id)) {
+        R.setExtras(R.getExtras().map((row) => (row.id === id ? { ...row, ...payload, id } : row)));
+      } else {
+        const next = R.getOverrides();
+        next[id] = { ...payload };
+        R.setOverrides(next);
+      }
+    } catch (err) {
+      if (typeof showToast === 'function') showToast(err.message || 'Помилка збереження', 'info');
+      return;
     }
 
     R.renderTable();
@@ -154,14 +182,21 @@
     if (typeof showToast === 'function') showToast('Рядок повернуто до початкових даних', 'info');
   }
 
-  function deleteRow() {
+  async function deleteRow() {
     if (R.state.readonly) return;
     const id = R.state.formEl.row_id.value;
     if (!R.isCustomRow(id)) return;
+    const found = R.findRow(id);
+    try {
+      if (found?.pk && window.CrmApi) await CrmApi.reports.remove(found.pk);
+    } catch (err) {
+      if (typeof showToast === 'function') showToast(err.message || 'Помилка видалення', 'info');
+      return;
+    }
     R.setExtras(R.getExtras().filter((row) => row.id !== id));
-    const overrides = R.getOverrides();
-    delete overrides[id];
-    R.setOverrides(overrides);
+    const next = R.getOverrides();
+    delete next[id];
+    R.setOverrides(next);
     R.renderTable();
     closeEditor();
     if (typeof showToast === 'function') showToast('Рядок видалено', 'info');
@@ -234,35 +269,70 @@
     if (execution === 'confirmed') return 'confirmed';
     if (execution === 'won') return 'won';
     const label = deal?.execution_label || deal?.stage;
-    return R.STAGE_TYPE[label] || 'won';
+    return R.STAGE_TYPE[label] || null;
   }
 
   function addDealFromStore(deal) {
     if (!deal?.id) return;
     const type = resolveDealReportType(deal);
-    const month = R.state.activeMonthKey || R.calendarMonthKey();
     if (type !== 'won' && type !== 'confirmed') return;
 
-    const key = R.extraKey(month, type);
-    const extras = R.readJson(key, []);
-    if (extras.some((row) => row.deal_id === deal.id || row.id === deal.id)) return;
-
-    extras.unshift({
+    const month = R.ensureMonthRollover(
+      R.state.activeMonthKey || R.calendarMonthKey()
+    );
+    const row = {
       id: deal.id,
       deal_id: deal.id,
       ...(window.CrmStore ? CrmStore.dealToReportRow(deal) : {}),
       stage: R.TYPE_STAGE[type],
-    });
-    R.writeJson(key, extras);
+    };
 
+    /* Сервер sync_deal_to_reports уже пише в БД; тут лише UI поточного місяця */
     if (
       !R.state.readonly
       && R.state.monthKey === month
-      && R.state.reportType === type
       && R.state.tbodyEl
     ) {
+      if (R.state.reportType === type) {
+        const extras = R.getExtras().filter(
+          (item) => item.deal_id !== deal.id && item.id !== deal.id
+        );
+        const base = (R.state.baseRows || []).filter(
+          (item) => item.deal_id !== deal.id && item.id !== deal.id
+        );
+        const existing = (R.state.baseRows || []).find(
+          (item) => item.deal_id === deal.id || item.id === deal.id
+        );
+        R.setState({
+          baseRows: existing
+            ? base.concat([{ ...existing, ...row, id: existing.id, pk: existing.pk }])
+            : base,
+        });
+        if (!existing) {
+          extras.unshift(row);
+          R.setExtras(extras);
+        } else {
+          R.setExtras(extras);
+        }
+      } else {
+        R.setState({
+          baseRows: (R.state.baseRows || []).filter(
+            (item) => item.deal_id !== deal.id && item.id !== deal.id
+          ),
+        });
+        R.setExtras(R.getExtras().filter(
+          (item) => item.deal_id !== deal.id && item.id !== deal.id
+        ));
+      }
       R.renderTable();
     }
+  }
+
+  function syncDealToReport(event) {
+    const dealId = event?.detail?.dealId;
+    if (!dealId || !window.CrmStore) return;
+    const deal = CrmStore.getDeal(dealId);
+    if (deal) addDealFromStore(deal);
   }
 
   function mergeSections() {
@@ -339,6 +409,8 @@
     originalRender();
     bindRowHandlers();
   };
+
+  document.addEventListener('crm:deal-updated', syncDealToReport);
 })();
 
 document.addEventListener('DOMContentLoaded', () => {

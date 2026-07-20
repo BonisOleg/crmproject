@@ -1,64 +1,27 @@
 import json
 
-from . import mock_data as md
+from .models import Carrier, Deal
+from .serializers import serialize_carrier, serialize_deal
 
 
 def crm_catalog(request):
-    catalog = [
-        {
-            "id": deal["id"],
-            "car": deal["car"],
-            "year": deal.get("year"),
-            "client": deal["client"],
-            "phone": deal.get("phone", ""),
-            "vin": deal.get("vin", ""),
-            "lot_url": deal.get("lot_url", ""),
-            "image": deal.get("image", ""),
-            "price": deal["price"],
-            "paid": deal["paid"],
-            "debt": deal["debt"],
-            "currency": deal["currency"],
-            "payment": deal["payment"],
-            "payment_label": deal["payment_label"],
-            "auction": deal.get("auction", "BCP"),
-            "cost": deal.get("cost", 0),
-            "won_price": deal.get("won_price", 0),
-            "bid": deal.get("bid", 0),
-            "delivery_cost": deal.get("delivery_cost", 0),
-            "delivery_type": deal.get("delivery_type", "pickup"),
-            "commission": deal.get("commission", 0),
-            "won_currency": deal.get("won_currency", deal.get("currency", "CHF")),
-            "bid_currency": deal.get("bid_currency", deal.get("currency", "CHF")),
-            "cost_currency": deal.get("cost_currency", deal.get("currency", "CHF")),
-            "price_currency": deal.get("price_currency", deal.get("currency", "CHF")),
-            "delivery_currency": deal.get("delivery_currency", deal.get("currency", "CHF")),
-            "execution": deal.get("execution"),
-            "execution_label": deal.get("execution_label"),
-            "profit": deal.get("profit"),
-            "logistics": deal.get("logistics", {}),
-            "due_payments": deal.get("due_payments", []),
-            "documents": deal.get("documents", []),
-            "notes": deal.get("notes", ""),
+    if not getattr(request, 'user', None) or not request.user.is_authenticated:
+        return {
+            'crm_deals_catalog_json': '[]',
+            'crm_carriers_catalog_json': '[]',
         }
-        for deal in md.DEALS
-    ]
-    carriers_catalog = [
-        {
-            "id": carrier["id"],
-            "route": carrier.get("route", ""),
-            "status": carrier.get("status", "loading"),
-            "status_label": carrier.get("status_label", "Завантаження"),
-            "cars": carrier.get("cars", 0),
-            "departure": carrier.get("departure", ""),
-            "eta": carrier.get("eta", ""),
-            "driver": carrier.get("driver", ""),
-            "plate": carrier.get("plate", ""),
-            "assigned_deals": carrier.get("assigned_deals", []),
-            "documents": carrier.get("documents", []),
-        }
-        for carrier in md.CARRIERS
-    ]
+
+    deals = Deal.objects.filter(is_active=True).prefetch_related(
+        'due_payments', 'documents', 'client'
+    )
+    carriers = Carrier.objects.filter(is_active=True).prefetch_related(
+        'deals', 'documents'
+    )
     return {
-        "crm_deals_catalog_json": json.dumps(catalog, ensure_ascii=False),
-        "crm_carriers_catalog_json": json.dumps(carriers_catalog, ensure_ascii=False),
+        'crm_deals_catalog_json': json.dumps(
+            [serialize_deal(d) for d in deals], ensure_ascii=False
+        ),
+        'crm_carriers_catalog_json': json.dumps(
+            [serialize_carrier(c) for c in carriers], ensure_ascii=False
+        ),
     }

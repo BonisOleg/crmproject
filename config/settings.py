@@ -20,13 +20,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-uq0uu-9s2v_v^o0ab)x4=%bwt)an8q%@za10$o03f+)fq$%1y8'
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-uq0uu-9s2v_v^o0ab)x4=%bwt)an8q%@za10$o03f+)fq$%1y8',
+)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app']
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        'ALLOWED_HOSTS',
+        'localhost,127.0.0.1,.vercel.app,.onrender.com',
+    ).split(',')
+    if host.strip()
+]
 
 _vercel_url = os.environ.get('VERCEL_URL', '').strip()
 _vercel_host = ''
@@ -34,6 +42,10 @@ if _vercel_url:
     _vercel_host = _vercel_url.removeprefix('https://').removeprefix('http://').rstrip('/')
     if _vercel_host:
         ALLOWED_HOSTS.append(_vercel_host)
+
+_render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if _render_host and _render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_render_host)
 
 CSRF_TRUSTED_ORIGINS = [
     f'https://{host}' for host in ALLOWED_HOSTS if host and not host.startswith('.')
@@ -44,8 +56,14 @@ if _vercel_url and _vercel_host:
     if _vercel_origin not in CSRF_TRUSTED_ORIGINS:
         CSRF_TRUSTED_ORIGINS.append(_vercel_origin)
 
-_on_vercel = bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
+if _render_host:
+    _render_origin = f'https://{_render_host}'
+    if _render_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(_render_origin)
 
+_on_vercel = bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
+_on_render = bool(os.environ.get('RENDER') or os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
+_is_prod = _on_vercel or _on_render or (not DEBUG)
 
 # Application definition
 
@@ -61,6 +79,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -100,7 +119,16 @@ DATABASES = {
     }
 }
 
-if os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'):
+_database_url = os.environ.get('DATABASE_URL', '').strip()
+if _database_url:
+    import dj_database_url
+
+    DATABASES['default'] = dj_database_url.parse(
+        _database_url,
+        conn_max_age=600,
+        ssl_require=_is_prod,
+    )
+elif os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'):
     DATABASES['default']['NAME'] = '/tmp/db.sqlite3'
 
 LOGIN_URL = 'login'
@@ -108,8 +136,15 @@ LOGIN_REDIRECT_URL = 'cockpit'
 LOGOUT_REDIRECT_URL = 'login'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = _on_vercel
-CSRF_COOKIE_SECURE = _on_vercel
+SESSION_COOKIE_SECURE = _is_prod
+CSRF_COOKIE_SECURE = _is_prod
+
+if _is_prod:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() in ('1', 'true', 'yes')
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
 # Password validation
@@ -148,3 +183,18 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', str(BASE_DIR / 'media')))
+MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
+}
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

@@ -96,7 +96,7 @@ const CrmCarrierCard = (() => {
     }
   }
 
-  function saveProfile(showNotice = true) {
+  async function saveProfile(showNotice = true) {
     const form = document.getElementById('carrier-unified-form');
     if (!form || !carrierId) return;
 
@@ -119,12 +119,15 @@ const CrmCarrierCard = (() => {
       assigned_deals: Array.isArray(carrier?.assigned_deals) ? carrier.assigned_deals : [],
     };
 
-    CrmStore.saveCarrierProfile(carrierId, patch);
-    carrier = CrmStore.getCarrier(carrierId);
-    refreshInfo();
-
-    if (showNotice && typeof showToast === 'function') {
-      showToast('Картку автовоза збережено', 'success');
+    try {
+      await CrmStore.saveCarrierProfile(carrierId, patch);
+      carrier = CrmStore.getCarrier(carrierId);
+      refreshInfo();
+      if (showNotice && typeof showToast === 'function') {
+        showToast('Картку автовоза збережено', 'success');
+      }
+    } catch {
+      /* toast у CrmStore */
     }
   }
 
