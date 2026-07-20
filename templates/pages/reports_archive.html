@@ -71,7 +71,7 @@
 ></div>
 
 <div class="card report-table-wrap report-table-wrap--readonly">
-  <table class="data-table report-table">
+  <table class="data-table report-table data-table--cards">
     <thead>
       <tr>
         <th>Авто</th>
@@ -87,14 +87,14 @@
     <tbody id="report-table-body">
       {% for row in report_rows %}
       <tr data-report-row data-report-id="{{ row.id }}">
-        <td><strong>{{ row.car }}</strong></td>
-        <td>{{ row.client }}</td>
-        <td class="mono report-table__num" data-field="won_price" data-money="{{ row.won_price|default:0 }}" data-money-currency="{{ row.won_currency|default:row.currency }}">{{ row.won_price|default:0|floatformat:0 }} <span class="report-table__cur">{{ row.won_currency|default:row.currency }}</span></td>
-        <td class="mono report-table__num" data-field="bid" data-money="{{ row.bid|default:0 }}" data-money-currency="{{ row.bid_currency|default:row.currency }}">{{ row.bid|default:0|floatformat:0 }} <span class="report-table__cur">{{ row.bid_currency|default:row.currency }}</span></td>
-        <td class="mono report-table__num" data-field="cost" data-money="{{ row.cost }}" data-money-currency="{{ row.cost_currency|default:row.currency }}">{{ row.cost|floatformat:0 }} <span class="report-table__cur">{{ row.cost_currency|default:row.currency }}</span></td>
-        <td class="mono report-table__num" data-field="price" data-money="{{ row.price }}" data-money-currency="{{ row.price_currency|default:row.currency }}">{{ row.price|floatformat:0 }} <span class="report-table__cur">{{ row.price_currency|default:row.currency }}</span></td>
-        <td class="report-table__delivery">{% if row.delivery_type == 'ours' and row.delivery_cost %}{{ row.delivery_cost|floatformat:0 }} <span class="report-table__cur">{{ row.delivery_currency|default:row.currency }}</span>{% else %}—{% endif %}</td>
-        <td class="mono report-table__num text-green" data-field="profit" data-money="{{ row.profit }}" data-money-currency="{{ row.currency }}" data-money-sign="+">+{{ row.profit|floatformat:0 }} <span class="report-table__cur">{{ row.currency }}</span></td>
+        <td data-col="car" data-label="Авто"><strong>{{ row.car }}</strong></td>
+        <td data-col="client" data-label="Клієнт"><span>{{ row.client }}</span></td>
+        <td class="mono report-table__num" data-col="won" data-label="Виграна" data-field="won_price" data-money="{{ row.won_price|default:0 }}" data-money-currency="{{ row.won_currency|default:row.currency }}">{{ row.won_price|default:0|floatformat:0 }} <span class="report-table__cur">{{ row.won_currency|default:row.currency }}</span></td>
+        <td class="mono report-table__num" data-col="bid" data-label="Ставка" data-field="bid" data-money="{{ row.bid|default:0 }}" data-money-currency="{{ row.bid_currency|default:row.currency }}">{{ row.bid|default:0|floatformat:0 }} <span class="report-table__cur">{{ row.bid_currency|default:row.currency }}</span></td>
+        <td class="mono report-table__num" data-col="cost" data-label="Собівартість" data-field="cost" data-money="{{ row.cost }}" data-money-currency="{{ row.cost_currency|default:row.currency }}">{{ row.cost|floatformat:0 }} <span class="report-table__cur">{{ row.cost_currency|default:row.currency }}</span></td>
+        <td class="mono report-table__num" data-col="price" data-label="Клієнту" data-field="price" data-money="{{ row.price }}" data-money-currency="{{ row.price_currency|default:row.currency }}">{{ row.price|floatformat:0 }} <span class="report-table__cur">{{ row.price_currency|default:row.currency }}</span></td>
+        <td class="report-table__delivery" data-col="delivery" data-label="Доставка">{% if row.delivery_type == 'ours' and row.delivery_cost %}{{ row.delivery_cost|floatformat:0 }} <span class="report-table__cur">{{ row.delivery_currency|default:row.currency }}</span>{% else %}—{% endif %}</td>
+        <td class="mono report-table__num text-green" data-col="profit" data-label="Прибуток" data-field="profit" data-money="{{ row.profit }}" data-money-currency="{{ row.currency }}" data-money-sign="+">+{{ row.profit|floatformat:0 }} <span class="report-table__cur">{{ row.currency }}</span></td>
       </tr>
       {% empty %}
       <tr class="report-table__empty">

@@ -1,10 +1,13 @@
 .deals-toolbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .deals-toolbar__left {
@@ -12,17 +15,43 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+}
+
+.deals-toolbar__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+}
+
+.deals-search {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .deals-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 16px;
+  width: 100%;
 }
 
 @media (min-width: 600px) {
   .deals-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .deals-search {
+    flex: 1 1 auto;
+    max-width: 420px;
   }
 }
 
@@ -35,7 +64,27 @@
 .filter-chips {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding-bottom: 2px;
+  box-sizing: border-box;
+}
+
+.filter-chips::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 1025px) {
+  .filter-chips {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
 }
 
 .filter-chip {
@@ -49,12 +98,38 @@
   cursor: pointer;
   transition: all var(--transition);
   -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
 }
 
 .filter-chip--active {
   background: var(--accent-dim);
   border-color: rgba(0, 229, 176, 0.3);
   color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .deals-toolbar__row.page-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .deals-toolbar__row .view-switcher {
+    width: 100%;
+    display: flex;
+    justify-content: stretch;
+  }
+
+  .deals-toolbar__row .view-switcher__btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .deals-list {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
 }
 
 .kanban-board {

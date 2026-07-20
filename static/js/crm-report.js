@@ -249,14 +249,14 @@ const CrmReport = (() => {
           data-report-row
           data-report-id="${escapeHtml(row.id)}"${dealAttr}${interactive}${aria}
         >
-          <td>${renderCarCell(row)}</td>
-          <td>${escapeHtml(row.client)}</td>
-          <td class="mono report-table__num" data-field="won_price" data-money="${row.won_price || 0}" data-money-currency="${row.won_currency || row.currency}">${formatNum(row.won_price || 0)} <span class="report-table__cur">${escapeHtml(row.won_currency || row.currency)}</span></td>
-          <td class="mono report-table__num" data-field="bid" data-money="${row.bid || 0}" data-money-currency="${row.bid_currency || row.currency}">${formatNum(row.bid || 0)} <span class="report-table__cur">${escapeHtml(row.bid_currency || row.currency)}</span></td>
-          <td class="mono report-table__num" data-field="cost" data-money="${row.cost}" data-money-currency="${row.cost_currency || row.currency}">${formatNum(row.cost)} <span class="report-table__cur">${escapeHtml(row.cost_currency || row.currency)}</span></td>
-          <td class="mono report-table__num" data-field="price" data-money="${row.price}" data-money-currency="${row.price_currency || row.currency}">${formatNum(row.price)} <span class="report-table__cur">${escapeHtml(row.price_currency || row.currency)}</span></td>
-          <td class="report-table__delivery">${deliveryCell}</td>
-          <td class="mono report-table__num text-green" data-field="profit" data-money="${row.profit}" data-money-currency="${row.currency}" data-money-sign="+">+${formatNum(row.profit)} <span class="report-table__cur">${escapeHtml(row.currency)}</span></td>
+          <td data-col="car" data-label="Авто">${renderCarCell(row)}</td>
+          <td data-col="client" data-label="Клієнт"><span>${escapeHtml(row.client)}</span></td>
+          <td class="mono report-table__num" data-col="won" data-label="Виграна" data-field="won_price" data-money="${row.won_price || 0}" data-money-currency="${row.won_currency || row.currency}">${formatNum(row.won_price || 0)} <span class="report-table__cur">${escapeHtml(row.won_currency || row.currency)}</span></td>
+          <td class="mono report-table__num" data-col="bid" data-label="Ставка" data-field="bid" data-money="${row.bid || 0}" data-money-currency="${row.bid_currency || row.currency}">${formatNum(row.bid || 0)} <span class="report-table__cur">${escapeHtml(row.bid_currency || row.currency)}</span></td>
+          <td class="mono report-table__num" data-col="cost" data-label="Собівартість" data-field="cost" data-money="${row.cost}" data-money-currency="${row.cost_currency || row.currency}">${formatNum(row.cost)} <span class="report-table__cur">${escapeHtml(row.cost_currency || row.currency)}</span></td>
+          <td class="mono report-table__num" data-col="price" data-label="Клієнту" data-field="price" data-money="${row.price}" data-money-currency="${row.price_currency || row.currency}">${formatNum(row.price)} <span class="report-table__cur">${escapeHtml(row.price_currency || row.currency)}</span></td>
+          <td class="report-table__delivery" data-col="delivery" data-label="Доставка">${deliveryCell}</td>
+          <td class="mono report-table__num text-green" data-col="profit" data-label="Прибуток" data-field="profit" data-money="${row.profit}" data-money-currency="${row.currency}" data-money-sign="+">+${formatNum(row.profit)} <span class="report-table__cur">${escapeHtml(row.currency)}</span></td>
         </tr>`;
     }).join('');
 

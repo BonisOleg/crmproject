@@ -198,8 +198,11 @@
   padding-left: max(20px, var(--safe-left));
   padding-right: max(20px, var(--safe-right));
   max-width: none;
+  width: 100%;
   align-self: stretch;
   min-width: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .wireframe-app .page-head {

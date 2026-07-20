@@ -296,6 +296,12 @@
   -webkit-overflow-scrolling: touch;
 }
 
+@media (max-width: 900px) {
+  .wireframe-app .report-table-wrap {
+    overflow: visible;
+  }
+}
+
 .wireframe-app .report-table th:nth-child(n+5),
 .wireframe-app .report-table td.report-table__num {
   text-align: right;
