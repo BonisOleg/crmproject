@@ -212,29 +212,6 @@
   .stat-card__value-row {
     margin-bottom: 10px;
   }
-
-  .login-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .login-showcase {
-    display: none;
-  }
-
-  .login-page {
-    border-left: none;
-    padding: 20px;
-  }
-}
-
-@media (min-width: 641px) and (max-width: 900px) {
-  .login-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .login-showcase {
-    display: none;
-  }
 }
 
 @media (max-width: 767px) {

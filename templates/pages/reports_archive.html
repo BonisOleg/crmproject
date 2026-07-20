@@ -1,0 +1,115 @@
+{% extends "layout_app.html" %}
+{% load static %}
+
+{% block title %}{% if archive_month %}{{ month_label }} — {% endif %}Архів звітів — Autolot CRM{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/reports.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include "partials/report_tabs.html" %}
+
+<div class="page-head">
+  <div>
+    <h1 class="page-head__title">Звіти за місяць</h1>
+    {% if archive_month %}
+    <p
+      class="page-head__sub"
+      data-report-currency-note
+      data-report-month="{{ month_label }}"
+      data-report-count="{{ deal_count }}"
+    >{{ month_label }} · {{ report_type_label }} · {{ deal_count }} угод · лише перегляд</p>
+    {% else %}
+    <p class="page-head__sub">Архів закритих місячних звітів</p>
+    {% endif %}
+  </div>
+  {% if archive_month %}
+  <div class="report-actions">
+    <button type="button" class="wf-panel-btn wf-panel-btn--blue" data-report-export-csv>↓ CSV</button>
+    <button type="button" class="wf-panel-btn wf-panel-btn--green" data-report-print>Друк</button>
+  </div>
+  {% endif %}
+</div>
+
+{% if not archive_month %}
+<ul class="report-archive-list">
+  {% for m in archive_months %}
+  <li>
+    <a class="report-archive-list__item" href="{% url 'reports_archive_month' m.key %}">
+      <span class="report-archive-list__label">{{ m.label }}</span>
+      <span class="report-archive-list__meta">
+        Виграні {{ m.won_count }} · Підтверджені {{ m.confirmed_count }}
+      </span>
+    </a>
+  </li>
+  {% empty %}
+  <li class="report-archive-list__empty">Архів порожній</li>
+  {% endfor %}
+</ul>
+{% else %}
+<nav class="report-type-nav" aria-label="Тип звіту">
+  <a
+    href="{% url 'reports_archive_month' archive_month %}?type=won"
+    class="report-type-nav__item{% if report_type == 'won' %} report-type-nav__item--active{% endif %}"
+  >Виграні</a>
+  <a
+    href="{% url 'reports_archive_month' archive_month %}?type=confirmed"
+    class="report-type-nav__item{% if report_type == 'confirmed' %} report-type-nav__item--active{% endif %}"
+  >Підтверджені</a>
+</nav>
+
+<script type="application/json" id="crm-report-catalog">{{ report_rows_json|safe }}</script>
+<div
+  id="crm-report-meta"
+  hidden
+  data-report-type="{{ report_type }}"
+  data-report-month="{{ month_key }}"
+  data-report-month-label="{{ month_label }}"
+  data-report-readonly="true"
+  data-report-active-month="{{ active_month_key }}"
+></div>
+
+<div class="card report-table-wrap report-table-wrap--readonly">
+  <table class="data-table report-table">
+    <thead>
+      <tr>
+        <th>Авто</th>
+        <th>Клієнт</th>
+        <th>Виграна</th>
+        <th>Ставка</th>
+        <th>Собівартість</th>
+        <th>Клієнту</th>
+        <th>Доставка</th>
+        <th>Прибуток</th>
+      </tr>
+    </thead>
+    <tbody id="report-table-body">
+      {% for row in report_rows %}
+      <tr data-report-row data-report-id="{{ row.id }}">
+        <td><strong>{{ row.car }}</strong></td>
+        <td>{{ row.client }}</td>
+        <td class="mono report-table__num" data-field="won_price" data-money="{{ row.won_price|default:0 }}" data-money-currency="{{ row.won_currency|default:row.currency }}">{{ row.won_price|default:0|floatformat:0 }} <span class="report-table__cur">{{ row.won_currency|default:row.currency }}</span></td>
+        <td class="mono report-table__num" data-field="bid" data-money="{{ row.bid|default:0 }}" data-money-currency="{{ row.bid_currency|default:row.currency }}">{{ row.bid|default:0|floatformat:0 }} <span class="report-table__cur">{{ row.bid_currency|default:row.currency }}</span></td>
+        <td class="mono report-table__num" data-field="cost" data-money="{{ row.cost }}" data-money-currency="{{ row.cost_currency|default:row.currency }}">{{ row.cost|floatformat:0 }} <span class="report-table__cur">{{ row.cost_currency|default:row.currency }}</span></td>
+        <td class="mono report-table__num" data-field="price" data-money="{{ row.price }}" data-money-currency="{{ row.price_currency|default:row.currency }}">{{ row.price|floatformat:0 }} <span class="report-table__cur">{{ row.price_currency|default:row.currency }}</span></td>
+        <td class="report-table__delivery">{% if row.delivery_type == 'ours' and row.delivery_cost %}{{ row.delivery_cost|floatformat:0 }} <span class="report-table__cur">{{ row.delivery_currency|default:row.currency }}</span>{% else %}—{% endif %}</td>
+        <td class="mono report-table__num text-green" data-field="profit" data-money="{{ row.profit }}" data-money-currency="{{ row.currency }}" data-money-sign="+">+{{ row.profit|floatformat:0 }} <span class="report-table__cur">{{ row.currency }}</span></td>
+      </tr>
+      {% empty %}
+      <tr class="report-table__empty">
+        <td colspan="8">Немає угод у цьому звіті</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if archive_month %}
+<script src="{% static 'js/crm-report.js' %}" defer></script>
+<script src="{% static 'js/crm-report-2.js' %}" defer></script>
+{% endif %}
+{% endblock %}

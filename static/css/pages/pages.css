@@ -92,8 +92,14 @@
 
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
+}
+
+@media (min-width: 901px) {
+  .settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .setting-field {
@@ -111,7 +117,11 @@
 .setting-field input,
 .setting-field select {
   width: 100%;
-  padding: 10px 14px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  min-height: 44px;
+  font-size: 16px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);

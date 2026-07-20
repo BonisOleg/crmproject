@@ -300,13 +300,14 @@
 .theme-switch-wrap--login {
   position: fixed;
   top: calc(var(--safe-top) + 16px);
-  right: 16px;
+  right: max(16px, var(--safe-right));
   z-index: 50;
   width: auto;
 }
 
 .theme-switch-wrap--toolbar {
   flex-shrink: 0;
+  width: auto;
 }
 
 .theme-switch-wrap--toolbar .glass-toggle {
@@ -360,7 +361,7 @@ html {
 @media (max-width: 640px) {
   .theme-switch-wrap--login {
     top: calc(var(--safe-top) + 12px);
-    right: 12px;
+    right: max(12px, var(--safe-right));
   }
 
   :root,

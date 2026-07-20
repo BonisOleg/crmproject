@@ -1,0 +1,10 @@
+<nav class="report-tabs" aria-label="Розділи звітів">
+  <a
+    href="{% url 'reports_won' %}"
+    class="report-tabs__item{% if not is_archive %} report-tabs__item--active{% endif %}"
+  >Поточний місяць</a>
+  <a
+    href="{% url 'reports_archive' %}"
+    class="report-tabs__item{% if is_archive %} report-tabs__item--active{% endif %}"
+  >Звіти за місяць</a>
+</nav>

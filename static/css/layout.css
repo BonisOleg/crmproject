@@ -287,9 +287,12 @@
   max-width: 1280px;
   margin-inline: auto;
   padding: var(--space-xl);
+  padding-left: max(var(--space-xl), var(--safe-left));
+  padding-right: max(var(--space-xl), var(--safe-right));
   padding-bottom: calc(var(--safe-bottom) + var(--space-xl));
   box-sizing: border-box;
   align-self: center;
+  min-width: 0;
 }
 
 .bottom-nav {
@@ -330,6 +333,8 @@
   align-items: center;
   height: var(--bottom-nav-h);
   padding: 0 8px;
+  padding-left: max(8px, var(--safe-left));
+  padding-right: max(8px, var(--safe-right));
 }
 
 .bottom-nav__item {

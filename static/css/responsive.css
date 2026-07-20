@@ -125,6 +125,8 @@
 
   .page-content {
     padding: var(--space-lg);
+    padding-left: max(var(--space-lg), var(--safe-left));
+    padding-right: max(var(--space-lg), var(--safe-right));
     padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + var(--space-lg));
     align-self: stretch;
   }
@@ -199,6 +201,8 @@
 
   .page-content {
     padding: var(--space-md);
+    padding-left: max(var(--space-md), var(--safe-left));
+    padding-right: max(var(--space-md), var(--safe-right));
     padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + var(--space-md));
   }
 
@@ -322,7 +326,8 @@
   }
 
   .page-content {
-    padding-inline: 12px;
+    padding-left: max(12px, var(--safe-left));
+    padding-right: max(12px, var(--safe-right));
   }
 }
 

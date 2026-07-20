@@ -1,5 +1,13 @@
 """Mock-дані для UI-прототипу Autolot CRM."""
 
+from .mock_data_2 import (  # noqa: F401
+    MONTHLY_REPORT,
+    MONTHLY_REPORTS,
+    REPORT_SECTIONS,
+    REPORT_TYPE_LABELS,
+    REPORTS_BY_MONTH,
+)
+
 COCKPIT_STATS = [
     {"id": "receivable", "label": "До отримання", "value": "142 800", "currency": "CHF", "trend": "+12%", "up": True},
     {"id": "profit", "label": "Прибуток місяця", "value": "28 450", "currency": "CHF", "trend": "+8%", "up": True},
@@ -378,79 +386,6 @@ CARRIERS = [
         "plate": "CH-BE 3109",
         "assigned_deals": ["AL-2026-045", "AL-2026-042"],
         "documents": [],
-    },
-]
-
-MONTHLY_REPORTS = {
-    "2026-06": {
-        "month": "Червень 2026",
-        "month_key": "2026-06",
-        "deal_count": 32,
-        "sections": [
-            {"name": "У роботі", "count": 18, "cost": 412000, "revenue": 498000, "paid": 320000, "debt": 178000, "profit": 86000},
-            {"name": "Доставлені", "count": 9, "cost": 198000, "revenue": 245000, "paid": 231000, "debt": 14000, "profit": 47000},
-            {"name": "Скасовані", "count": 2, "cost": 0, "revenue": 0, "paid": 0, "debt": 0, "profit": 0},
-        ],
-    },
-    "2026-05": {
-        "month": "Травень 2026",
-        "month_key": "2026-05",
-        "deal_count": 28,
-        "sections": [
-            {"name": "У роботі", "count": 15, "cost": 365000, "revenue": 441000, "paid": 290000, "debt": 151000, "profit": 76000},
-            {"name": "Доставлені", "count": 11, "cost": 241000, "revenue": 297000, "paid": 285000, "debt": 12000, "profit": 56000},
-            {"name": "Скасовані", "count": 2, "cost": 0, "revenue": 0, "paid": 0, "debt": 0, "profit": 0},
-        ],
-    },
-    "2026-04": {
-        "month": "Квітень 2026",
-        "month_key": "2026-04",
-        "deal_count": 25,
-        "sections": [
-            {"name": "У роботі", "count": 12, "cost": 312000, "revenue": 378000, "paid": 251000, "debt": 127000, "profit": 66000},
-            {"name": "Доставлені", "count": 10, "cost": 218000, "revenue": 269000, "paid": 261000, "debt": 8000, "profit": 51000},
-            {"name": "Скасовані", "count": 3, "cost": 0, "revenue": 0, "paid": 0, "debt": 0, "profit": 0},
-        ],
-    },
-}
-
-MONTHLY_REPORT = MONTHLY_REPORTS["2026-06"]
-
-REPORT_SECTIONS = [
-    {
-        "name": "У роботі",
-        "rows": [
-            {"car": "SEAT Ibiza 1.2 TSI", "client": "Сергій Шевчук", "stage": "Виграно", "won_price": 14800, "bid": 14600, "cost": 16980, "price": 20700, "delivery_cost": 950, "profit": 3720, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "ours"},
-            {"car": "Tesla Model S 85 Performance D", "client": "Влад Олексюк", "stage": "В дорозі", "won_price": 25800, "bid": 25600, "cost": 28354, "price": 34540, "delivery_cost": 1400, "profit": 6186, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "ours"},
-            {"car": "BMW X5 xDrive30d", "client": "Микита Горишній", "stage": "Підтверджено", "won_price": 30200, "bid": 30000, "cost": 33590, "price": 39291, "delivery_cost": 1800, "profit": 5700, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "ours", "deal_id": "AL-2026-047"},
-            {"car": "Audi A6 3.0 TDI quattro", "client": "Денис Запорожець", "stage": "Забрано", "won_price": 25900, "bid": 25700, "cost": 28700, "price": 35000, "delivery_cost": 0, "profit": 6300, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "theirs"},
-            {"car": "Mercedes-AMG GLC 63 4MATIC", "client": "Олег Кравчук", "stage": "Розмитнено", "won_price": 41500, "bid": 41200, "cost": 45820, "price": 54800, "delivery_cost": 2100, "profit": 8980, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "ours"},
-            {"car": "VW Golf 7 GTI 2.0 TSI", "client": "Ігор Мельник", "stage": "Виграно", "won_price": 10900, "bid": 10800, "cost": 12200, "price": 14900, "delivery_cost": 750, "profit": 2700, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "ours"},
-            {"car": "Skoda Octavia RS 2.0 TSI", "client": "Павло Руденко", "stage": "В дорозі", "won_price": 13800, "bid": 13600, "cost": 15400, "price": 18800, "delivery_cost": 0, "profit": 3400, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "theirs"},
-            {"car": "Ford Kuga 2.0 EcoBoost", "client": "Юрій Савченко", "stage": "Забрано", "won_price": 9800, "bid": 9700, "cost": 11200, "price": 13600, "delivery_cost": 900, "profit": 2400, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "ours"},
-            {"car": "Porsche Macan S", "client": "Артем Бойко", "stage": "Підтверджено", "won_price": 33200, "bid": 33000, "cost": 36800, "price": 44200, "delivery_cost": 1900, "profit": 7400, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "ours"},
-            {"car": "Volvo XC60 D5 AWD", "client": "Максим Ткаченко", "stage": "Розмитнено", "won_price": 19800, "bid": 19600, "cost": 22100, "price": 26800, "delivery_cost": 0, "profit": 4700, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "theirs"},
-            {"car": "Hyundai Tucson 1.6 T-GDI", "client": "Роман Гнатюк", "stage": "Виграно", "won_price": 8700, "bid": 8600, "cost": 9800, "price": 11900, "delivery_cost": 800, "profit": 2100, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "ours"},
-            {"car": "Mazda CX-5 2.5 AWD", "client": "Степан Литвин", "stage": "В дорозі", "won_price": 12800, "bid": 12600, "cost": 14300, "price": 17400, "delivery_cost": 0, "profit": 3100, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "theirs"},
-        ],
-    },
-    {
-        "name": "Доставлені",
-        "rows": [
-            {"car": "Volkswagen Tiguan R-Line", "client": "Ірина С.", "stage": "Доставлено", "won_price": 21800, "bid": 21600, "cost": 24436, "price": 29800, "delivery_cost": 0, "profit": 5364, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "pickup", "deal_id": "AL-2026-044"},
-            {"car": "Mercedes-Benz GLC 300", "client": "Марина В.", "stage": "Доставлено", "won_price": 29600, "bid": 29400, "cost": 31898, "price": 38900, "delivery_cost": 0, "profit": 7002, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "theirs", "deal_id": "AL-2026-046"},
-            {"car": "Toyota RAV4 Hybrid", "client": "Віктор Л.", "stage": "Доставлено", "won_price": 24800, "bid": 24600, "cost": 27388, "price": 33400, "delivery_cost": 0, "profit": 6012, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "theirs"},
-            {"car": "BMW 320d xDrive Touring", "client": "Оксана М.", "stage": "Доставлено", "won_price": 11500, "bid": 11400, "cost": 13100, "price": 16200, "delivery_cost": 950, "profit": 3100, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "ours"},
-            {"car": "Audi Q3 35 TFSI", "client": "Тарас Ж.", "stage": "Доставлено", "won_price": 16900, "bid": 16700, "cost": 18900, "price": 23100, "delivery_cost": 1100, "profit": 4200, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "ours"},
-            {"car": "Peugeot 3008 GT Line", "client": "Лілія К.", "stage": "Доставлено", "won_price": 13900, "bid": 13700, "cost": 15600, "price": 19100, "delivery_cost": 0, "profit": 3500, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "theirs"},
-        ],
-    },
-    {
-        "name": "Скасовані",
-        "rows": [
-            {"car": "Opel Astra 1.4 Turbo", "client": "Богдан Ч.", "stage": "Скасовано", "won_price": 0, "bid": 0, "cost": 0, "price": 0, "delivery_cost": 0, "profit": 0, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "pickup"},
-            {"car": "Renault Megane GT", "client": "Костянтин Я.", "stage": "Скасовано", "won_price": 0, "bid": 0, "cost": 0, "price": 0, "delivery_cost": 0, "profit": 0, "currency": "CHF", "won_currency": "CHF", "bid_currency": "CHF", "cost_currency": "CHF", "price_currency": "CHF", "delivery_currency": "CHF", "delivery_type": "pickup"},
-        ],
     },
 ]
 

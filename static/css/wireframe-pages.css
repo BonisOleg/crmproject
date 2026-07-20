@@ -253,13 +253,20 @@
   gap: 10px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
   padding-bottom: 8px;
+  scroll-snap-type: x proximity;
+  margin-inline: 0;
 }
 
 .wireframe-app .kanban-column {
-  flex: 0 0 min(240px, 78vw);
-  min-width: 220px;
+  flex: 0 0 min(260px, 78vw);
+  width: min(260px, 78vw);
+  min-width: min(220px, 78vw);
+  max-width: min(320px, 88vw);
   padding: 10px;
+  scroll-snap-align: start;
+  box-sizing: border-box;
 }
 
 .wireframe-app .kanban-card {
@@ -354,7 +361,38 @@
   right: 8px;
 }
 
-@media (min-width: 700px) {
+.wireframe-app .settings-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.wireframe-app .settings-card {
+  padding: 16px;
+}
+
+.wireframe-app .settings-card__title {
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.wireframe-app .setting-field label {
+  font-size: 11px;
+  color: var(--wf-text-muted);
+  margin-bottom: 4px;
+}
+
+.wireframe-app .setting-field input,
+.wireframe-app .setting-field select {
+  padding: 12px 10px;
+  min-height: 44px;
+  font-size: 16px;
+  border: 1px solid var(--wf-border);
+  border-radius: 8px;
+  background: var(--wf-surface);
+}
+
+@media (min-width: 901px) {
   .wireframe-app .settings-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

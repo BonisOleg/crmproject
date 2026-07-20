@@ -42,6 +42,21 @@
   color: var(--wf-text-secondary);
 }
 
+@media (max-width: 420px) {
+  .wireframe-app .wf-sketch {
+    font-size: 0;
+    gap: 0;
+    padding: 8px;
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .wireframe-app .wf-currency__btn {
+    padding: 8px 9px;
+  }
+}
+
 .wireframe-app .wf-currency {
   display: inline-flex;
   border: 1px solid var(--wf-border);

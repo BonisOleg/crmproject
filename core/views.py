@@ -5,12 +5,28 @@ import urllib.request
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 
 from . import mock_data as md
+
+_MONTH_UA = {
+    1: "Січень",
+    2: "Лютий",
+    3: "Березень",
+    4: "Квітень",
+    5: "Травень",
+    6: "Червень",
+    7: "Липень",
+    8: "Серпень",
+    9: "Вересень",
+    10: "Жовтень",
+    11: "Листопад",
+    12: "Грудень",
+}
 
 
 @require_http_methods(["GET", "POST"])
@@ -154,38 +170,121 @@ def deal_detail_view(request, deal_id):
     })
 
 
-def _report_sections_with_ids(sections):
+def _current_month_key():
+    return timezone.localdate().strftime("%Y-%m")
+
+
+def _month_label(month_key):
+    meta = md.MONTHLY_REPORTS.get(month_key)
+    if meta:
+        return meta["month"]
+    try:
+        year, month = month_key.split("-")
+        return f"{_MONTH_UA[int(month)]} {year}"
+    except (ValueError, KeyError, TypeError):
+        return month_key
+
+
+def _report_rows_with_ids(rows, prefix="RPT"):
     out = []
-    counter = 1
-    for section in sections:
-        rows = []
-        for row in section["rows"]:
-            row_id = row.get("id") or f"RPT-{counter:03d}"
-            rows.append({**row, "id": row_id})
-            counter += 1
-        out.append({**section, "rows": rows})
+    for index, row in enumerate(rows, start=1):
+        row_id = row.get("id") or f"{prefix}-{index:03d}"
+        out.append({**row, "id": row_id})
     return out
 
 
+def _get_report_rows(month_key, report_type):
+    by_month = md.REPORTS_BY_MONTH.get(month_key) or {}
+    rows = by_month.get(report_type) or []
+    return _report_rows_with_ids(rows, prefix=f"{report_type[:3].upper()}-{month_key}")
+
+
+def _report_context(report_type, month_key, *, readonly=False, is_archive=False):
+    rows = _get_report_rows(month_key, report_type)
+    label = md.REPORT_TYPE_LABELS.get(report_type, report_type)
+    month_label = _month_label(month_key)
+    return {
+        "report_type": report_type,
+        "report_type_label": label,
+        "month_key": month_key,
+        "month_label": month_label,
+        "report_rows": rows,
+        "report_rows_json": json.dumps(rows, ensure_ascii=False),
+        "deal_count": len(rows),
+        "readonly": readonly,
+        "is_archive": is_archive,
+        "active_month_key": _current_month_key(),
+        "page": "reports",
+    }
+
+
 @login_required
-def reports_view(request):
-    available_months = [
-        {"key": k, "label": v["month"]}
-        for k, v in md.MONTHLY_REPORTS.items()
-    ]
-    month_key = request.GET.get("month", "2026-06")
-    if month_key not in md.MONTHLY_REPORTS:
-        month_key = "2026-06"
-    report = md.MONTHLY_REPORTS[month_key]
-    sections = _report_sections_with_ids(md.REPORT_SECTIONS)
-    return render(request, "pages/reports.html", {
-        "report": report,
-        "report_sections": sections,
-        "report_sections_json": json.dumps(sections, ensure_ascii=False),
-        "available_months": available_months,
-        "current_month": month_key,
+def reports_redirect_view(request):
+    return redirect("reports_won")
+
+
+@login_required
+def reports_won_view(request):
+    month_key = _current_month_key()
+    ctx = _report_context("won", month_key, readonly=False, is_archive=False)
+    return render(request, "pages/reports_current.html", ctx)
+
+
+@login_required
+def reports_confirmed_view(request):
+    month_key = _current_month_key()
+    ctx = _report_context("confirmed", month_key, readonly=False, is_archive=False)
+    return render(request, "pages/reports_current.html", ctx)
+
+
+@login_required
+def reports_archive_list_view(request):
+    active = _current_month_key()
+    archive_months = []
+    for key, meta in md.MONTHLY_REPORTS.items():
+        if key == active:
+            continue
+        won_count = len((md.REPORTS_BY_MONTH.get(key) or {}).get("won") or [])
+        conf_count = len((md.REPORTS_BY_MONTH.get(key) or {}).get("confirmed") or [])
+        archive_months.append({
+            "key": key,
+            "label": meta["month"],
+            "deal_count": won_count + conf_count,
+            "won_count": won_count,
+            "confirmed_count": conf_count,
+        })
+    archive_months.sort(key=lambda item: item["key"], reverse=True)
+    return render(request, "pages/reports_archive.html", {
+        "archive_months": archive_months,
+        "archive_month": None,
+        "report_type": None,
+        "is_archive": True,
+        "readonly": True,
+        "active_month_key": active,
         "page": "reports",
     })
+
+
+@login_required
+def reports_archive_month_view(request, month_key):
+    active = _current_month_key()
+    if month_key == active or month_key not in md.REPORTS_BY_MONTH:
+        raise Http404("Місяць не знайдено в архіві")
+
+    report_type = request.GET.get("type", "won")
+    if report_type not in ("won", "confirmed"):
+        report_type = "won"
+
+    ctx = _report_context(report_type, month_key, readonly=True, is_archive=True)
+    archive_months = [
+        {"key": k, "label": v["month"]}
+        for k, v in md.MONTHLY_REPORTS.items()
+        if k != active
+    ]
+    archive_months.sort(key=lambda item: item["key"], reverse=True)
+    ctx["archive_months"] = archive_months
+    ctx["archive_month"] = month_key
+    return render(request, "pages/reports_archive.html", ctx)
 
 
 @login_required
