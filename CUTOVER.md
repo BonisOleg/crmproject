@@ -16,6 +16,12 @@ https://github.com/BonisOleg/crmproject
 - Логін demo: `timofiy@auto-lot.com`
 - Логін admin: `admin@auto-lot.com`
 
+## Обліковий запис (логін / пароль)
+- Зміна в CRM → Налаштування → «Обліковий запис» (лише суперюзер і Тимофій)
+- `CRM_*_PASSWORD` у Render потрібні лише для першого створення
+- `CRM_FORCE_DEMO_PASSWORD=false` — деплої не скидають пароль
+- Після зміни email оновіть `CRM_ADMIN_EMAIL` / `CRM_DEMO_EMAIL` у Env (опційно)
+
 ## MEDIA / Persistent Disk
 На `plan: free` файли в MEDIA не персистять між деплоями.
 Коли знадобиться зберігання документів:

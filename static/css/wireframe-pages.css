@@ -382,6 +382,34 @@
   font-weight: 800;
 }
 
+.wireframe-app .settings-card--wide {
+  grid-column: 1 / -1;
+}
+
+.wireframe-app .settings-card__hint {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--wf-text-muted);
+}
+
+.wireframe-app .settings-actions {
+  margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .wireframe-app .settings-actions {
+    position: sticky;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: 5;
+  }
+
+  .wireframe-app .settings-actions .wf-panel-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
 .wireframe-app .setting-field label {
   font-size: 11px;
   color: var(--wf-text-muted);

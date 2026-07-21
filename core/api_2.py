@@ -295,6 +295,25 @@ def settings_view(request):
     return h.ok(serialize_settings(obj))
 
 
+@h.api_login_required
+@require_http_methods(['GET', 'PATCH'])
+def account_view(request):
+    from . import account as acct
+
+    if request.method == 'GET':
+        if not acct.can_manage_account(request.user):
+            return h.fail('Немає доступу', status=403)
+        return h.ok(acct.serialize_account(request.user))
+    try:
+        body = h.json_body(request)
+        data = acct.update_account(request, body)
+    except PermissionError as exc:
+        return h.fail(str(exc), status=403)
+    except ValueError as exc:
+        return h.fail(str(exc))
+    return h.ok(data)
+
+
 @require_http_methods(['GET'])
 def healthz(request):
     return h.ok({'status': 'ok', 'time': timezone.now().isoformat()})

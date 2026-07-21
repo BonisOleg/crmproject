@@ -102,6 +102,42 @@
   }
 }
 
+.settings-card--wide {
+  grid-column: 1 / -1;
+}
+
+.settings-card__hint {
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.settings-actions {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.settings-actions .wf-panel-btn {
+  min-height: 44px;
+  padding: 12px 20px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 900px) {
+  .settings-actions {
+    position: sticky;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: 5;
+  }
+
+  .settings-actions .wf-panel-btn {
+    width: 100%;
+  }
+}
+
 .setting-field {
   margin-bottom: 16px;
 }

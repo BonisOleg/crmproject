@@ -36,4 +36,4 @@ services:
       - key: CRM_ADMIN_PASSWORD
         sync: false
       - key: CRM_FORCE_DEMO_PASSWORD
-        value: "true"
+        value: "false"

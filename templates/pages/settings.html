@@ -1,15 +1,12 @@
 {% extends "layout_app.html" %}
+{% load static %}
 
 {% block title %}Налаштування — Autolot CRM{% endblock %}
-
-{% block toolbar_action %}
-<button type="button" class="wf-panel-btn wf-panel-btn--blue" data-action-message="Збережено">Зберегти</button>
-{% endblock %}
 
 {% block content %}
 <div class="page-head">
   <h1 class="page-head__title">Налаштування</h1>
-  <p class="page-head__sub">Формула, курси, пороги</p>
+  <p class="page-head__sub">Формула, курси, обліковий запис</p>
 </div>
 
 <div class="settings-grid">
@@ -17,23 +14,54 @@
     <h3 class="card__title settings-card__title">Формула ціни</h3>
     <div class="setting-field">
       <label for="setting-commission">Комісія (%)</label>
-      <input id="setting-commission" type="number" value="8" step="0.1" inputmode="decimal">
+      <input id="setting-commission" type="number" value="{{ site_settings.commission_percent }}" step="0.1" inputmode="decimal" autocomplete="off">
     </div>
     <div class="setting-field">
       <label for="setting-logistics">Логістика (фіксована, CHF)</label>
-      <input id="setting-logistics" type="number" value="2800" inputmode="decimal">
+      <input id="setting-logistics" type="number" value="{{ site_settings.logistics_fixed_chf }}" inputmode="decimal" autocomplete="off">
     </div>
   </div>
   <div class="card settings-card">
     <h3 class="card__title settings-card__title">Курси валют</h3>
     <div class="setting-field">
       <label for="setting-chf-uah">CHF → UAH</label>
-      <input id="setting-chf-uah" type="number" value="47.20" step="0.01" inputmode="decimal">
+      <input id="setting-chf-uah" type="number" value="{{ site_settings.rate_chf_uah }}" step="0.01" inputmode="decimal" autocomplete="off">
     </div>
     <div class="setting-field">
       <label for="setting-eur-uah">EUR → UAH</label>
-      <input id="setting-eur-uah" type="number" value="44.85" step="0.01" inputmode="decimal">
+      <input id="setting-eur-uah" type="number" value="{{ site_settings.rate_eur_uah }}" step="0.01" inputmode="decimal" autocomplete="off">
     </div>
   </div>
+
+  {% if can_manage_account %}
+  <div class="card settings-card settings-card--wide" data-account-card>
+    <h3 class="card__title settings-card__title">Обліковий запис</h3>
+    <p class="settings-card__hint">Логін для входу. Після зміни використовуйте новий email. Render Env більше не потрібен.</p>
+    <div class="setting-field">
+      <label for="account-email">Email / логін</label>
+      <input id="account-email" type="email" value="{{ account.email }}" autocomplete="username" inputmode="email">
+    </div>
+    <div class="setting-field">
+      <label for="account-current-password">Поточний пароль</label>
+      <input id="account-current-password" type="password" value="" autocomplete="current-password">
+    </div>
+    <div class="setting-field">
+      <label for="account-new-password">Новий пароль (необовʼязково)</label>
+      <input id="account-new-password" type="password" value="" autocomplete="new-password" minlength="8">
+    </div>
+    <div class="setting-field">
+      <label for="account-new-password-confirm">Підтвердження нового пароля</label>
+      <input id="account-new-password-confirm" type="password" value="" autocomplete="new-password" minlength="8">
+    </div>
+  </div>
+  {% endif %}
 </div>
+
+<div class="settings-actions">
+  <button type="button" class="wf-panel-btn wf-panel-btn--blue" data-settings-save>Зберегти</button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/crm-settings.js' %}" defer></script>
 {% endblock %}

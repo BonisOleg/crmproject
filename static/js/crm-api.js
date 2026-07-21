@@ -120,6 +120,10 @@ const CrmApi = (() => {
       get: () => get('/api/settings/'),
       update: (data) => patch('/api/settings/', data),
     },
+    account: {
+      get: () => get('/api/account/'),
+      update: (data) => patch('/api/account/', data),
+    },
   };
 })();
 

@@ -57,4 +57,5 @@ urlpatterns = [
     path('api/reports/rollover/', api_2.reports_rollover, name='api_reports_rollover'),
     path('api/reports/archive/', api_2.reports_archive_list, name='api_reports_archive'),
     path('api/settings/', api_2.settings_view, name='api_settings'),
+    path('api/account/', api_2.account_view, name='api_account'),
 ]

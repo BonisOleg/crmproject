@@ -420,7 +420,12 @@ def money_view(request):
 
 @login_required
 def settings_view(request):
-    return render(request, 'pages/settings.html', {
+    from .account import can_manage_account, serialize_account
+
+    ctx = {
         'page': 'settings',
         'site_settings': serialize_settings(SiteSettings.get_solo()),
-    })
+        'can_manage_account': can_manage_account(request.user),
+        'account': serialize_account(request.user),
+    }
+    return render(request, 'pages/settings.html', ctx)
