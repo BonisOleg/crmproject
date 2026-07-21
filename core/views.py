@@ -27,6 +27,7 @@ from .serializers import (
 from .services import (
     action_queues,
     archive_previous_months,
+    attention_subtitle,
     cockpit_stats,
     current_month_key,
     get_or_create_month,
@@ -87,11 +88,15 @@ def cockpit_view(request):
         }
         for stage in md.EXECUTION_STAGES
     ]
+    stats = [s for s in cockpit_stats() if s['id'] != 'deals_total']
+    display_name = (request.user.first_name or request.user.get_username() or '').strip()
     return render(request, 'pages/cockpit.html', {
-        'stats': cockpit_stats(),
+        'stats': stats,
         'queues': action_queues(),
         'pipeline': pipeline,
         'recent_deals': [serialize_deal(d) for d in deals[:4]],
+        'attention_text': attention_subtitle(),
+        'cockpit_name': display_name or 'власника',
         'page': 'cockpit',
     })
 
@@ -406,6 +411,7 @@ def carrier_detail_view(request, carrier_id):
 
 @login_required
 def money_view(request):
+    stats_by_id = {s['id']: s for s in cockpit_stats()}
     debtors = [
         serialize_deal(d)
         for d in Deal.objects.filter(is_active=True, debt__gt=0).prefetch_related(
@@ -414,6 +420,10 @@ def money_view(request):
     ]
     return render(request, 'pages/money.html', {
         'debtors': debtors,
+        'receivable': stats_by_id.get('receivable'),
+        'profit': stats_by_id.get('profit'),
+        'in_transit': stats_by_id.get('in_transit_money'),
+        'deals_total': stats_by_id.get('deals_total'),
         'page': 'money',
     })
 

@@ -10,20 +10,34 @@
 <div class="money-grid">
   <div class="stat-panel card">
     <div class="stat-panel__label">До отримання</div>
-    <div class="stat-panel__value" data-money-composite='[{"amount":74300,"currency":"CHF"},{"amount":14030,"currency":"EUR"},{"amount":5050,"currency":"USD"}]' data-money-composite-total="142800" data-money-composite-total-currency="CHF">74 300 CHF + 14 030 EUR<br>+ 5 050 USD</div>
-    <div class="stat-panel__sub" data-money-composite='[{"amount":74300,"currency":"CHF"},{"amount":14030,"currency":"EUR"},{"amount":5050,"currency":"USD"}]' data-money-composite-mode="total" data-money-prefix="≈ ">≈ 142 800 CHF</div>
+    {% if receivable.parts %}
+    <div
+      class="stat-panel__value"
+      data-money-composite='[{% for p in receivable.parts %}{"amount":{{ p.amount }},"currency":"{{ p.currency }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'
+      data-money-composite-total="{{ receivable.raw }}"
+      data-money-composite-total-currency="CHF"
+    >{% for p in receivable.parts %}{{ p.amount|floatformat:0 }} {{ p.currency }}{% if not forloop.last %} + {% endif %}{% endfor %}</div>
+    <div
+      class="stat-panel__sub"
+      data-money-composite='[{% for p in receivable.parts %}{"amount":{{ p.amount }},"currency":"{{ p.currency }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'
+      data-money-composite-mode="total"
+      data-money-prefix="≈ "
+    >≈ {{ receivable.value }} CHF</div>
+    {% else %}
+    <div class="stat-panel__value" data-money="0" data-money-currency="CHF">0 CHF</div>
+    {% endif %}
   </div>
   <div class="stat-panel card">
     <div class="stat-panel__label">Прибуток (міс.)</div>
-    <div class="stat-panel__value" data-money="14974" data-money-currency="CHF">14 974 CHF</div>
+    <div class="stat-panel__value" data-money="{{ profit.raw }}" data-money-currency="CHF">{{ profit.value }} CHF</div>
   </div>
   <div class="stat-panel card">
     <div class="stat-panel__label">Гроші в дорозі</div>
-    <div class="stat-panel__value" data-money="97960" data-money-currency="CHF">97 960 CHF</div>
+    <div class="stat-panel__value" data-money="{{ in_transit.raw }}" data-money-currency="CHF">{{ in_transit.value }} CHF</div>
   </div>
   <div class="stat-panel card">
     <div class="stat-panel__label">Угод всього</div>
-    <div class="stat-panel__value">32</div>
+    <div class="stat-panel__value">{{ deals_total.value }}</div>
   </div>
 </div>
 
@@ -37,6 +51,8 @@
     </div>
     <div class="debtor-row__amount" data-money="{{ deal.debt }}" data-money-currency="{{ deal.currency }}">{{ deal.debt|floatformat:0 }} {{ deal.currency }}</div>
   </a>
+  {% empty %}
+  <p class="text-muted">Немає боргів</p>
   {% endfor %}
 </div>
 {% endblock %}

@@ -193,9 +193,56 @@ def archive_previous_months(active_key=None):
     )
 
 
+def fmt_money(n):
+    return f'{int(n):,}'.replace(',', ' ')
+
+
+def attention_deal_count():
+    """Угоди, що реально потребують уваги (без подвійного підрахунку)."""
+    deals = Deal.objects.filter(is_active=True)
+    stuck_before = timezone.now() - timedelta(days=14)
+    return deals.filter(
+        Q(execution=ExecutionStage.WON)
+        | Q(execution=ExecutionStage.CONFIRMED)
+        | Q(execution__in=[ExecutionStage.IN_TRANSIT, ExecutionStage.CUSTOMS])
+        | Q(execution=ExecutionStage.DELIVERED, debt__gt=0)
+        | Q(vin='')
+        | Q(image='')
+        | Q(execution=ExecutionStage.PICKED, updated_at__lt=stuck_before)
+    ).distinct().count()
+
+
+def attention_subtitle(count=None):
+    n = attention_deal_count() if count is None else int(count)
+    if n == 0:
+        return 'Немає угод, що потребують уваги'
+    mod100 = n % 100
+    mod10 = n % 10
+    if 11 <= mod100 <= 14:
+        word = 'угод'
+    elif mod10 == 1:
+        word = 'угода'
+    elif 2 <= mod10 <= 4:
+        word = 'угоди'
+    else:
+        word = 'угод'
+    verb = 'потребує' if word == 'угода' else 'потребують'
+    return f'{n} {word} {verb} уваги'
+
+
 def cockpit_stats():
     deals = Deal.objects.filter(is_active=True)
     receivable = deals.aggregate(s=Sum('debt')).get('s') or 0
+    receivable_parts = [
+        {
+            'amount': float(row['s'] or 0),
+            'currency': row['currency'] or 'CHF',
+        }
+        for row in deals.values('currency')
+        .annotate(s=Sum('debt'))
+        .filter(s__gt=0)
+        .order_by('currency')
+    ]
     profit = deals.filter(
         created_at__month=timezone.localdate().month,
         created_at__year=timezone.localdate().year,
@@ -206,23 +253,24 @@ def cockpit_stats():
     cars_transit = deals.filter(
         execution__in=[ExecutionStage.IN_TRANSIT, ExecutionStage.CUSTOMS]
     ).count()
-
-    def fmt(n):
-        return f'{int(n):,}'.replace(',', ' ')
+    deals_total = deals.count()
 
     return [
         {
             'id': 'receivable',
             'label': 'До отримання',
-            'value': fmt(receivable),
+            'value': fmt_money(receivable),
+            'raw': float(receivable),
             'currency': 'CHF',
+            'parts': receivable_parts,
             'trend': '',
             'up': True,
         },
         {
             'id': 'profit',
             'label': 'Прибуток місяця',
-            'value': fmt(profit),
+            'value': fmt_money(profit),
+            'raw': float(profit),
             'currency': 'CHF',
             'trend': '',
             'up': True,
@@ -230,7 +278,8 @@ def cockpit_stats():
         {
             'id': 'in_transit_money',
             'label': 'Гроші в дорозі',
-            'value': fmt(in_transit_money),
+            'value': fmt_money(in_transit_money),
+            'raw': float(in_transit_money),
             'currency': 'CHF',
             'trend': '',
             'up': False,
@@ -239,7 +288,17 @@ def cockpit_stats():
             'id': 'cars_transit',
             'label': 'Авто в дорозі',
             'value': str(cars_transit),
+            'raw': cars_transit,
             'currency': 'шт',
+            'trend': '',
+            'up': True,
+        },
+        {
+            'id': 'deals_total',
+            'label': 'Угод всього',
+            'value': str(deals_total),
+            'raw': deals_total,
+            'currency': '',
             'trend': '',
             'up': True,
         },
