@@ -7,12 +7,15 @@ services:
     name: autolot-crm
     runtime: python
     plan: free
-    disk:
-      name: autolot-media
-      mountPath: /var/data/media
-      sizeGB: 1
+    # Persistent Disk недоступний на free — для збереження MEDIA
+    # підніміть plan до starter і розкоментуйте блок disk нижче.
+    # disk:
+    #   name: autolot-media
+    #   mountPath: /var/data/media
+    #   sizeGB: 1
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py ensure_demo_user && python manage.py seed_crm
     startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    healthCheckPath: /healthz/
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.8"
@@ -27,10 +30,10 @@ services:
       - key: ALLOWED_HOSTS
         value: ".onrender.com"
       - key: MEDIA_ROOT
-        value: /var/data/media
+        value: /opt/render/project/src/media
       - key: CRM_DEMO_PASSWORD
         sync: false
       - key: CRM_ADMIN_PASSWORD
         sync: false
       - key: CRM_FORCE_DEMO_PASSWORD
-        value: "false"
+        value: "true"

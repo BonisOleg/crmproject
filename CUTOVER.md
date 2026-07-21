@@ -1,22 +1,38 @@
-# Production CRM cutover checklist
-#
-# Deploy (Render)
-# 1. Set SECRET_KEY, DATABASE_URL, CRM_DEMO_PASSWORD, CRM_ADMIN_PASSWORD, MEDIA_ROOT=/var/data/media
-# 2. Attach Persistent Disk at /var/data/media
-# 3. Build runs: collectstatic, migrate, ensure_demo_user, seed_crm
-# 4. GET /healthz/ → ok
-#
-# Manual smoke
-# - Login staff → cockpit stats from DB
-# - Create deal → appears in deals + report (won/confirmed)
-# - Record payment → debt decreases
-# - Create lead / carrier / client
-# - Upload document on deal → file on MEDIA disk
-# - Open archive month (readonly)
-# - Clear localStorage → data still present after reload
-#
-# Local
-#   python3 manage.py migrate
-#   python3 manage.py ensure_demo_user
-#   python3 manage.py seed_crm
-#   python3 manage.py test core
+# Deploy на Render (Blueprint)
+
+## Репозиторій
+https://github.com/BonisOleg/crmproject
+
+## Blueprint
+1. Render → New → Blueprint → підключити `BonisOleg/crmproject` (гілка `main`)
+2. Підтвердити `render.yaml`
+3. У Environment Variables задати (обовʼязково):
+   - `CRM_DEMO_PASSWORD`
+   - `CRM_ADMIN_PASSWORD`
+4. Deploy
+
+## Після деплою
+- `GET /healthz/` → `{"status":"ok",...}`
+- Логін demo: `timofiy@auto-lot.com`
+- Логін admin: `admin@auto-lot.com`
+
+## MEDIA / Persistent Disk
+На `plan: free` файли в MEDIA не персистять між деплоями.
+Коли знадобиться зберігання документів:
+1. Web service → Starter
+2. Add Disk → mount `/var/data/media`
+3. Env: `MEDIA_ROOT=/var/data/media`
+4. У `render.yaml` розкоментувати блок `disk`
+
+## Кастомний домен (пізніше)
+1. Render → Custom Domain
+2. Env `ALLOWED_HOSTS`: `.onrender.com,your-domain.com`
+3. Django підхопить `RENDER_EXTERNAL_HOSTNAME` для CSRF; для свого домену додайте
+   `CSRF_TRUSTED_ORIGINS=https://your-domain.com` у settings або через окремий env (за потреби)
+
+## Smoke
+- Login staff → cockpit
+- Create deal → deals + report
+- Record payment → debt
+- Upload document (після підключення disk)
+- Archive month (readonly)
