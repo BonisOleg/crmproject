@@ -11,6 +11,12 @@ https://github.com/BonisOleg/crmproject
    - `CRM_ADMIN_PASSWORD`
 4. Deploy
 
+## Очищення демо-даних (продакшн)
+1. Env: `CRM_CLEAR_DATA=true`
+2. Manual Deploy (у білді виконається `clear_crm_data`)
+3. Env знову: `CRM_CLEAR_DATA=false` (обовʼязково!)
+4. `seed_crm` у білді вимкнено — демо не повернеться
+
 ## Після деплою
 - `GET /healthz/` → `{"status":"ok",...}`
 - Логін demo: `timofiy@auto-lot.com`
