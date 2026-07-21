@@ -36,6 +36,12 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# Додаткові домени через окремий env (не затираються Blueprint)
+for host in os.environ.get('CUSTOM_DOMAINS', '').split(','):
+    host = host.strip().lower()
+    if host and host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(host)
+
 _vercel_url = os.environ.get('VERCEL_URL', '').strip()
 _vercel_host = ''
 if _vercel_url:

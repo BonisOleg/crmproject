@@ -28,7 +28,7 @@ services:
           name: autolot-crm-db
           property: connectionString
       - key: ALLOWED_HOSTS
-        value: ".onrender.com"
+        value: ".onrender.com,auto-lot.online,www.auto-lot.online"
       - key: MEDIA_ROOT
         value: /opt/render/project/src/media
       - key: CRM_DEMO_PASSWORD
