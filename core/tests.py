@@ -28,6 +28,13 @@ class CrmApiTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.json()['ok'])
 
+    def test_healthz_ignores_bad_host(self):
+        """Render probe з «чужим» Host не має давати 400."""
+        anon = Client(HTTP_HOST='invalid.internal.render')
+        resp = anon.get('/healthz/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json()['ok'])
+
     def test_api_requires_auth(self):
         anon = Client()
         resp = anon.get('/api/deals/')
