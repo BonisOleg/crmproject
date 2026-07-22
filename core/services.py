@@ -198,6 +198,16 @@ def sync_deal_to_reports(deal):
     return won_row
 
 
+def refresh_current_report_rows():
+    """Пересинк усіх активних угод у звіт поточного місяця."""
+    month = get_or_create_month()
+    if month.is_archived:
+        return month
+    for deal in Deal.objects.filter(is_active=True).iterator():
+        sync_deal_to_reports(deal)
+    return month
+
+
 def archive_previous_months(active_key=None):
     active_key = active_key or current_month_key()
     get_or_create_month(active_key)

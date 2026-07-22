@@ -266,7 +266,12 @@ const CrmRender = (() => {
       return Boolean(document.querySelector(`[data-lead-id="${CSS.escape(item.id)}"]`));
     }
     if (type === 'deals') {
-      return Boolean(document.querySelector(`[data-deal-id="${CSS.escape(item.id)}"]`));
+      return Boolean(document.querySelector(
+        `[data-deals-list] [data-deal-id="${CSS.escape(item.id)}"],`
+        + `[data-deals-table] [data-deal-id="${CSS.escape(item.id)}"],`
+        + `.kanban-board [data-deal-id="${CSS.escape(item.id)}"],`
+        + `[data-recent-deals] [data-deal-id="${CSS.escape(item.id)}"]`
+      ));
     }
     if (type === 'carriers') {
       return Boolean(document.querySelector(`[data-carrier-id="${CSS.escape(item.id)}"]`));
@@ -297,6 +302,10 @@ const CrmRender = (() => {
   }
 
   function appendDeal(item, options = {}) {
+    /* На сторінці звіту ніколи не чіпати #report-table-body */
+    if (document.getElementById('report-table-body') && !document.querySelector('[data-deals-table]')) {
+      return null;
+    }
     if (exists('deals', item)) return null;
     const grid = document.querySelector('[data-deals-list]');
     let cardEl = null;
@@ -315,7 +324,7 @@ const CrmRender = (() => {
       window.CrmDelete?.enhanceCard?.(kanbanEl);
     }
 
-    const tbody = document.querySelector('.data-table tbody');
+    const tbody = document.querySelector('[data-deals-table] tbody');
     if (tbody) {
       const rowEl = buildDealTableRow(item);
       tbody.prepend(rowEl);
@@ -359,11 +368,14 @@ const CrmRender = (() => {
   }
 
   function mountAll() {
+    const onReportPage = Boolean(document.getElementById('report-table-body'));
     ['clients', 'leads', 'deals', 'carriers'].forEach((type) => {
+      if (type === 'deals' && onReportPage) return;
       CrmStore.getItems(type).forEach((item) => {
         append(type, item, { animate: false });
       });
     });
+    document.dispatchEvent(new CustomEvent('crm:render-mounted'));
   }
 
   function notifyAdded(type, item) {

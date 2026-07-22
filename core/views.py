@@ -33,6 +33,7 @@ from .services import (
     current_month_key,
     get_or_create_month,
     month_label,
+    refresh_current_report_rows,
 )
 
 
@@ -182,6 +183,7 @@ def reports_redirect_view(request):
 @login_required
 def reports_won_view(request):
     archive_previous_months()
+    refresh_current_report_rows()
     return render(
         request,
         'pages/reports_current.html',
@@ -192,6 +194,7 @@ def reports_won_view(request):
 @login_required
 def reports_confirmed_view(request):
     archive_previous_months()
+    refresh_current_report_rows()
     return render(
         request,
         'pages/reports_current.html',

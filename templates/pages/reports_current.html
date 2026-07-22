@@ -79,6 +79,7 @@
       <tr
         data-report-row
         data-report-id="{{ row.id }}"
+        {% if row.deal_id %}data-deal-id="{{ row.deal_id }}"{% endif %}
         tabindex="0"
         role="button"
         aria-label="Редагувати {{ row.car }}"

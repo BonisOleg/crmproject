@@ -234,6 +234,9 @@ const CrmReport = (() => {
     tbodyEl.querySelectorAll('.data-table__actions, .card-delete-btn').forEach((node) => {
       node.remove();
     });
+    tbodyEl.querySelectorAll('tr[data-deal-item]:not([data-report-row])').forEach((node) => {
+      node.remove();
+    });
 
     if (window.CrmCurrency) CrmCurrency.applyAll();
   }

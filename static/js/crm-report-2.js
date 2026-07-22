@@ -425,3 +425,15 @@
 document.addEventListener('DOMContentLoaded', () => {
   window.CrmReport?.init?.();
 });
+
+document.addEventListener('crm:render-mounted', () => {
+  const tbody = document.getElementById('report-table-body');
+  if (!tbody || !window.CrmReport) return;
+  tbody.querySelectorAll('tr[data-deal-item]:not([data-report-row])').forEach((node) => {
+    node.remove();
+  });
+  tbody.querySelectorAll('.data-table__actions, .card-delete-btn').forEach((node) => {
+    node.remove();
+  });
+  CrmReport.renderTable();
+});
