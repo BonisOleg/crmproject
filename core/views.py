@@ -29,6 +29,7 @@ from .services import (
     action_queues,
     archive_previous_months,
     attention_subtitle,
+    backfill_deals_from_reports,
     cockpit_stats,
     current_month_key,
     get_or_create_month,
@@ -77,6 +78,7 @@ def logout_view(request):
 
 @login_required
 def cockpit_view(request):
+    backfill_deals_from_reports()
     deals = list(
         Deal.objects.filter(is_active=True)
         .prefetch_related('due_payments', 'documents', 'client')[:8]
@@ -105,6 +107,7 @@ def cockpit_view(request):
 
 @login_required
 def deals_view(request):
+    backfill_deals_from_reports()
     view_mode = request.GET.get('view', 'cards')
     qs = Deal.objects.filter(is_active=True).prefetch_related(
         'due_payments', 'documents', 'client'
@@ -415,6 +418,7 @@ def carrier_detail_view(request, carrier_id):
 
 @login_required
 def money_view(request):
+    backfill_deals_from_reports()
     stats_by_id = {s['id']: s for s in cockpit_stats()}
     debtors = [
         serialize_deal(d)

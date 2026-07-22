@@ -12,6 +12,7 @@ from .models import (
     Deal,
     ExecutionStage,
     Lead,
+    PaymentStatus,
     ReportMonth,
     ReportRow,
     ReportType,
@@ -198,14 +199,98 @@ def sync_deal_to_reports(deal):
     return won_row
 
 
+def sync_report_row_to_deal(row, *, push_to_reports=True):
+    """Підтягнути гроші/авто зі рядка звіту в повʼязану угоду."""
+    deal = row.deal
+    if not deal or not deal.is_active:
+        return None
+
+    if row.car:
+        deal.car = row.car
+    if row.client:
+        deal.client_name = row.client
+    deal.won_price = row.won_price or 0
+    deal.bid = row.bid or 0
+    deal.cost = row.cost or 0
+    deal.price = row.price or 0
+    deal.delivery_cost = row.delivery_cost or 0
+    if row.delivery_type:
+        deal.delivery_type = row.delivery_type
+    deal.currency = row.currency or deal.currency or 'CHF'
+    deal.won_currency = row.won_currency or deal.won_currency or deal.currency
+    deal.bid_currency = row.bid_currency or deal.bid_currency or deal.currency
+    deal.cost_currency = row.cost_currency or deal.cost_currency or deal.currency
+    deal.price_currency = row.price_currency or deal.price_currency or deal.currency
+    deal.delivery_currency = (
+        row.delivery_currency or deal.delivery_currency or deal.currency
+    )
+    deal.recalc_money()
+    deal.save(update_fields=[
+        'car', 'client_name', 'won_price', 'bid', 'cost', 'price', 'delivery_cost',
+        'delivery_type', 'currency', 'won_currency', 'bid_currency', 'cost_currency',
+        'price_currency', 'delivery_currency', 'debt', 'profit', 'payment', 'updated_at',
+    ])
+    sync_client_debt(deal)
+    if push_to_reports:
+        sync_deal_to_reports(deal)
+    return deal
+
+
+def backfill_deals_from_reports(month_key=None):
+    """Якщо в угоді 0, а в звіті є суми — підтягнути звіт → угода."""
+    month = get_or_create_month(month_key)
+    if month.is_archived:
+        return 0
+    synced = 0
+    rows = (
+        ReportRow.objects.filter(month=month, report_type=ReportType.WON, deal__isnull=False)
+        .select_related('deal')
+        .iterator()
+    )
+    for row in rows:
+        deal = row.deal
+        if not deal or not deal.is_active:
+            continue
+        if (deal.price or 0) != 0 or (deal.cost or 0) != 0:
+            continue
+        if (row.price or 0) == 0 and (row.cost or 0) == 0 and (row.profit or 0) == 0:
+            continue
+        sync_report_row_to_deal(row)
+        synced += 1
+    return synced
+
+
 def refresh_current_report_rows():
-    """Пересинк усіх активних угод у звіт поточного місяця."""
+    """Спочатку heal угоди зі звіту, потім пересинк у звіт поточного місяця."""
     month = get_or_create_month()
     if month.is_archived:
         return month
+    backfill_deals_from_reports(month.month_key)
     for deal in Deal.objects.filter(is_active=True).iterator():
         sync_deal_to_reports(deal)
     return month
+
+
+def monthly_profit_total(month_key=None):
+    """
+    Прибуток місяця: рядки звіту «Виграні» за місяць для
+    підтверджених+/оплачених угод (і ручних рядків без угоди).
+    """
+    month_key = month_key or current_month_key()
+    return (
+        ReportRow.objects.filter(
+            month__month_key=month_key,
+            report_type=ReportType.WON,
+        )
+        .filter(
+            Q(deal__isnull=True, is_manual=True)
+            | Q(deal__execution__in=CONFIRMED_AND_BELOW)
+            | Q(deal__payment=PaymentStatus.PAID)
+        )
+        .aggregate(s=Sum('profit'))
+        .get('s')
+        or 0
+    )
 
 
 def archive_previous_months(active_key=None):
@@ -270,10 +355,7 @@ def cockpit_stats():
         .filter(s__gt=0)
         .order_by('currency')
     ]
-    profit = deals.filter(
-        created_at__month=timezone.localdate().month,
-        created_at__year=timezone.localdate().year,
-    ).aggregate(s=Sum('profit')).get('s') or 0
+    profit = monthly_profit_total()
     in_transit_money = deals.filter(
         execution=ExecutionStage.IN_TRANSIT
     ).aggregate(s=Sum('price')).get('s') or 0

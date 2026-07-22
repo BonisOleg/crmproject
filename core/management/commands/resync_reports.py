@@ -1,18 +1,18 @@
-"""Re-sync all active deals into monthly report rows."""
+"""Re-sync report ↔ deals for the current month."""
 
 from django.core.management.base import BaseCommand
 
-from core.models import Deal
-from core.services import sync_deal_to_reports
+from core.services import backfill_deals_from_reports, refresh_current_report_rows
 
 
 class Command(BaseCommand):
-    help = 'Re-sync active deals into Won/Confirmed report rows'
+    help = 'Backfill deal money from report, then re-sync Won/Confirmed rows'
 
     def handle(self, *args, **options):
-        deals = Deal.objects.filter(is_active=True)
-        synced = 0
-        for deal in deals.iterator():
-            sync_deal_to_reports(deal)
-            synced += 1
-        self.stdout.write(self.style.SUCCESS(f'Synced {synced} deals'))
+        healed = backfill_deals_from_reports()
+        month = refresh_current_report_rows()
+        self.stdout.write(
+            self.style.SUCCESS(
+                f'Healed {healed} deals from report; refreshed month {month.month_key}'
+            )
+        )

@@ -25,6 +25,7 @@ from .services import (
     get_or_create_month,
     month_label,
     next_carrier_code,
+    sync_report_row_to_deal,
     to_decimal,
 )
 
@@ -211,6 +212,9 @@ def reports_add_row(request):
         )
         row.recalc_profit()
         row.save()
+        if row.deal_id:
+            sync_report_row_to_deal(row)
+            row.refresh_from_db()
     except ValueError as exc:
         return h.fail(str(exc))
     return h.ok(serialize_report_row(row), status=201)
@@ -239,6 +243,9 @@ def report_row_detail(request, pk):
                 setattr(row, money, to_decimal(body.get(money)))
         row.recalc_profit()
         row.save()
+        if row.deal_id:
+            sync_report_row_to_deal(row)
+            row.refresh_from_db()
     except ValueError as exc:
         return h.fail(str(exc))
     return h.ok(serialize_report_row(row))

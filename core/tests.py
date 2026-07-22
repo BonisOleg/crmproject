@@ -208,3 +208,78 @@ class CrmApiTests(TestCase):
         resp = client.get('/api/account/')
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.json()['data']['can_manage'])
+
+    def test_monthly_profit_from_report_confirmed_or_paid(self):
+        from core.services import cockpit_stats, get_or_create_month
+
+        month = get_or_create_month()
+        won_only = Deal.objects.create(
+            code='AL-2026-701',
+            car='Won Only Profit',
+            client_name='Клієнт',
+            price=Decimal('10000'),
+            cost=Decimal('8000'),
+            profit=Decimal('2000'),
+            execution='won',
+            payment='debt',
+        )
+        confirmed = Deal.objects.create(
+            code='AL-2026-702',
+            car='Confirmed Profit',
+            client_name='Клієнт',
+            price=Decimal('0'),
+            cost=Decimal('0'),
+            profit=Decimal('0'),
+            execution='confirmed',
+            payment='debt',
+        )
+        paid = Deal.objects.create(
+            code='AL-2026-703',
+            car='Paid Profit',
+            client_name='Клієнт',
+            price=Decimal('0'),
+            cost=Decimal('0'),
+            profit=Decimal('0'),
+            execution='won',
+            payment='paid',
+        )
+        sync_deal_to_reports(won_only)
+        sync_deal_to_reports(confirmed)
+        sync_deal_to_reports(paid)
+
+        ReportRow.objects.filter(deal=confirmed, report_type='won', month=month).update(
+            price=Decimal('5000'),
+            cost=Decimal('4000'),
+            profit=Decimal('1000'),
+        )
+        ReportRow.objects.filter(deal=paid, report_type='won', month=month).update(
+            price=Decimal('3000'),
+            cost=Decimal('2500'),
+            profit=Decimal('500'),
+        )
+
+        stats = {s['id']: s for s in cockpit_stats()}
+        self.assertEqual(stats['profit']['raw'], 1500.0)
+
+    def test_report_patch_syncs_deal_money(self):
+        deal = Deal.objects.create(
+            code='AL-2026-704',
+            car='Empty Deal',
+            client_name='Клієнт',
+            price=Decimal('0'),
+            cost=Decimal('0'),
+            profit=Decimal('0'),
+            execution='confirmed',
+        )
+        sync_deal_to_reports(deal)
+        row = ReportRow.objects.get(deal=deal, report_type='won')
+        resp = self.client.patch(
+            f'/api/reports/rows/{row.pk}/',
+            data={'price': 4800, 'cost': 4012},
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200, resp.content)
+        deal.refresh_from_db()
+        self.assertEqual(deal.price, Decimal('4800'))
+        self.assertEqual(deal.cost, Decimal('4012'))
+        self.assertEqual(deal.profit, Decimal('788'))
