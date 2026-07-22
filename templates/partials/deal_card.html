@@ -1,3 +1,4 @@
+{% load l10n %}
 <a
   href="{% url 'deal_detail' deal.id %}"
   class="card deal-card hover-lift animate-fade-up crm-card--deletable {{ stagger_class|default:'' }}"
@@ -7,7 +8,7 @@
   data-crm-key="{{ deal.id }}"
   data-deal-item
   data-deal-status="{{ deal.execution }}"
-  data-deal-debt="{{ deal.debt }}"
+  data-deal-debt="{{ deal.debt|unlocalize }}"
   data-deal-search="{{ deal.id|lower }} {{ deal.car|lower }} {{ deal.client|lower }} {{ deal.year }} {{ deal.vin|lower }}"
 >
   <div class="deal-card__image-wrap">
@@ -22,9 +23,9 @@
     <div class="deal-card__title">{{ deal.car }}</div>
     <div class="deal-card__meta">{{ deal.year }} · {{ deal.client }}</div>
     <div class="deal-card__footer">
-      <span class="deal-card__price mono" data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</span>
+      <span class="deal-card__price mono" data-money="{{ deal.price|unlocalize }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</span>
       {% if deal.debt > 0 %}
-      <span class="text-red mono" style="font-size:13px" data-money="{{ deal.debt }}" data-money-currency="{{ deal.currency }}" data-money-sign="−">−{{ deal.debt|floatformat:0 }}</span>
+      <span class="text-red mono" style="font-size:13px" data-money="{{ deal.debt|unlocalize }}" data-money-currency="{{ deal.currency }}" data-money-sign="−">−{{ deal.debt|floatformat:0 }}</span>
       {% else %}
       <span class="text-green" style="font-size:13px">✓</span>
       {% endif %}

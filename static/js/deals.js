@@ -17,7 +17,9 @@ function initDealFilters() {
 
   const matchesFilter = (item, filterKey) => {
     const status = item.dataset.dealStatus || '';
-    const debt = parseFloat(item.dataset.dealDebt || '0');
+    const debt = window.CrmCurrency
+      ? CrmCurrency.parseAmount(item.dataset.dealDebt || '0')
+      : parseFloat(String(item.dataset.dealDebt || '0').replace(',', '.')) || 0;
 
     if (filterKey === 'all') return true;
     if (filterKey === 'debt') return debt > 0;

@@ -23,7 +23,7 @@ const CrmCurrency = (() => {
   }
 
   function convert(amount, from, to) {
-    const value = Number(amount) || 0;
+    const value = parseAmount(amount);
     const src = TO_CHF[from] ?? 1;
     const dst = TO_CHF[to] ?? 1;
     if (from === to) return value;
@@ -32,6 +32,23 @@ const CrmCurrency = (() => {
 
   function formatNum(value) {
     return Math.round(Number(value) || 0).toLocaleString('uk-UA');
+  }
+
+  /** Парсить суми з data-атрибутів (uk: "4800,00" / "4 800,00"). */
+  function parseAmount(value) {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : 0;
+    }
+    let raw = String(value ?? '').trim();
+    if (!raw) return 0;
+    raw = raw.replace(/\s/g, '').replace(/'/g, '');
+    if (raw.includes(',') && raw.includes('.')) {
+      raw = raw.replace(/\./g, '').replace(',', '.');
+    } else if (raw.includes(',')) {
+      raw = raw.replace(',', '.');
+    }
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : 0;
   }
 
   function label(amount, currency) {
@@ -68,7 +85,7 @@ const CrmCurrency = (() => {
         restore(el, 'text');
         return;
       }
-      const amount = Number(el.dataset.money) || 0;
+      const amount = parseAmount(el.dataset.money);
       const from = el.dataset.moneyCurrency || 'CHF';
       const prefix = el.dataset.moneyPrefix || '';
       const sign = el.dataset.moneySign || '';
@@ -123,7 +140,7 @@ const CrmCurrency = (() => {
         const totalAmount = el.dataset.moneyCompositeTotal;
         const totalCurrency = el.dataset.moneyCompositeTotalCurrency || 'CHF';
         if (totalAmount) {
-          el.textContent = label(Number(totalAmount), totalCurrency);
+          el.textContent = label(parseAmount(totalAmount), totalCurrency);
         } else {
           const total = parts.reduce(
             (sum, part) => sum + convert(part.amount, part.currency, 'CHF'),
@@ -206,6 +223,7 @@ const CrmCurrency = (() => {
     display,
     label,
     formatNum,
+    parseAmount,
     isActive,
     applyAll,
     initToolbar,

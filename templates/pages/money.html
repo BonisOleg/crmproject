@@ -1,4 +1,5 @@
 {% extends "layout_app.html" %}
+{% load l10n %}
 
 {% block title %}Гроші — Autolot CRM{% endblock %}
 
@@ -13,13 +14,13 @@
     {% if receivable.parts %}
     <div
       class="stat-panel__value"
-      data-money-composite='[{% for p in receivable.parts %}{"amount":{{ p.amount }},"currency":"{{ p.currency }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'
-      data-money-composite-total="{{ receivable.raw }}"
+      data-money-composite='[{% for p in receivable.parts %}{"amount":{{ p.amount|unlocalize }},"currency":"{{ p.currency }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'
+      data-money-composite-total="{{ receivable.raw|unlocalize }}"
       data-money-composite-total-currency="CHF"
     >{% for p in receivable.parts %}{{ p.amount|floatformat:0 }} {{ p.currency }}{% if not forloop.last %} + {% endif %}{% endfor %}</div>
     <div
       class="stat-panel__sub"
-      data-money-composite='[{% for p in receivable.parts %}{"amount":{{ p.amount }},"currency":"{{ p.currency }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'
+      data-money-composite='[{% for p in receivable.parts %}{"amount":{{ p.amount|unlocalize }},"currency":"{{ p.currency }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'
       data-money-composite-mode="total"
       data-money-prefix="≈ "
     >≈ {{ receivable.value }} CHF</div>
@@ -29,11 +30,11 @@
   </div>
   <div class="stat-panel card">
     <div class="stat-panel__label">Прибуток (міс.)</div>
-    <div class="stat-panel__value" data-money="{{ profit.raw }}" data-money-currency="CHF">{{ profit.value }} CHF</div>
+    <div class="stat-panel__value" data-money="{{ profit.raw|unlocalize }}" data-money-currency="CHF">{{ profit.value }} CHF</div>
   </div>
   <div class="stat-panel card">
     <div class="stat-panel__label">Гроші в дорозі</div>
-    <div class="stat-panel__value" data-money="{{ in_transit.raw }}" data-money-currency="CHF">{{ in_transit.value }} CHF</div>
+    <div class="stat-panel__value" data-money="{{ in_transit.raw|unlocalize }}" data-money-currency="CHF">{{ in_transit.value }} CHF</div>
   </div>
   <div class="stat-panel card">
     <div class="stat-panel__label">Угод всього</div>
@@ -49,7 +50,7 @@
       <div class="debtor-row__title">{{ deal.car }}</div>
       <div class="debtor-row__sub">{{ deal.client }} · {{ deal.payment_label }}</div>
     </div>
-    <div class="debtor-row__amount" data-money="{{ deal.debt }}" data-money-currency="{{ deal.currency }}">{{ deal.debt|floatformat:0 }} {{ deal.currency }}</div>
+    <div class="debtor-row__amount" data-money="{{ deal.debt|unlocalize }}" data-money-currency="{{ deal.currency }}">{{ deal.debt|floatformat:0 }} {{ deal.currency }}</div>
   </a>
   {% empty %}
   <p class="text-muted">Немає боргів</p>

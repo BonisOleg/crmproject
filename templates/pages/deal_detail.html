@@ -1,5 +1,5 @@
 {% extends "layout_app.html" %}
-{% load static %}
+{% load static l10n %}
 
 {% block title %}{{ deal.id }} — Autolot CRM{% endblock %}
 {% block extra_css %}
@@ -252,13 +252,13 @@
         {% endif %}
         <div class="finance-row finance-row--total">
           <span>Клієнту</span>
-          <span class="finance-row__amount text-accent mono" data-deal-price-total data-money="{{ deal.price }}" data-money-currency="{{ deal.price_currency|default:deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.price_currency|default:deal.currency }}</span>
+          <span class="finance-row__amount text-accent mono" data-deal-price-total data-money="{{ deal.price|unlocalize }}" data-money-currency="{{ deal.price_currency|default:deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.price_currency|default:deal.currency }}</span>
         </div>
       </div>
       <div style="margin-top:16px">
         <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
           <span class="text-secondary">Оплачено</span>
-          <span class="mono"><span data-deal-paid data-money="{{ deal.paid }}" data-money-currency="{{ deal.currency }}">{{ deal.paid|floatformat:0 }}</span> / <span data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }}</span></span>
+          <span class="mono"><span data-deal-paid data-money="{{ deal.paid|unlocalize }}" data-money-currency="{{ deal.currency }}">{{ deal.paid|floatformat:0 }}</span> / <span data-money="{{ deal.price|unlocalize }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }}</span></span>
         </div>
         <div class="progress-bar">
           <div class="progress-bar__fill" data-deal-progress data-width="{% widthratio deal.paid deal.price 100 %}" style="width:0"></div>
@@ -266,7 +266,7 @@
       </div>
       <div class="finance-row" style="margin-top:16px">
         <span class="text-secondary">Прибуток</span>
-        <span class="finance-row__amount text-green mono" data-deal-profit data-money="{{ deal.profit }}" data-money-currency="CHF" data-money-sign="+">+{{ deal.profit|floatformat:0 }} CHF</span>
+        <span class="finance-row__amount text-green mono" data-deal-profit data-money="{{ deal.profit|unlocalize }}" data-money-currency="CHF" data-money-sign="+">+{{ deal.profit|floatformat:0 }} CHF</span>
       </div>
     </div>
 
@@ -279,7 +279,7 @@
         {% for payment in payments %}
         <div class="payment-item">
           <div>
-            <div class="mono" data-money="{{ payment.amount }}" data-money-currency="{{ payment.currency }}">{{ payment.amount|floatformat:0 }} {{ payment.currency }}</div>
+            <div class="mono" data-money="{{ payment.amount|unlocalize }}" data-money-currency="{{ payment.currency }}">{{ payment.amount|floatformat:0 }} {{ payment.currency }}</div>
             <div class="text-muted" style="font-size:12px">{{ payment.place }}</div>
           </div>
           <div class="text-muted">{{ payment.date }}</div>

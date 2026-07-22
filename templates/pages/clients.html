@@ -1,4 +1,5 @@
 {% extends "layout_app.html" %}
+{% load l10n %}
 
 {% block title %}Клієнти — Autolot CRM{% endblock %}
 
@@ -13,7 +14,7 @@
     <div class="client-card__avatar">{{ client.name|slice:":1" }}</div>
     <div>
       <div class="client-card__name">{{ client.name }}</div>
-      <div class="client-card__meta">{{ client.deals }} угоди · оборот <span data-money="{{ client.debt }}" data-money-currency="{{ client.currency }}">{{ client.debt|floatformat:0 }} {{ client.currency }}</span></div>
+      <div class="client-card__meta">{{ client.deals }} угоди · оборот <span data-money="{{ client.debt|unlocalize }}" data-money-currency="{{ client.currency }}">{{ client.debt|floatformat:0 }} {{ client.currency }}</span></div>
       <div class="client-card__tags">
         {% for i in "123" %}
         <span class="client-card__tag">DEAL-0{{ forloop.counter }}3</span>
@@ -22,7 +23,7 @@
     </div>
     <div>
       <div class="client-card__debt-label">винен</div>
-      <div class="client-card__debt-value {% if client.debt > 0 %}text-red{% else %}text-green{% endif %}" data-money="{{ client.debt }}" data-money-currency="{{ client.currency }}">
+      <div class="client-card__debt-value {% if client.debt > 0 %}text-red{% else %}text-green{% endif %}" data-money="{{ client.debt|unlocalize }}" data-money-currency="{{ client.currency }}">
         {{ client.debt|floatformat:0 }} {{ client.currency }}
       </div>
     </div>

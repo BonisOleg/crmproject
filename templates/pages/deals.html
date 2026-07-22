@@ -1,5 +1,5 @@
 {% extends "layout_app.html" %}
-{% load static %}
+{% load static l10n %}
 
 {% block title %}Угоди — Autolot CRM{% endblock %}
 
@@ -57,7 +57,7 @@
         data-crm-key="{{ deal.id }}"
         data-deal-item
         data-deal-status="{{ deal.execution }}"
-        data-deal-debt="{{ deal.debt }}"
+        data-deal-debt="{{ deal.debt|unlocalize }}"
         data-deal-search="{{ deal.id|lower }} {{ deal.car|lower }} {{ deal.client|lower }} {{ deal.year }} {{ deal.vin|lower }}"
         onclick="window.location='{% url 'deal_detail' deal.id %}'"
         style="cursor:pointer"
@@ -65,9 +65,9 @@
         <td data-col="car" data-label="Авто"><strong>{{ deal.car }}</strong></td>
         <td data-col="client" data-label="Клієнт"><span>{{ deal.client }}</span></td>
         <td data-col="stage" data-label="Стадія"><span>{{ deal.execution_label }}</span></td>
-        <td class="mono" data-col="deal_price" data-label="Ціна" data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</td>
-        <td class="mono {% if deal.debt > 0 %}text-red{% else %}text-green{% endif %}" data-col="balance" data-label="Баланс" data-money="{{ deal.debt }}" data-money-currency="{{ deal.currency }}">{{ deal.debt|floatformat:0 }}</td>
-        <td class="mono text-green" data-col="profit" data-label="Прибуток" data-money="{{ deal.profit }}" data-money-currency="{{ deal.currency }}" data-money-sign="+">+{{ deal.profit|floatformat:0 }}</td>
+        <td class="mono" data-col="deal_price" data-label="Ціна" data-money="{{ deal.price|unlocalize }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</td>
+        <td class="mono {% if deal.debt > 0 %}text-red{% else %}text-green{% endif %}" data-col="balance" data-label="Баланс" data-money="{{ deal.debt|unlocalize }}" data-money-currency="{{ deal.currency }}">{{ deal.debt|floatformat:0 }}</td>
+        <td class="mono text-green" data-col="profit" data-label="Прибуток" data-money="{{ deal.profit|unlocalize }}" data-money-currency="{{ deal.currency }}" data-money-sign="+">+{{ deal.profit|floatformat:0 }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -93,7 +93,7 @@
           data-crm-key="{{ deal.id }}"
           data-deal-item
           data-deal-status="{{ deal.execution }}"
-          data-deal-debt="{{ deal.debt }}"
+          data-deal-debt="{{ deal.debt|unlocalize }}"
           data-deal-search="{{ deal.id|lower }} {{ deal.car|lower }} {{ deal.client|lower }} {{ deal.year }}"
         >
           <div class="kanban-card__title">{{ deal.car }}</div>
@@ -101,7 +101,7 @@
           <div class="deal-row__pills" style="margin-top:8px">
             <span class="wf-pill">{{ deal.payment_label }}</span>
           </div>
-          <div class="mono" style="margin-top:8px;font-size:12px;font-weight:800" data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</div>
+          <div class="mono" style="margin-top:8px;font-size:12px;font-weight:800" data-money="{{ deal.price|unlocalize }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</div>
         </a>
         {% endif %}
       {% endfor %}

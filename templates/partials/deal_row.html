@@ -1,3 +1,4 @@
+{% load l10n %}
 <a
   href="{% url 'deal_detail' deal.id %}"
   class="deal-row crm-card--deletable"
@@ -6,7 +7,7 @@
   data-crm-key="{{ deal.id }}"
   data-deal-item
   data-deal-status="{{ deal.execution }}"
-  data-deal-debt="{{ deal.debt }}"
+  data-deal-debt="{{ deal.debt|unlocalize }}"
   data-deal-search="{{ deal.id|lower }} {{ deal.car|lower }} {{ deal.client|lower }} {{ deal.year }} {{ deal.vin|lower }}"
 >
   <img src="{{ deal.image }}" alt="{{ deal.car }}" class="deal-row__thumb" loading="lazy" referrerpolicy="no-referrer">
@@ -22,9 +23,9 @@
     </div>
   </div>
   <div class="deal-row__money">
-    <div class="deal-row__price mono" data-money="{{ deal.price }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</div>
+    <div class="deal-row__price mono" data-money="{{ deal.price|unlocalize }}" data-money-currency="{{ deal.currency }}">{{ deal.price|floatformat:0 }} {{ deal.currency }}</div>
     {% if deal.debt > 0 %}
-    <div class="deal-row__debt" data-money="{{ deal.debt }}" data-money-currency="{{ deal.currency }}" data-money-prefix="борг ">борг {{ deal.debt|floatformat:0 }} {{ deal.currency }}</div>
+    <div class="deal-row__debt" data-money="{{ deal.debt|unlocalize }}" data-money-currency="{{ deal.currency }}" data-money-prefix="борг ">борг {{ deal.debt|floatformat:0 }} {{ deal.currency }}</div>
     {% else %}
     <div class="deal-row__debt text-green">✓ оплачено</div>
     {% endif %}
