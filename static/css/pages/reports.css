@@ -7,33 +7,44 @@
 }
 
 .report-table {
-  table-layout: fixed;
   width: 100%;
 }
 
-.report-table__col--car {
-  width: 22%;
-}
+/* Desktop: фіксовані колонки (не чіпати мобільні картки) */
+@media (min-width: 901px) {
+  .report-table {
+    table-layout: fixed;
+  }
 
-.report-table__col--client {
-  width: 14%;
-}
+  .report-table__col--car {
+    width: 22%;
+  }
 
-.report-table__col--money {
-  width: 10.67%;
-}
+  .report-table__col--client {
+    width: 14%;
+  }
 
-.report-table th.report-table__num,
-.report-table td.report-table__num,
-.report-table td.report-table__delivery {
-  text-align: right;
-  white-space: nowrap;
+  .report-table__col--money {
+    width: 10.67%;
+  }
+
+  .report-table th.report-table__num,
+  .report-table td.report-table__num,
+  .report-table td.report-table__delivery {
+    text-align: right;
+    white-space: nowrap;
+  }
 }
 
 .report-table__delivery {
   font-size: 13px;
-  white-space: nowrap;
   color: var(--wf-text-muted, var(--text-muted));
+}
+
+@media (min-width: 901px) {
+  .report-table__delivery {
+    white-space: nowrap;
+  }
 }
 
 .report-table #report-table-body .data-table__actions,
@@ -426,7 +437,13 @@
   }
 
   .report-table {
+    table-layout: auto;
     min-width: 0;
+    width: 100%;
+  }
+
+  .report-table col {
+    width: auto;
   }
 }
 

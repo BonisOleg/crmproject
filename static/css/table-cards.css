@@ -12,10 +12,18 @@
 
   .data-table--cards,
   .report-table {
+    table-layout: auto;
     min-width: 0;
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
+  }
+
+  .report-table col,
+  .report-table .report-table__col--car,
+  .report-table .report-table__col--client,
+  .report-table .report-table__col--money {
+    width: auto;
   }
 
   .data-table--cards thead,
@@ -36,6 +44,7 @@
     gap: 8px;
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
     margin: 0 0 10px;
     padding: 14px;
@@ -49,22 +58,25 @@
   .report-table tbody td {
     display: flex;
     align-items: baseline;
-    flex-wrap: nowrap;
-    gap: 4px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 12px;
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
     padding: 0;
     border: none;
     text-align: right;
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    word-break: normal;
   }
 
   .data-table--cards tbody td::before,
   .report-table tbody td::before {
     content: attr(data-label);
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     max-width: 42%;
     margin-right: auto;
     padding-right: 12px;
@@ -80,6 +92,8 @@
   .report-table td[data-col="car"] {
     order: 1;
     display: block;
+    width: 100%;
+    min-width: 0;
     font-size: 15px;
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -87,6 +101,8 @@
     padding-bottom: 8px;
     margin-bottom: 2px;
     border-bottom: 1px solid var(--wf-border, var(--border));
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   .data-table--cards td[data-col="car"]::before,
@@ -97,11 +113,14 @@
   .data-table--cards td[data-col="client"],
   .report-table td[data-col="client"] {
     order: 2;
+    width: 100%;
+    min-width: 0;
     font-size: 15px;
     font-weight: 700;
     padding-bottom: 10px;
     margin-bottom: 2px;
     border-bottom: 1px solid var(--wf-border, var(--border));
+    overflow-wrap: break-word;
   }
 
   .data-table--cards td[data-col="won"],
@@ -133,6 +152,7 @@
   .report-table__empty,
   .data-table--cards .report-table__empty {
     display: block;
+    width: 100%;
     padding: 20px 14px;
     text-align: center;
     background: var(--wf-surface, var(--bg-elevated));
@@ -143,6 +163,7 @@
   .report-table__empty td,
   .data-table--cards .report-table__empty td {
     display: block;
+    width: 100%;
     text-align: center;
   }
 
@@ -157,6 +178,8 @@
   .wireframe-app .report-table td.report-table__delivery {
     text-align: right;
     white-space: normal;
+    width: 100%;
+    min-width: 0;
   }
 }
 
