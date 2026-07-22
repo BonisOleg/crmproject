@@ -151,8 +151,10 @@
     display: none;
   }
 
-  .wireframe-app .report-table th:nth-child(n+5),
-  .wireframe-app .report-table td.report-table__num {
+  .wireframe-app .report-table th.report-table__num,
+  .wireframe-app .report-table th:nth-child(n+3),
+  .wireframe-app .report-table td.report-table__num,
+  .wireframe-app .report-table td.report-table__delivery {
     text-align: right;
     white-space: normal;
   }

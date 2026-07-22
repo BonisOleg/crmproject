@@ -32,6 +32,15 @@ _MONTH_UA = {
     12: 'Грудень',
 }
 
+# Підтверджено і далі по воронці (не «Виграно»)
+CONFIRMED_AND_BELOW = (
+    ExecutionStage.CONFIRMED,
+    ExecutionStage.PICKED,
+    ExecutionStage.IN_TRANSIT,
+    ExecutionStage.CUSTOMS,
+    ExecutionStage.DELIVERED,
+)
+
 
 def current_month_key(day=None):
     day = day or timezone.localdate()
@@ -155,7 +164,7 @@ def _snapshot_from_deal(deal):
 
 
 def sync_deal_to_reports(deal):
-    """Keep ReportRow in sync when deal is won/confirmed; remove from other type."""
+    """Виграні = усі активні; Підтверджені = confirmed і далі по воронці."""
     if not deal.is_active:
         ReportRow.objects.filter(deal=deal, is_manual=False).delete()
         return
@@ -164,23 +173,29 @@ def sync_deal_to_reports(deal):
     if month.is_archived:
         return
 
-    if deal.execution == ExecutionStage.WON:
-        target, other = ReportType.WON, ReportType.CONFIRMED
-    elif deal.execution == ExecutionStage.CONFIRMED:
-        target, other = ReportType.CONFIRMED, ReportType.WON
-    else:
-        ReportRow.objects.filter(deal=deal, is_manual=False).delete()
-        return
-
-    ReportRow.objects.filter(deal=deal, report_type=other, is_manual=False).delete()
     snap = _snapshot_from_deal(deal)
-    row, _ = ReportRow.objects.update_or_create(
+    defaults = {**snap, 'is_manual': False}
+
+    won_row, _ = ReportRow.objects.update_or_create(
         deal=deal,
         month=month,
-        report_type=target,
-        defaults={**snap, 'is_manual': False},
+        report_type=ReportType.WON,
+        defaults=defaults,
     )
-    return row
+
+    if deal.execution in CONFIRMED_AND_BELOW:
+        ReportRow.objects.update_or_create(
+            deal=deal,
+            month=month,
+            report_type=ReportType.CONFIRMED,
+            defaults=defaults,
+        )
+    else:
+        ReportRow.objects.filter(
+            deal=deal, report_type=ReportType.CONFIRMED, is_manual=False
+        ).delete()
+
+    return won_row
 
 
 def archive_previous_months(active_key=None):
@@ -232,13 +247,15 @@ def attention_subtitle(count=None):
 
 def cockpit_stats():
     deals = Deal.objects.filter(is_active=True)
-    receivable = deals.aggregate(s=Sum('debt')).get('s') or 0
+    # До отримання: лише підтверджені+ (виграні ще не наші — боргу немає)
+    receivable_qs = deals.filter(execution__in=CONFIRMED_AND_BELOW)
+    receivable = receivable_qs.aggregate(s=Sum('debt')).get('s') or 0
     receivable_parts = [
         {
             'amount': float(row['s'] or 0),
             'currency': row['currency'] or 'CHF',
         }
-        for row in deals.values('currency')
+        for row in receivable_qs.values('currency')
         .annotate(s=Sum('debt'))
         .filter(s__gt=0)
         .order_by('currency')

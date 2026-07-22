@@ -72,12 +72,57 @@ class CrmApiTests(TestCase):
         self.assertEqual(resp.status_code, 200, resp.content)
         deal.refresh_from_db()
         self.assertEqual(deal.execution, 'confirmed')
-        self.assertFalse(
+        self.assertTrue(
             ReportRow.objects.filter(deal=deal, report_type='won', is_manual=False).exists()
         )
         self.assertTrue(
             ReportRow.objects.filter(deal=deal, report_type='confirmed').exists()
         )
+
+    def test_delivered_stays_in_both_report_tabs(self):
+        deal = Deal.objects.create(
+            code='AL-2026-888',
+            car='Skoda Test',
+            client_name='Клієнт',
+            price=Decimal('5000'),
+            paid=Decimal('0'),
+            debt=Decimal('5000'),
+            cost=Decimal('4000'),
+            execution='delivered',
+        )
+        sync_deal_to_reports(deal)
+        self.assertTrue(
+            ReportRow.objects.filter(deal=deal, report_type='won', is_manual=False).exists()
+        )
+        self.assertTrue(
+            ReportRow.objects.filter(deal=deal, report_type='confirmed', is_manual=False).exists()
+        )
+
+    def test_won_excluded_from_receivable(self):
+        from core.services import cockpit_stats
+
+        Deal.objects.create(
+            code='AL-2026-777',
+            car='Won Only',
+            client_name='Клієнт',
+            price=Decimal('3000'),
+            paid=Decimal('0'),
+            debt=Decimal('3000'),
+            cost=Decimal('2000'),
+            execution='won',
+        )
+        Deal.objects.create(
+            code='AL-2026-776',
+            car='Confirmed Debt',
+            client_name='Клієнт',
+            price=Decimal('4000'),
+            paid=Decimal('1000'),
+            debt=Decimal('3000'),
+            cost=Decimal('2500'),
+            execution='confirmed',
+        )
+        stats = {s['id']: s for s in cockpit_stats()}
+        self.assertEqual(stats['receivable']['raw'], 3000.0)
 
     def test_payment_updates_debt(self):
         deal = Deal.objects.create(

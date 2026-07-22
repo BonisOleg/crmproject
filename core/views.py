@@ -25,6 +25,7 @@ from .serializers import (
     serialize_settings,
 )
 from .services import (
+    CONFIRMED_AND_BELOW,
     action_queues,
     archive_previous_months,
     attention_subtitle,
@@ -414,7 +415,11 @@ def money_view(request):
     stats_by_id = {s['id']: s for s in cockpit_stats()}
     debtors = [
         serialize_deal(d)
-        for d in Deal.objects.filter(is_active=True, debt__gt=0).prefetch_related(
+        for d in Deal.objects.filter(
+            is_active=True,
+            debt__gt=0,
+            execution__in=CONFIRMED_AND_BELOW,
+        ).prefetch_related(
             'due_payments', 'documents', 'client'
         )
     ]

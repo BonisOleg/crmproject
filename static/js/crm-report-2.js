@@ -264,27 +264,60 @@
     if (typeof showToast === 'function') showToast('CSV завантажено', 'success');
   }
 
-  function resolveDealReportType(deal) {
+  function resolveDealReportTabs(deal) {
     const execution = deal?.execution;
-    if (execution === 'confirmed') return 'confirmed';
-    if (execution === 'won') return 'won';
-    const label = deal?.execution_label || deal?.stage;
-    return R.STAGE_TYPE[label] || null;
+    const confirmedBelow = ['confirmed', 'picked', 'in_transit', 'customs', 'delivered'];
+    const tabs = ['won'];
+    if (confirmedBelow.includes(execution)) tabs.push('confirmed');
+    return tabs;
+  }
+
+  function upsertDealRow(deal, row) {
+    const extras = R.getExtras().filter(
+      (item) => item.deal_id !== deal.id && item.id !== deal.id
+    );
+    const base = (R.state.baseRows || []).filter(
+      (item) => item.deal_id !== deal.id && item.id !== deal.id
+    );
+    const existing = (R.state.baseRows || []).find(
+      (item) => item.deal_id === deal.id || item.id === deal.id
+    );
+    R.setState({
+      baseRows: existing
+        ? base.concat([{ ...existing, ...row, id: existing.id, pk: existing.pk }])
+        : base,
+    });
+    if (!existing) {
+      extras.unshift(row);
+      R.setExtras(extras);
+    } else {
+      R.setExtras(extras);
+    }
+  }
+
+  function removeDealRow(dealId) {
+    R.setState({
+      baseRows: (R.state.baseRows || []).filter(
+        (item) => item.deal_id !== dealId && item.id !== dealId
+      ),
+    });
+    R.setExtras(R.getExtras().filter(
+      (item) => item.deal_id !== dealId && item.id !== dealId
+    ));
   }
 
   function addDealFromStore(deal) {
     if (!deal?.id) return;
-    const type = resolveDealReportType(deal);
-    if (type !== 'won' && type !== 'confirmed') return;
 
     const month = R.ensureMonthRollover(
       R.state.activeMonthKey || R.calendarMonthKey()
     );
+    const tabs = resolveDealReportTabs(deal);
     const row = {
       id: deal.id,
       deal_id: deal.id,
       ...(window.CrmStore ? CrmStore.dealToReportRow(deal) : {}),
-      stage: R.TYPE_STAGE[type],
+      stage: deal.execution_label || deal.stage || R.TYPE_STAGE[R.state.reportType],
     };
 
     /* Сервер sync_deal_to_reports уже пише в БД; тут лише UI поточного місяця */
@@ -293,36 +326,12 @@
       && R.state.monthKey === month
       && R.state.tbodyEl
     ) {
-      if (R.state.reportType === type) {
-        const extras = R.getExtras().filter(
-          (item) => item.deal_id !== deal.id && item.id !== deal.id
-        );
-        const base = (R.state.baseRows || []).filter(
-          (item) => item.deal_id !== deal.id && item.id !== deal.id
-        );
-        const existing = (R.state.baseRows || []).find(
-          (item) => item.deal_id === deal.id || item.id === deal.id
-        );
-        R.setState({
-          baseRows: existing
-            ? base.concat([{ ...existing, ...row, id: existing.id, pk: existing.pk }])
-            : base,
-        });
-        if (!existing) {
-          extras.unshift(row);
-          R.setExtras(extras);
-        } else {
-          R.setExtras(extras);
-        }
+      if (deal.is_active === false) {
+        removeDealRow(deal.id);
+      } else if (tabs.includes(R.state.reportType)) {
+        upsertDealRow(deal, row);
       } else {
-        R.setState({
-          baseRows: (R.state.baseRows || []).filter(
-            (item) => item.deal_id !== deal.id && item.id !== deal.id
-          ),
-        });
-        R.setExtras(R.getExtras().filter(
-          (item) => item.deal_id !== deal.id && item.id !== deal.id
-        ));
+        removeDealRow(deal.id);
       }
       R.renderTable();
     }

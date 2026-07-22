@@ -103,6 +103,11 @@ const CrmDelete = (() => {
     }
     if (!rule) return card;
 
+    /* Звіт: ніколи не додавати 9-й td зі смітником — зсуває колонки */
+    if (card.closest('#report-table-body') || card.matches('[data-report-row]')) {
+      return card;
+    }
+
     const key = rule.readKey(card);
     if (!key) return card;
 

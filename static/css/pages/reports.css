@@ -6,10 +6,39 @@
   margin-left: 2px;
 }
 
+.report-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.report-table__col--car {
+  width: 22%;
+}
+
+.report-table__col--client {
+  width: 14%;
+}
+
+.report-table__col--money {
+  width: 10.67%;
+}
+
+.report-table th.report-table__num,
+.report-table td.report-table__num,
+.report-table td.report-table__delivery {
+  text-align: right;
+  white-space: nowrap;
+}
+
 .report-table__delivery {
   font-size: 13px;
   white-space: nowrap;
   color: var(--wf-text-muted, var(--text-muted));
+}
+
+.report-table #report-table-body .data-table__actions,
+.report-table #report-table-body .card-delete-btn {
+  display: none;
 }
 
 .report-table__empty td {

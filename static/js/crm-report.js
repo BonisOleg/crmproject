@@ -184,10 +184,19 @@ const CrmReport = (() => {
     return nowMonth;
   }
 
+  function updateReportCount(count) {
+    const note = document.querySelector('[data-report-currency-note]');
+    if (!note) return;
+    note.dataset.reportCount = String(count);
+    const month = note.dataset.reportMonth || monthLabel;
+    note.textContent = `${month} · ${count} угод`;
+  }
+
   function renderTable() {
     if (!tbodyEl) return;
     const rows = mergeRows();
     const overrides = getOverrides();
+    updateReportCount(rows.length);
 
     if (!rows.length) {
       tbodyEl.innerHTML = `<tr class="report-table__empty"><td colspan="${COL_COUNT}">Немає угод у цьому звіті</td></tr>`;
@@ -217,10 +226,14 @@ const CrmReport = (() => {
           <td class="mono report-table__num" data-col="bid" data-label="Ставка" data-field="bid" data-money="${row.bid || 0}" data-money-currency="${row.bid_currency || row.currency}">${formatNum(row.bid || 0)} <span class="report-table__cur">${escapeHtml(row.bid_currency || row.currency)}</span></td>
           <td class="mono report-table__num" data-col="cost" data-label="Собівартість" data-field="cost" data-money="${row.cost}" data-money-currency="${row.cost_currency || row.currency}">${formatNum(row.cost)} <span class="report-table__cur">${escapeHtml(row.cost_currency || row.currency)}</span></td>
           <td class="mono report-table__num" data-col="price" data-label="Клієнту" data-field="price" data-money="${row.price}" data-money-currency="${row.price_currency || row.currency}">${formatNum(row.price)} <span class="report-table__cur">${escapeHtml(row.price_currency || row.currency)}</span></td>
-          <td class="report-table__delivery" data-col="delivery" data-label="Доставка">${deliveryCell}</td>
+          <td class="mono report-table__num report-table__delivery" data-col="delivery" data-label="Доставка">${deliveryCell}</td>
           <td class="mono report-table__num text-green" data-col="profit" data-label="Прибуток" data-field="profit" data-money="${row.profit}" data-money-currency="${row.currency}" data-money-sign="+">+${formatNum(row.profit)} <span class="report-table__cur">${escapeHtml(row.currency)}</span></td>
         </tr>`;
     }).join('');
+
+    tbodyEl.querySelectorAll('.data-table__actions, .card-delete-btn').forEach((node) => {
+      node.remove();
+    });
 
     if (window.CrmCurrency) CrmCurrency.applyAll();
   }
