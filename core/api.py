@@ -1,6 +1,6 @@
 """JSON API: clients, deals, due-payments, documents, leads."""
 
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_http_methods
@@ -69,11 +69,18 @@ def client_detail(request, pk):
     return h.ok(serialize_client(client))
 
 
+def _clip_url(value, max_len=500):
+    url = str(value or '').strip()
+    if not url:
+        return ''
+    return url[:max_len]
+
+
 def _deal_from_body(body, deal=None):
+    is_new = deal is None or not getattr(deal, 'pk', None)
     deal = deal or Deal()
-    if body.get('id') or body.get('code'):
-        deal.code = str(body.get('id') or body.get('code')).strip()
-    elif not deal.code:
+    # Код завжди видає сервер на create — клієнтський id дає UNIQUE 500 при дабл-тапі
+    if is_new or not deal.code:
         deal.code = next_deal_code()
 
     deal.car = h.parse_car(body.get('car') if 'car' in body or not deal.pk else deal.car)
@@ -86,13 +93,17 @@ def _deal_from_body(body, deal=None):
     if 'phone' in body:
         deal.phone = h.parse_phone(body.get('phone'), required=False)
     for field in (
-        'execution', 'payment', 'currency', 'vin', 'lot_url', 'image',
-        'delivery_type', 'auction', 'notes',
+        'execution', 'payment', 'currency', 'vin', 'auction', 'notes',
+        'delivery_type',
         'won_currency', 'bid_currency', 'cost_currency',
         'price_currency', 'delivery_currency',
     ):
         if field in body and body[field] is not None:
             setattr(deal, field, body[field])
+    if 'lot_url' in body:
+        deal.lot_url = _clip_url(body.get('lot_url'), 200)
+    if 'image' in body:
+        deal.image = _clip_url(body.get('image'), 500)
     if 'logistics' in body and isinstance(body['logistics'], dict):
         deal.logistics = body['logistics']
     for money_field in (
@@ -129,6 +140,8 @@ def deals_collection(request):
             deal.refresh_from_db()
     except ValueError as exc:
         return h.fail(str(exc))
+    except IntegrityError:
+        return h.fail('Угода з таким кодом уже є. Спробуйте ще раз.', status=409)
     return h.ok(serialize_deal(deal), status=201)
 
 

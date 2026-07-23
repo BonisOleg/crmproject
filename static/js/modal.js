@@ -636,6 +636,7 @@ const CrmModal = (() => {
 
   async function onSubmit(event) {
     event.preventDefault();
+    if (formEl.dataset.submitting === '1') return;
     const type = formEl.dataset.modalType;
     const config = FORMS[type];
     if (!config) return;
@@ -658,6 +659,9 @@ const CrmModal = (() => {
 
     const item = config.build(data);
     const storeType = config.storeType;
+    const submitBtn = formEl.querySelector('[type="submit"], button.btn--primary, .modal__submit');
+    formEl.dataset.submitting = '1';
+    if (submitBtn) submitBtn.disabled = true;
 
     if (storeType === 'payments') {
       try {
@@ -673,6 +677,9 @@ const CrmModal = (() => {
         }
       } catch {
         /* toast у CrmApi/CrmStore */
+      } finally {
+        formEl.dataset.submitting = '0';
+        if (submitBtn) submitBtn.disabled = false;
       }
       return;
     }
@@ -718,6 +725,9 @@ const CrmModal = (() => {
       }
     } catch {
       /* toast у CrmApi/CrmStore */
+    } finally {
+      formEl.dataset.submitting = '0';
+      if (submitBtn) submitBtn.disabled = false;
     }
   }
 

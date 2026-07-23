@@ -261,6 +261,37 @@ class CrmApiTests(TestCase):
         stats = {s['id']: s for s in cockpit_stats()}
         self.assertEqual(stats['profit']['raw'], 1500.0)
 
+    def test_deal_create_ignores_client_id_duplicate(self):
+        Deal.objects.create(
+            code='AL-2026-050',
+            car='Existing',
+            client_name='Клієнт',
+            price=1000,
+            cost=800,
+        )
+        resp = self.client.post(
+            '/api/deals/',
+            data={
+                'id': 'AL-2026-050',
+                'car': 'New Car',
+                'year': 2021,
+                'client': 'Новий Клієнт',
+                'phone': '+380671234567',
+                'price': 12000,
+                'cost': 10000,
+                'commission': 2100,
+                'execution': 'won',
+                'currency': 'CHF',
+            },
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 201, resp.content)
+        data = resp.json()['data']
+        self.assertNotEqual(data['id'], 'AL-2026-050')
+        self.assertTrue(data['id'].startswith('AL-'))
+        self.assertEqual(Deal.objects.filter(code='AL-2026-050').count(), 1)
+        self.assertTrue(Deal.objects.filter(code=data['id']).exists())
+
     def test_report_patch_syncs_deal_money(self):
         deal = Deal.objects.create(
             code='AL-2026-704',
