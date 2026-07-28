@@ -150,6 +150,18 @@
   border-color: var(--pastel-blue-strong, #93c5fd);
 }
 
+.crm-due-widget__amount-box--error {
+  border-color: var(--red, #dc2626);
+}
+
+.crm-due-widget__error {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--red, #dc2626);
+  line-height: 1.3;
+}
+
 .crm-due-widget__amount-currency {
   display: inline-flex;
   align-items: center;

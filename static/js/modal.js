@@ -692,6 +692,7 @@ const CrmModal = (() => {
       if (type === 'deal') {
         const dueRoot = formEl.querySelector('[data-due-root]');
         const docRoot = formEl.querySelector('[data-doc-root]');
+        dealDueWidget?.commitDraft?.();
         const due_payments = dealDueWidget?.read() || (window.CrmDuePayments ? CrmDuePayments.read(dueRoot) : []);
         const documents = dealDocWidget?.read() || (window.CrmDocuments ? CrmDocuments.read(docRoot) : []);
         await CrmStore.saveDealProfile(saved.id, {
