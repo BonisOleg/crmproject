@@ -164,13 +164,13 @@ def _snapshot_from_deal(deal):
     }
 
 
-def sync_deal_to_reports(deal):
+def sync_deal_to_reports(deal, month_key=None):
     """Виграні = усі активні; Підтверджені = confirmed і далі по воронці."""
     if not deal.is_active:
         ReportRow.objects.filter(deal=deal, is_manual=False).delete()
         return
 
-    month = get_or_create_month()
+    month = get_or_create_month(month_key)
     if month.is_archived:
         return
 
@@ -260,14 +260,14 @@ def backfill_deals_from_reports(month_key=None):
     return synced
 
 
-def refresh_current_report_rows():
+def refresh_current_report_rows(month_key=None):
     """Спочатку heal угоди зі звіту, потім пересинк у звіт поточного місяця."""
-    month = get_or_create_month()
+    month = get_or_create_month(month_key)
     if month.is_archived:
         return month
     backfill_deals_from_reports(month.month_key)
     for deal in Deal.objects.filter(is_active=True).iterator():
-        sync_deal_to_reports(deal)
+        sync_deal_to_reports(deal, month_key=month.month_key)
     return month
 
 
@@ -301,6 +301,13 @@ def archive_previous_months(active_key=None):
         is_archived=True,
         archived_at=now,
     )
+
+
+def ensure_month_rollover(active_key=None):
+    """Архів минулих місяців + створення/наповнення звіту поточного місяця."""
+    active_key = active_key or current_month_key()
+    archive_previous_months(active_key)
+    return refresh_current_report_rows(active_key)
 
 
 def fmt_money(n):

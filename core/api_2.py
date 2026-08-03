@@ -20,8 +20,8 @@ from .serializers import (
 )
 from .services import (
     apply_deal_money,
-    archive_previous_months,
     current_month_key,
+    ensure_month_rollover,
     get_or_create_month,
     month_label,
     next_carrier_code,
@@ -255,11 +255,11 @@ def report_row_detail(request, pk):
 @require_http_methods(['POST'])
 def reports_rollover(request):
     active = current_month_key()
-    archived = archive_previous_months(active)
-    month = get_or_create_month(active)
+    pending = ReportMonth.objects.filter(month_key__lt=active, is_archived=False).count()
+    month = ensure_month_rollover(active)
     return h.ok({
         'active_month': active,
-        'archived_count': archived,
+        'archived_count': pending,
         'month': {'key': month.month_key, 'label': month.label},
     })
 
@@ -267,6 +267,7 @@ def reports_rollover(request):
 @h.api_login_required
 @require_http_methods(['GET'])
 def reports_archive_list(request):
+    ensure_month_rollover()
     active = current_month_key()
     months = []
     for m in ReportMonth.objects.exclude(month_key=active).order_by('-month_key'):

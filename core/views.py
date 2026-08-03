@@ -27,14 +27,13 @@ from .serializers import (
 from .services import (
     CONFIRMED_AND_BELOW,
     action_queues,
-    archive_previous_months,
     attention_subtitle,
     backfill_deals_from_reports,
     cockpit_stats,
     current_month_key,
+    ensure_month_rollover,
     get_or_create_month,
     month_label,
-    refresh_current_report_rows,
 )
 
 
@@ -78,7 +77,7 @@ def logout_view(request):
 
 @login_required
 def cockpit_view(request):
-    backfill_deals_from_reports()
+    ensure_month_rollover()
     deals = list(
         Deal.objects.filter(is_active=True)
         .prefetch_related('due_payments', 'documents', 'client')[:8]
@@ -179,14 +178,13 @@ def _report_context(report_type, month_key, *, readonly=False, is_archive=False)
 
 @login_required
 def reports_redirect_view(request):
-    archive_previous_months()
+    ensure_month_rollover()
     return redirect('reports_won')
 
 
 @login_required
 def reports_won_view(request):
-    archive_previous_months()
-    refresh_current_report_rows()
+    ensure_month_rollover()
     return render(
         request,
         'pages/reports_current.html',
@@ -196,8 +194,7 @@ def reports_won_view(request):
 
 @login_required
 def reports_confirmed_view(request):
-    archive_previous_months()
-    refresh_current_report_rows()
+    ensure_month_rollover()
     return render(
         request,
         'pages/reports_current.html',
@@ -207,6 +204,7 @@ def reports_confirmed_view(request):
 
 @login_required
 def reports_archive_list_view(request):
+    ensure_month_rollover()
     active = current_month_key()
     archive_months = []
     for month in ReportMonth.objects.exclude(month_key=active).order_by('-month_key'):
@@ -232,6 +230,7 @@ def reports_archive_list_view(request):
 
 @login_required
 def reports_archive_month_view(request, month_key):
+    ensure_month_rollover()
     active = current_month_key()
     if month_key == active:
         raise Http404('Місяць не знайдено в архіві')
