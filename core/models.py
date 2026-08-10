@@ -134,6 +134,13 @@ class Deal(models.Model):
     )
     auction = models.CharField(max_length=40, blank=True)
     notes = models.TextField(blank=True)
+    # Момент виграшу: від нього рахується grace 35 днів для атрибуції в поточний звіт
+    won_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text='Момент виграшу (для grace 35 днів і атрибуції звіту)',
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -284,6 +291,13 @@ class ReportMonth(models.Model):
     label = models.CharField(max_length=64, blank=True)
     is_archived = models.BooleanField(default=False)
     archived_at = models.DateTimeField(null=True, blank=True)
+    # Статичний підсумок прибутку, зафіксований під час архівації (формула = monthly_profit_total)
+    finalized_profit = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+        help_text='Зафіксований прибуток на момент архівації місяця',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

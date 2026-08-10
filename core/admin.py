@@ -34,7 +34,8 @@ class ClientAdmin(admin.ModelAdmin):
 @admin.register(models.Deal)
 class DealAdmin(admin.ModelAdmin):
     list_display = (
-        'code', 'car', 'client_name', 'execution', 'payment', 'price', 'debt', 'is_active',
+        'code', 'car', 'client_name', 'execution', 'payment', 'price', 'debt',
+        'won_at', 'is_active',
     )
     search_fields = ('code', 'car', 'client_name', 'vin', 'phone')
     list_filter = ('execution', 'payment', 'currency', 'is_active')
@@ -78,7 +79,7 @@ class DocumentAdmin(admin.ModelAdmin):
 
 @admin.register(models.ReportMonth)
 class ReportMonthAdmin(admin.ModelAdmin):
-    list_display = ('month_key', 'label', 'is_archived', 'archived_at')
+    list_display = ('month_key', 'label', 'is_archived', 'finalized_profit', 'archived_at')
     list_filter = ('is_archived',)
 
 

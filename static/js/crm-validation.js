@@ -459,6 +459,9 @@ const CrmValidation = (() => {
 
   function bindLiveHints(formEl, config) {
     if (config.storeType === 'payments') bindPaymentHints(formEl);
+    if (config.storeType === 'deals' && window.CrmClientSuggest) {
+      CrmClientSuggest.bind(formEl);
+    }
     if (config.storeType === 'carriers') {
       if (window.CrmRoute) CrmRoute.bind(formEl);
       bindCarrierHints(formEl);

@@ -280,6 +280,7 @@ def reports_archive_list(request):
             'won_count': won,
             'confirmed_count': conf,
             'is_archived': m.is_archived,
+            'finalized_profit': float(m.finalized_profit or 0),
         })
     return h.ok(months)
 

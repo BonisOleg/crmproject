@@ -64,7 +64,7 @@ const CrmModal = (() => {
       fields: [
         { name: 'car', label: 'Авто', type: 'text', required: true, validate: 'car', placeholder: 'BMW X5 xDrive40d' },
         { name: 'year', label: 'Рік', type: 'text', required: true, validate: 'year', placeholder: '2021' },
-        { name: 'client', label: 'Клієнт', type: 'text', required: true, validate: 'name', placeholder: 'Олександр К.' },
+        { name: 'client', label: 'Клієнт', type: 'text', required: true, validate: 'name', autocomplete: 'client', placeholder: 'Олександр К.' },
         { name: 'phone', label: 'Телефон', type: 'tel', validate: 'phone', placeholder: '+380 67 123 4567' },
         { name: 'lot_url', label: 'Посилання auto-lot.com', type: 'lot_url', placeholder: 'https://auto-lot.com/lot/12345' },
         { name: 'won_price', label: 'Виграна', type: 'amount_currency', currencyName: 'won_currency', validate: 'price', placeholder: '38000' },
@@ -599,6 +599,9 @@ const CrmModal = (() => {
       control = `<input class="crm-modal__input" id="${id}" type="${inputType}" name="${field.name}" ${attrs}>`;
       if (field.autocomplete === 'route') {
         control = `<div class="crm-modal__combo" data-route-combo>${control}</div>`;
+      }
+      if (field.autocomplete === 'client') {
+        control = `<div class="crm-modal__combo" data-client-combo>${control}</div>`;
       }
     }
 

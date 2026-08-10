@@ -16,8 +16,10 @@ from .serializers import (
 )
 from .services import (
     apply_deal_money,
+    ensure_deal_won_at,
     next_deal_code,
     next_lead_code,
+    suggest_client_names,
     sync_client_debt,
     to_decimal,
 )
@@ -111,7 +113,23 @@ def _deal_from_body(body, deal=None):
     ):
         if money_field in body:
             setattr(deal, money_field, to_decimal(h.parse_money(body.get(money_field))))
+    # won_at: при створенні або якщо ще порожнє — фіксуємо момент виграшу
+    if is_new or not deal.won_at:
+        ensure_deal_won_at(deal, persist=False)
     return deal
+
+
+@h.api_login_required
+@require_http_methods(['GET'])
+def clients_suggest(request):
+    """Autocomplete імен клієнтів: Client + Deal + Lead, icontains з 1-го символа."""
+    q = request.GET.get('q', '')
+    try:
+        limit = min(int(request.GET.get('limit') or 8), 20)
+    except (TypeError, ValueError):
+        limit = 8
+    names = suggest_client_names(q, limit=limit)
+    return h.ok([{'name': n} for n in names])
 
 
 @h.api_login_required

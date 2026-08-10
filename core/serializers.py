@@ -74,6 +74,7 @@ def serialize_deal(deal, *, include_nested=True):
         'price_currency': deal.price_currency,
         'delivery_currency': deal.delivery_currency,
         'notes': deal.notes or '',
+        'won_at': _date(deal.won_at),
     }
     if include_nested:
         data['due_payments'] = [

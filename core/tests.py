@@ -304,6 +304,132 @@ class CrmApiTests(TestCase):
         self.assertEqual(float(monthly_profit_total('2026-08')), 1500.0)
         # Архівний місяць зберігає свої рядки (історія прибутку)
         self.assertEqual(float(monthly_profit_total('2026-07')), 1500.0)
+        self.assertEqual(float(july.finalized_profit), 1500.0)
+
+    def test_grace_confirm_attributes_to_current_month(self):
+        """Confirm у межах 35 днів: won-snapshot в архіві + financials у current."""
+        from datetime import datetime
+
+        from django.utils import timezone
+
+        july = ReportMonth.objects.create(
+            month_key='2026-07',
+            label='Липень 2026',
+            is_archived=False,
+        )
+        won_at = timezone.make_aware(datetime(2026, 7, 20, 12, 0, 0))
+        deal = Deal.objects.create(
+            code='AL-2026-801',
+            car='Grace Car',
+            client_name='Клієнт Grace',
+            price=Decimal('8000'),
+            cost=Decimal('6000'),
+            profit=Decimal('2000'),
+            execution='won',
+            payment='debt',
+            won_at=won_at,
+        )
+        ReportRow.objects.create(
+            month=july,
+            report_type='won',
+            deal=deal,
+            car=deal.car,
+            client=deal.client_name,
+            price=deal.price,
+            cost=deal.cost,
+            profit=deal.profit,
+        )
+
+        ensure_month_rollover('2026-08')
+        july.refresh_from_db()
+        self.assertTrue(july.is_archived)
+
+        deal.execution = 'confirmed'
+        deal.save(update_fields=['execution', 'updated_at'])
+        sync_deal_to_reports(deal)
+
+        self.assertTrue(
+            ReportRow.objects.filter(
+                deal=deal, month=july, report_type='won'
+            ).exists()
+        )
+        self.assertTrue(
+            ReportRow.objects.filter(
+                deal=deal,
+                month__month_key='2026-08',
+                report_type='confirmed',
+            ).exists()
+        )
+        self.assertEqual(float(monthly_profit_total('2026-08')), 2000.0)
+
+    def test_outside_grace_stays_in_archive_month(self):
+        """Confirm після 35 днів: атрибуція лишається в архівному місяці."""
+        from datetime import datetime
+
+        from django.utils import timezone
+
+        july = ReportMonth.objects.create(
+            month_key='2026-07',
+            label='Липень 2026',
+            is_archived=True,
+            finalized_profit=Decimal('0'),
+        )
+        # Явно July, >35 днів до «сьогодні» в тестах при rollover Aug
+        won_at = timezone.make_aware(datetime(2026, 6, 20, 12, 0, 0))
+        deal = Deal.objects.create(
+            code='AL-2026-802',
+            car='Late Confirm',
+            client_name='Клієнт Late',
+            price=Decimal('7000'),
+            cost=Decimal('5000'),
+            profit=Decimal('2000'),
+            execution='confirmed',
+            payment='debt',
+            won_at=won_at,
+        )
+        # home = 2026-06 — створюємо архівний місяць дому
+        june = ReportMonth.objects.create(
+            month_key='2026-06',
+            label='Червень 2026',
+            is_archived=True,
+            finalized_profit=Decimal('0'),
+        )
+        sync_deal_to_reports(deal)
+
+        self.assertTrue(
+            ReportRow.objects.filter(
+                deal=deal, month=june, report_type='confirmed'
+            ).exists()
+        )
+        self.assertFalse(
+            ReportRow.objects.filter(
+                deal=deal,
+                month__month_key='2026-08',
+                report_type='confirmed',
+            ).exists()
+        )
+        # july unused except to mirror archive state
+        self.assertTrue(july.is_archived)
+
+    def test_clients_suggest_icontains(self):
+        from core.models import Client, Lead
+
+        Client.objects.create(name='Олександр Кравчук')
+        Deal.objects.create(
+            code='AL-2026-803',
+            car='Test',
+            client_name='Олексій Мельник',
+            price=1000,
+            cost=800,
+        )
+        Lead.objects.create(code='RQ-900', client_name='Олена Бондар')
+
+        resp = self.client.get('/api/clients/suggest/', {'q': 'Оле'})
+        self.assertEqual(resp.status_code, 200, resp.content)
+        names = {row['name'] for row in resp.json()['data']}
+        self.assertIn('Олександр Кравчук', names)
+        self.assertIn('Олексій Мельник', names)
+        self.assertIn('Олена Бондар', names)
 
     def test_deal_create_ignores_client_id_duplicate(self):
         Deal.objects.create(

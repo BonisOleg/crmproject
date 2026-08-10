@@ -27,6 +27,7 @@ urlpatterns = [
     path('media/<path:path>', api_2.media_serve, name='media_serve'),
     path('api/fetch-lot-photo/', views.fetch_lot_photo_view, name='fetch_lot_photo'),
     path('api/clients/', api.clients_collection, name='api_clients'),
+    path('api/clients/suggest/', api.clients_suggest, name='api_clients_suggest'),
     path('api/clients/<int:pk>/', api.client_detail, name='api_client_detail'),
     path('api/deals/', api.deals_collection, name='api_deals'),
     path('api/deals/<str:code>/', api.deal_detail, name='api_deal_detail'),

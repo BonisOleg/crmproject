@@ -214,7 +214,8 @@
 }
 
 .crm-modal__suggest-item:hover,
-.crm-modal__suggest-item:focus {
+.crm-modal__suggest-item:focus,
+.crm-modal__suggest-item--active {
   background: rgba(59, 130, 246, 0.1);
 }
 
