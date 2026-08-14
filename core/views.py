@@ -422,6 +422,7 @@ def carrier_detail_view(request, carrier_id):
 
 @login_required
 def money_view(request):
+    ensure_month_rollover()
     backfill_deals_from_reports()
     stats_by_id = {s['id']: s for s in cockpit_stats()}
     debtors = [

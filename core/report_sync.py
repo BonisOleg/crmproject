@@ -3,7 +3,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
-from django.db.models import Q, Sum
+from django.db.models import Q
 from django.utils import timezone
 
 from .models import (
@@ -62,16 +62,34 @@ def deal_won_moment(deal):
     return deal.won_at or deal.created_at or timezone.now()
 
 
+def _local_month_key(dt):
+    if not dt:
+        return None
+    local_dt = timezone.localtime(dt) if timezone.is_aware(dt) else dt
+    day = local_dt.date() if hasattr(local_dt, 'date') else local_dt
+    return current_month_key(day)
+
+
 def ensure_deal_won_at(deal, *, persist=True):
     """
     Гарантує won_at.
-    Стан: null → now (перший виграш / створення угоди).
+    Стан: null → created_at (не «зараз», інакше старі угоди падають у поточний місяць).
+    Якщо won_at пізніший місяць ніж created_at — це зламаний backfill, повертаємо created_at.
     """
-    if deal.won_at:
-        return deal.won_at
-    deal.won_at = timezone.now()
-    if persist and deal.pk:
-        deal.save(update_fields=['won_at', 'updated_at'])
+    created = deal.created_at
+    won = deal.won_at
+    fixed = won
+    if not fixed:
+        fixed = created or timezone.now()
+    elif created:
+        won_key = _local_month_key(fixed)
+        created_key = _local_month_key(created)
+        if won_key and created_key and won_key > created_key:
+            fixed = created
+    if deal.won_at != fixed:
+        deal.won_at = fixed
+        if persist and deal.pk:
+            deal.save(update_fields=['won_at', 'updated_at'])
     return deal.won_at
 
 
@@ -149,27 +167,6 @@ def _write_live_rows(deal, month, snap, *, is_confirmed):
         ).delete()
 
 
-def _ensure_archive_won_snapshot(deal, home_month, snap):
-    """
-    Архівний won-snapshot: створити, якщо немає.
-    Стан після confirm у grace: не перезаписуємо існуючий snapshot.
-    """
-    exists = ReportRow.objects.filter(
-        deal=deal,
-        month=home_month,
-        report_type=ReportType.WON,
-    ).exists()
-    if exists:
-        return
-    ReportRow.objects.create(
-        month=home_month,
-        deal=deal,
-        report_type=ReportType.WON,
-        is_manual=False,
-        **snap,
-    )
-
-
 def _clear_open_month_rows(deal, *, keep_month):
     """Прибрати live-рядки з незаархівованих місяців, крім keep_month."""
     ReportRow.objects.filter(
@@ -179,15 +176,28 @@ def _clear_open_month_rows(deal, *, keep_month):
     ).exclude(month=keep_month).delete()
 
 
+def _purge_foreign_rows_from_current(active_key=None):
+    """Поточний звіт: лише авто з won_at цього місяця (не ручні рядки)."""
+    active_key = active_key or current_month_key()
+    month = ReportMonth.objects.filter(month_key=active_key, is_archived=False).first()
+    if not month:
+        return 0
+    deleted = 0
+    rows = ReportRow.objects.filter(month=month, is_manual=False, deal__isnull=False).select_related('deal')
+    for row in rows:
+        if home_month_key_for_deal(row.deal) != active_key:
+            row.delete()
+            deleted += 1
+    return deleted
+
+
 def sync_deal_to_reports(deal, month_key=None):
     """
-    Виграні / підтверджені з урахуванням grace 35 днів.
+    Рядки звіту завжди в місяці виграшу (won_at / created_at).
 
-    Стани атрибуції:
-    - home == current → рядки лише в поточному місяці
-    - unconfirmed + home в архіві → won лишається в архіві (eligible для confirm)
-    - confirmed у межах grace → won-snapshot в архіві + live financials у current
-    - confirmed поза grace → атрибуція лишається в архівному (home) місяці
+    Поточний місяць — лише авто, додані/виграні в цьому місяці.
+    Grace 35 днів: непідтверджені лишаються в архіві й їх можна підтвердити;
+    після confirm рядки оновлюються в home-місяці, не копіюються в current.
     """
     if not deal.is_active:
         ReportRow.objects.filter(deal=deal, is_manual=False).delete()
@@ -195,49 +205,10 @@ def sync_deal_to_reports(deal, month_key=None):
 
     ensure_deal_won_at(deal, persist=True)
 
-    active_key = current_month_key()
     home_key = home_month_key_for_deal(deal)
     is_confirmed = deal.execution in CONFIRMED_AND_BELOW
-    in_grace = within_confirm_grace(deal)
     snap = _snapshot_from_deal(deal)
-
-    # Примусовий month_key лише для явного refresh відкритого поточного місяця
-    force_active = month_key == active_key
-
-    if home_key >= active_key:
-        target_key = active_key
-        grace_split = False
-    elif is_confirmed and in_grace:
-        # B: архів зберігає won-snapshot; current отримує confirmed/financials
-        target_key = active_key
-        grace_split = True
-    else:
-        # Unconfirmed в минулому місяці АБО confirm поза grace → home/архів
-        target_key = home_key
-        grace_split = False
-
-    if force_active and home_key == active_key:
-        target_key = active_key
-        grace_split = False
-
-    target_month = get_or_create_month(target_key)
-
-    if grace_split:
-        home_month = get_or_create_month(home_key)
-        _ensure_archive_won_snapshot(deal, home_month, snap)
-        # Confirmed financials не дублюємо в архіві під час grace
-        ReportRow.objects.filter(
-            deal=deal,
-            month=home_month,
-            report_type=ReportType.CONFIRMED,
-            is_manual=False,
-        ).delete()
-        _write_live_rows(deal, target_month, snap, is_confirmed=True)
-        _clear_open_month_rows(deal, keep_month=target_month)
-        return ReportRow.objects.filter(
-            deal=deal, month=target_month, report_type=ReportType.WON
-        ).first()
-
+    target_month = get_or_create_month(home_key)
     _write_live_rows(deal, target_month, snap, is_confirmed=is_confirmed)
     _clear_open_month_rows(deal, keep_month=target_month)
     return ReportRow.objects.filter(
@@ -309,36 +280,39 @@ def backfill_deals_from_reports(month_key=None):
 
 
 def refresh_current_report_rows(month_key=None):
-    """Heal угоди зі звіту, потім пересинк усіх активних угод (атрибуція сама вирішує місяць)."""
+    """Heal + пересинк; поточний місяць очищається від авто минулих місяців."""
     month = get_or_create_month(month_key)
     if month.is_archived:
         return month
     backfill_deals_from_reports(month.month_key)
     for deal in Deal.objects.filter(is_active=True).iterator():
         sync_deal_to_reports(deal)
+    _purge_foreign_rows_from_current(month.month_key)
     return month
 
 
 def monthly_profit_total(month_key=None):
     """
-    Прибуток місяця: рядки звіту «Виграні» за місяць для
-    підтверджених+/оплачених угод (і ручних рядків без угоди).
+    Прибуток саме цього місяця: won-рядки цього month_key,
+    лише підтверджені+/оплачені (або ручні без угоди).
+    Угоди з won_at іншого місяця не входять.
     """
     month_key = month_key or current_month_key()
-    return (
-        ReportRow.objects.filter(
-            month__month_key=month_key,
-            report_type=ReportType.WON,
-        )
-        .filter(
-            Q(deal__isnull=True, is_manual=True)
-            | Q(deal__execution__in=CONFIRMED_AND_BELOW)
-            | Q(deal__payment=PaymentStatus.PAID)
-        )
-        .aggregate(s=Sum('profit'))
-        .get('s')
-        or Decimal('0')
+    qs = ReportRow.objects.filter(
+        month__month_key=month_key,
+        report_type=ReportType.WON,
+    ).filter(
+        Q(deal__isnull=True, is_manual=True)
+        | Q(deal__execution__in=CONFIRMED_AND_BELOW)
+        | Q(deal__payment=PaymentStatus.PAID)
     )
+    total = Decimal('0')
+    for row in qs.select_related('deal', 'month'):
+        if row.deal_id:
+            if home_month_key_for_deal(row.deal) != month_key:
+                continue
+        total += row.profit or Decimal('0')
+    return total
 
 
 def archive_previous_months(active_key=None):

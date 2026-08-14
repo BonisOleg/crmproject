@@ -262,6 +262,10 @@ class CrmApiTests(TestCase):
         self.assertEqual(stats['profit']['raw'], 1500.0)
 
     def test_ensure_month_rollover_archives_and_starts_current(self):
+        from datetime import datetime
+
+        from django.utils import timezone
+
         july = ReportMonth.objects.create(
             month_key='2026-07',
             label='Липень 2026',
@@ -276,7 +280,13 @@ class CrmApiTests(TestCase):
             profit=Decimal('1500'),
             execution='confirmed',
             payment='debt',
+            won_at=timezone.make_aware(datetime(2026, 7, 15, 12, 0, 0)),
         )
+        Deal.objects.filter(pk=deal.pk).update(
+            created_at=timezone.make_aware(datetime(2026, 7, 15, 12, 0, 0)),
+            won_at=timezone.make_aware(datetime(2026, 7, 15, 12, 0, 0)),
+        )
+        deal.refresh_from_db()
         ReportRow.objects.create(
             month=july,
             report_type='won',
@@ -294,20 +304,19 @@ class CrmApiTests(TestCase):
         self.assertEqual(month.month_key, '2026-08')
         self.assertFalse(month.is_archived)
         self.assertTrue(july.is_archived)
-        self.assertTrue(
+        # Липнева угода не повинна зʼявлятись у серпневому звіті
+        self.assertFalse(
             ReportRow.objects.filter(
                 deal=deal,
                 month=month,
-                report_type='won',
             ).exists()
         )
-        self.assertEqual(float(monthly_profit_total('2026-08')), 1500.0)
-        # Архівний місяць зберігає свої рядки (історія прибутку)
+        self.assertEqual(float(monthly_profit_total('2026-08')), 0.0)
         self.assertEqual(float(monthly_profit_total('2026-07')), 1500.0)
         self.assertEqual(float(july.finalized_profit), 1500.0)
 
-    def test_grace_confirm_attributes_to_current_month(self):
-        """Confirm у межах 35 днів: won-snapshot в архіві + financials у current."""
+    def test_grace_confirm_stays_in_home_month(self):
+        """Confirm у межах 35 днів: рядок лишається в місяці виграшу, не в current."""
         from datetime import datetime
 
         from django.utils import timezone
@@ -329,6 +338,8 @@ class CrmApiTests(TestCase):
             payment='debt',
             won_at=won_at,
         )
+        Deal.objects.filter(pk=deal.pk).update(created_at=won_at, won_at=won_at)
+        deal.refresh_from_db()
         ReportRow.objects.create(
             month=july,
             report_type='won',
@@ -355,12 +366,16 @@ class CrmApiTests(TestCase):
         )
         self.assertTrue(
             ReportRow.objects.filter(
-                deal=deal,
-                month__month_key='2026-08',
-                report_type='confirmed',
+                deal=deal, month=july, report_type='confirmed'
             ).exists()
         )
-        self.assertEqual(float(monthly_profit_total('2026-08')), 2000.0)
+        self.assertFalse(
+            ReportRow.objects.filter(
+                deal=deal,
+                month__month_key='2026-08',
+            ).exists()
+        )
+        self.assertEqual(float(monthly_profit_total('2026-08')), 0.0)
 
     def test_outside_grace_stays_in_archive_month(self):
         """Confirm після 35 днів: атрибуція лишається в архівному місяці."""
