@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   initPackageBar();
   if (window.CrmCurrency) CrmCurrency.initToolbar();
-  else initCurrencyBarFallback();
   if (window.CrmPackages) CrmPackages.applyAll();
 });
 
@@ -42,20 +41,4 @@ function initPackageBar() {
   });
 
   paint();
-}
-
-function initCurrencyBarFallback() {
-  const group = document.querySelector('.wf-currency');
-  if (!group) return;
-  const buttons = group.querySelectorAll('[data-currency]');
-  let active = localStorage.getItem('autolot-currency') || 'CHF';
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      active = btn.dataset.currency;
-      localStorage.setItem('autolot-currency', active);
-      buttons.forEach((b) => {
-        b.classList.toggle('wf-currency__btn--active', b.dataset.currency === active);
-      });
-    });
-  });
 }

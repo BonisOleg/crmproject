@@ -1,28 +1,10 @@
-"""Mock-дані для UI-прототипу Autolot CRM."""
+"""Каталоги та seed-дані Autolot CRM."""
 
-from .mock_data_2 import (  # noqa: F401
-    MONTHLY_REPORT,
+from .mock_data_2 import (
     MONTHLY_REPORTS,
-    REPORT_SECTIONS,
     REPORT_TYPE_LABELS,
     REPORTS_BY_MONTH,
 )
-
-COCKPIT_STATS = [
-    {"id": "receivable", "label": "До отримання", "value": "142 800", "currency": "CHF", "trend": "+12%", "up": True},
-    {"id": "profit", "label": "Прибуток місяця", "value": "28 450", "currency": "CHF", "trend": "+8%", "up": True},
-    {"id": "in_transit_money", "label": "Гроші в дорозі", "value": "67 200", "currency": "EUR", "trend": "-3%", "up": False},
-    {"id": "cars_transit", "label": "Авто в дорозі", "value": "14", "currency": "шт", "trend": "+2", "up": True},
-]
-
-ACTION_QUEUES = [
-    {"id": "confirm", "title": "Чекають підтвердження", "count": 5, "icon": "clock", "color": "amber"},
-    {"id": "pickup", "title": "Готові до забору", "count": 3, "icon": "truck", "color": "cyan"},
-    {"id": "customs", "title": "В дорозі / митниця", "count": 8, "icon": "route", "color": "blue"},
-    {"id": "debt", "title": "Доставлено + борг", "count": 4, "icon": "wallet", "color": "red"},
-    {"id": "no_vin", "title": "Без VIN / фото", "count": 2, "icon": "alert", "color": "orange"},
-    {"id": "stuck", "title": "Застрягли", "count": 1, "icon": "pause", "color": "purple"},
-]
 
 DEALS = [
     {
@@ -401,11 +383,4 @@ EXECUTION_STAGES = [
 PAYMENTS_SAMPLE = [
     {"date": "2026-05-10", "amount": 15000, "currency": "CHF", "place": "На офісі"},
     {"date": "2026-05-28", "amount": 13000, "currency": "CHF", "place": "На місці"},
-]
-
-PRICE_BREAKDOWN = [
-    {"label": "Виграш", "amount": 36500},
-    {"label": "Комісія", "amount": 2920},
-    {"label": "Логістика", "amount": 3080},
-    {"label": "Коригування", "amount": 0},
 ]

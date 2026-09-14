@@ -14,22 +14,19 @@ from .models import (
     Lead,
     PaymentStatus,
 )
-from .report_sync import (  # noqa: F401 — re-export для API/views/tests
+from .report_sync import (
     CONFIRMED_AND_BELOW,
-    WON_CONFIRM_GRACE_DAYS,
-    archive_previous_months,
     backfill_deals_from_reports,
     current_month_key,
     ensure_deal_won_at,
     ensure_month_rollover,
     get_or_create_month,
-    home_month_key_for_deal,
+    list_archive_months,
     month_label,
     monthly_profit_total,
     refresh_current_report_rows,
     sync_deal_to_reports,
     sync_report_row_to_deal,
-    within_confirm_grace,
 )
 
 

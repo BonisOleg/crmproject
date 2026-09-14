@@ -213,10 +213,11 @@ STORAGES = {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
-        # На Vercel collectstatic часто відсутній — без compressed-manifest
         'BACKEND': (
             'django.contrib.staticfiles.storage.StaticFilesStorage'
             if _on_vercel
+            else 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+            if _is_prod
             else 'whitenoise.storage.CompressedStaticFilesStorage'
         ),
     },

@@ -23,6 +23,7 @@ from .services import (
     current_month_key,
     ensure_month_rollover,
     get_or_create_month,
+    list_archive_months,
     month_label,
     next_carrier_code,
     sync_report_row_to_deal,
@@ -268,21 +269,7 @@ def reports_rollover(request):
 @require_http_methods(['GET'])
 def reports_archive_list(request):
     ensure_month_rollover()
-    active = current_month_key()
-    months = []
-    for m in ReportMonth.objects.exclude(month_key=active).order_by('-month_key'):
-        won = m.rows.filter(report_type='won').count()
-        conf = m.rows.filter(report_type='confirmed').count()
-        months.append({
-            'key': m.month_key,
-            'label': m.label or month_label(m.month_key),
-            'deal_count': won + conf,
-            'won_count': won,
-            'confirmed_count': conf,
-            'is_archived': m.is_archived,
-            'finalized_profit': float(m.finalized_profit or 0),
-        })
-    return h.ok(months)
+    return h.ok(list_archive_months())
 
 
 @h.api_login_required

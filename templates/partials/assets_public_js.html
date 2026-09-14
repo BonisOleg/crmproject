@@ -1,0 +1,7 @@
+{% load static %}
+{% if use_static_bundles %}
+<script src="{% static 'js/bundles/crm-public.js' %}" defer></script>
+{% else %}
+<script src="{% static 'js/theme.js' %}" defer></script>
+<script src="{% static 'js/actions.js' %}" defer></script>
+{% endif %}

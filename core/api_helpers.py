@@ -6,7 +6,6 @@ from functools import wraps
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
 
 
 def api_login_required(view):
@@ -107,7 +106,3 @@ def parse_money(value, required=False, field='сума'):
     if num > 9999999:
         raise ValueError('Занадто велика сума')
     return num
-
-
-def methods(*allowed):
-    return require_http_methods(list(allowed))

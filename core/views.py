@@ -14,7 +14,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 
 from . import mock_data as md
-from .models import Carrier, Client, Deal, Lead, Payment, ReportMonth, SiteSettings
+from .models import Carrier, Client, Deal, Lead, ReportMonth, SiteSettings
 from .serializers import (
     serialize_carrier,
     serialize_client,
@@ -33,6 +33,7 @@ from .services import (
     current_month_key,
     ensure_month_rollover,
     get_or_create_month,
+    list_archive_months,
     month_label,
 )
 
@@ -206,24 +207,8 @@ def reports_confirmed_view(request):
 def reports_archive_list_view(request):
     ensure_month_rollover()
     active = current_month_key()
-    archive_months = []
-    for month in ReportMonth.objects.exclude(month_key=active).order_by('-month_key'):
-        won = month.rows.filter(report_type='won').count()
-        conf = month.rows.filter(report_type='confirmed').count()
-        # finalized_profit — статичний підсумок архіву; fallback на динамічний розрахунок
-        profit = month.finalized_profit
-        if profit is None:
-            profit = 0
-        archive_months.append({
-            'key': month.month_key,
-            'label': month.label or month_label(month.month_key),
-            'deal_count': won + conf,
-            'won_count': won,
-            'confirmed_count': conf,
-            'finalized_profit': float(profit),
-        })
     return render(request, 'pages/reports_archive.html', {
-        'archive_months': archive_months,
+        'archive_months': list_archive_months(active),
         'archive_month': None,
         'report_type': None,
         'is_archive': True,

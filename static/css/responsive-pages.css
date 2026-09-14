@@ -128,7 +128,12 @@
   .leads-hero {
     flex-direction: column;
     align-items: stretch;
+    gap: 14px;
     padding: var(--space-md);
+  }
+
+  .leads-hero__desc {
+    max-width: none;
   }
 
   .leads-hero__stats {
@@ -197,6 +202,25 @@
 @media (min-width: 768px) and (max-width: 1024px) {
   .leads-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .leads-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1440px) {
+  .leads-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .leads-hero {
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
   }
 }
 

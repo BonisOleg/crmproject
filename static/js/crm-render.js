@@ -398,6 +398,13 @@ const CrmRender = (() => {
 window.CrmRender = CrmRender;
 
 document.addEventListener('DOMContentLoaded', () => {
-  CrmRender.mountAll();
-  if (window.CrmCurrency) CrmCurrency.applyAll();
+  const start = () => {
+    CrmRender.mountAll();
+    if (window.CrmCurrency) CrmCurrency.applyAll();
+  };
+  if (window.CrmStore && typeof CrmStore.ready === 'function') {
+    CrmStore.ready().then(start);
+    return;
+  }
+  start();
 });

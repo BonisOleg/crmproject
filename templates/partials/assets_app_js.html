@@ -1,0 +1,22 @@
+{% load static %}
+{% if use_static_bundles %}
+<script src="{% static 'js/bundles/crm-core.js' %}" defer></script>
+{% else %}
+<script src="{% static 'js/theme.js' %}" defer></script>
+<script src="{% static 'js/crm-api.js' %}" defer></script>
+<script src="{% static 'js/crm-store.js' %}" defer></script>
+<script src="{% static 'js/crm-payments.js' %}" defer></script>
+<script src="{% static 'js/crm-validation.js' %}" defer></script>
+<script src="{% static 'js/crm-route.js' %}" defer></script>
+<script src="{% static 'js/crm-client-suggest.js' %}" defer></script>
+<script src="{% static 'js/crm-render.js' %}" defer></script>
+<script src="{% static 'js/crm-due-payments.js' %}" defer></script>
+<script src="{% static 'js/crm-documents.js' %}" defer></script>
+<script src="{% static 'js/modal.js' %}" defer></script>
+<script src="{% static 'js/crm-delete.js' %}" defer></script>
+<script src="{% static 'js/actions.js' %}" defer></script>
+<script src="{% static 'js/packages.js' %}" defer></script>
+<script src="{% static 'js/currency.js' %}" defer></script>
+<script src="{% static 'js/wireframe.js' %}" defer></script>
+<script src="{% static 'js/app.js' %}" defer></script>
+{% endif %}

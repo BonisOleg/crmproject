@@ -1,6 +1,5 @@
-"""Звіти: синк угод, grace 35 днів, rollover і зафіксований прибуток."""
+"""Звіти: синк угод, rollover і зафіксований прибуток."""
 
-from datetime import timedelta
 from decimal import Decimal
 
 from django.db.models import Q
@@ -14,9 +13,6 @@ from .models import (
     ReportRow,
     ReportType,
 )
-
-# Підтвердження в межах цього вікна після won_at → атрибуція в поточний місяць
-WON_CONFIRM_GRACE_DAYS = 35
 
 # Підтверджено і далі по воронці (не «Виграно»)
 CONFIRMED_AND_BELOW = (
@@ -98,15 +94,6 @@ def home_month_key_for_deal(deal):
     moment = deal_won_moment(deal)
     local_dt = timezone.localtime(moment) if timezone.is_aware(moment) else moment
     return current_month_key(local_dt.date())
-
-
-def within_confirm_grace(deal, today=None):
-    """True, якщо сьогодні в межах 35 днів від дати виграшу (локальна TZ)."""
-    today = today or timezone.localdate()
-    moment = deal_won_moment(deal)
-    local_dt = timezone.localtime(moment) if timezone.is_aware(moment) else moment
-    won_day = local_dt.date() if hasattr(local_dt, 'date') else local_dt
-    return won_day + timedelta(days=WON_CONFIRM_GRACE_DAYS) >= today
 
 
 def get_or_create_month(month_key=None):
@@ -196,8 +183,7 @@ def sync_deal_to_reports(deal, month_key=None):
     Рядки звіту завжди в місяці виграшу (won_at / created_at).
 
     Поточний місяць — лише авто, додані/виграні в цьому місяці.
-    Grace 35 днів: непідтверджені лишаються в архіві й їх можна підтвердити;
-    після confirm рядки оновлюються в home-місяці, не копіюються в current.
+    Після confirm рядки оновлюються в home-місяці, не копіюються в current.
     """
     if not deal.is_active:
         ReportRow.objects.filter(deal=deal, is_manual=False).delete()
@@ -313,6 +299,24 @@ def monthly_profit_total(month_key=None):
                 continue
         total += row.profit or Decimal('0')
     return total
+
+
+def list_archive_months(active_key=None):
+    active_key = active_key or current_month_key()
+    months = []
+    for month in ReportMonth.objects.exclude(month_key=active_key).order_by('-month_key'):
+        won = month.rows.filter(report_type='won').count()
+        conf = month.rows.filter(report_type='confirmed').count()
+        months.append({
+            'key': month.month_key,
+            'label': month.label or month_label(month.month_key),
+            'deal_count': won + conf,
+            'won_count': won,
+            'confirmed_count': conf,
+            'is_archived': month.is_archived,
+            'finalized_profit': float(month.finalized_profit or 0),
+        })
+    return months
 
 
 def archive_previous_months(active_key=None):

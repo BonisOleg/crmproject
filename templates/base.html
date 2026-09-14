@@ -30,61 +30,19 @@
       }
     })();
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
-  <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
-  <link rel="stylesheet" href="{% static 'css/components.css' %}">
-  <link rel="stylesheet" href="{% static 'css/animations.css' %}">
-  <link rel="stylesheet" href="{% static 'css/premium.css' %}">
-  <link rel="stylesheet" href="{% static 'css/hover.css' %}">
-  <link rel="stylesheet" href="{% static 'css/glass.css' %}">
-  <link rel="stylesheet" href="{% static 'css/glass-fx.css' %}">
-  <link rel="stylesheet" href="{% static 'css/modern.css' %}">
-  <link rel="stylesheet" href="{% static 'css/pages/pages.css' %}">
-  <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
-  <link rel="stylesheet" href="{% static 'css/responsive-pages.css' %}">
-  <link rel="stylesheet" href="{% static 'css/responsive-complete.css' %}">
-  <link rel="stylesheet" href="{% static 'css/table-cards.css' %}">
-  <link rel="stylesheet" href="{% static 'css/toast.css' %}">
-  <link rel="stylesheet" href="{% static 'css/modal.css' %}">
-  <link rel="stylesheet" href="{% static 'css/crm-due-payments.css' %}">
-  <link rel="stylesheet" href="{% static 'css/crm-documents.css' %}">
-  <link rel="stylesheet" href="{% static 'css/wireframe-tokens.css' %}">
-  <link rel="stylesheet" href="{% static 'css/wireframe-layout.css' %}">
-  <link rel="stylesheet" href="{% static 'css/wireframe-components.css' %}">
-  <link rel="stylesheet" href="{% static 'css/wireframe-pages.css' %}">
-  <link rel="stylesheet" href="{% static 'css/packages.css' %}">
+  {% block core_css %}
+    {% include "partials/assets_public_css.html" %}
+  {% endblock %}
   {% block extra_css %}{% endblock %}
 </head>
 <body>
   {% csrf_token %}
-  <script type="application/json" id="crm-deals-catalog">{{ crm_deals_catalog_json|safe }}</script>
-  <script type="application/json" id="crm-carriers-catalog">{{ crm_carriers_catalog_json|safe }}</script>
+  {% block catalog_boot %}{% endblock %}
   {% block body %}{% endblock %}
-  {% include "partials/crm_modal.html" %}
-  <script src="{% static 'js/theme.js' %}" defer></script>
-  <script src="{% static 'js/crm-api.js' %}" defer></script>
-  <script src="{% static 'js/crm-store.js' %}" defer></script>
-  <script src="{% static 'js/crm-report.js' %}" defer></script>
-  <script src="{% static 'js/crm-report-2.js' %}" defer></script>
-  <script src="{% static 'js/crm-payments.js' %}" defer></script>
-  <script src="{% static 'js/crm-validation.js' %}" defer></script>
-  <script src="{% static 'js/crm-route.js' %}" defer></script>
-  <script src="{% static 'js/crm-client-suggest.js' %}" defer></script>
-  <script src="{% static 'js/crm-render.js' %}" defer></script>
-  <script src="{% static 'js/crm-due-payments.js' %}" defer></script>
-  <script src="{% static 'js/crm-documents.js' %}" defer></script>
-  <script src="{% static 'js/modal.js' %}" defer></script>
-  <script src="{% static 'js/crm-delete.js' %}" defer></script>
-  <script src="{% static 'js/actions.js' %}" defer></script>
-  <script src="{% static 'js/packages.js' %}" defer></script>
-  <script src="{% static 'js/currency.js' %}" defer></script>
-  <script src="{% static 'js/wireframe.js' %}" defer></script>
-  <script src="{% static 'js/app.js' %}" defer></script>
-  <script src="{% static 'js/animations.js' %}" defer></script>
+  {% block crm_modal %}{% endblock %}
+  {% block core_js %}
+    {% include "partials/assets_public_js.html" %}
+  {% endblock %}
   {% block extra_js %}{% endblock %}
 </body>
 </html>

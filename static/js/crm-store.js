@@ -39,7 +39,33 @@ const CrmStore = (() => {
     if (carriers.length) cache.carriers = carriers.slice();
   }
 
-  hydrate();
+  function bootFromApi() {
+    if (!window.CrmApi) return Promise.resolve();
+    return Promise.all([
+      CrmApi.deals.list().then((list) => {
+        if (Array.isArray(list) && list.length) cache.deals = list.slice();
+      }),
+      CrmApi.carriers.list().then((list) => {
+        if (Array.isArray(list) && list.length) cache.carriers = list.slice();
+      }),
+    ]).then(() => {
+      document.dispatchEvent(new CustomEvent('crm:catalog-ready'));
+    }).catch((err) => {
+      if (typeof showToast === 'function') {
+        showToast(err.message || 'Не вдалося завантажити каталог', 'info');
+      }
+    });
+  }
+
+  let readyPromise = null;
+
+  function ready() {
+    if (readyPromise) return readyPromise;
+    hydrate();
+    const hasInline = cache.deals.length > 0 || cache.carriers.length > 0;
+    readyPromise = hasInline ? Promise.resolve() : bootFromApi();
+    return readyPromise;
+  }
 
   function todayISO() {
     return new Date().toISOString().slice(0, 10);
@@ -271,6 +297,7 @@ const CrmStore = (() => {
     addPayment,
     readPayments,
     hydrate,
+    ready,
     putDeal,
     putCarrier,
   };

@@ -1,0 +1,13 @@
+{% load static %}
+{% if use_static_bundles %}
+<link rel="stylesheet" href="{% static 'css/bundles/crm-public.css' %}">
+{% else %}
+<link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+<link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/components.css' %}">
+<link rel="stylesheet" href="{% static 'css/wireframe-tokens.css' %}">
+<link rel="stylesheet" href="{% static 'css/theme-toggle.css' %}">
+<link rel="stylesheet" href="{% static 'css/toast.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/login.css' %}">
+{% endif %}

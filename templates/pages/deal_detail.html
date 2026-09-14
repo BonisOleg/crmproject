@@ -21,14 +21,14 @@
 {% block content %}
 <div class="deal-detail-grid" data-deal-page data-deal-id="{{ deal.id }}">
   <div class="deal-detail-grid__media">
-    <div class="deal-gallery animate-fade-up" data-reveal>
+    <div class="deal-gallery animate-fade-up">
       <img src="{{ deal.image }}" alt="{{ deal.car }}" class="deal-gallery__main" data-deal-gallery-main referrerpolicy="no-referrer">
       <div class="deal-gallery__thumbs">
         <img src="{{ deal.image }}" alt="" class="deal-gallery__thumb" data-deal-gallery-thumb referrerpolicy="no-referrer">
       </div>
     </div>
 
-    <div class="card animate-fade-up stagger-2" style="margin-top:20px" data-reveal>
+    <div class="card animate-fade-up stagger-2" style="margin-top:20px">
       <div class="card__header">
         <h3 class="card__title">Логістика</h3>
         <span class="badge-tag badge-tag--mvp">4 точки</span>
@@ -83,7 +83,7 @@
   </div>
 
   <div class="deal-detail-grid__card">
-    <form class="card deal-unified animate-fade-up" id="deal-unified-form" data-reveal>
+    <form class="card deal-unified animate-fade-up" id="deal-unified-form">
       <div class="deal-unified__head">
         <div>
           <h2 class="deal-unified__title" data-deal-page-title>{{ deal.car }}</h2>
@@ -223,7 +223,7 @@
       </div>
     </form>
 
-    <div class="card animate-fade-up stagger-2" style="margin-top:16px" data-reveal>
+    <div class="card animate-fade-up stagger-2" style="margin-top:16px">
       <div class="card__header">
         <h3 class="card__title">Фінанси</h3>
       </div>
@@ -270,7 +270,7 @@
       </div>
     </div>
 
-    <div class="card animate-fade-up stagger-3" style="margin-top:16px" data-reveal>
+    <div class="card animate-fade-up stagger-3" style="margin-top:16px">
       <div class="card__header">
         <h3 class="card__title">Фактичні платежі</h3>
         <button type="button" class="btn btn--ghost btn--sm" data-open-modal="payment" data-payment-deal="{{ deal.id }}">+ Додати</button>

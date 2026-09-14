@@ -1,6 +1,23 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block core_css %}
+  {% include "partials/assets_app_css.html" %}
+{% endblock %}
+
+{% block catalog_boot %}
+<script type="application/json" id="crm-deals-catalog">[]</script>
+<script type="application/json" id="crm-carriers-catalog">[]</script>
+{% endblock %}
+
+{% block crm_modal %}
+  {% include "partials/crm_modal.html" %}
+{% endblock %}
+
+{% block core_js %}
+  {% include "partials/assets_app_js.html" %}
+{% endblock %}
+
 {% block body %}
 <div class="app-shell wireframe-app" data-page="{{ page|default:'' }}">
   {% include "partials/sidebar.html" %}

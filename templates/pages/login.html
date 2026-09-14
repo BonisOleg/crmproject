@@ -1,11 +1,6 @@
 {% extends "base.html" %}
-{% load static %}
 
 {% block title %}Вхід — Autolot CRM{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/login.css' %}">
-{% endblock %}
 
 {% block body %}
 <div class="theme-switch-wrap theme-switch-wrap--login">
@@ -14,9 +9,7 @@
 <div class="login-bg-grid"></div>
 <div class="login-shell">
   <section class="login-showcase">
-    <div class="glow-orb glow-orb--accent"></div>
-    <div class="glow-orb glow-orb--gold"></div>
-    <div class="login-showcase__content animate-fade-up">
+    <div class="login-showcase__content">
       <div class="login-showcase__eyebrow">Auto-Lot · Швейцарія → Україна</div>
       <h1 class="login-showcase__title display">Єдиний центр обліку авто з аукціонів</h1>
       <p class="login-showcase__desc">Угоди, логістика, фінанси та кокпіт — без таблиць і ручних переносів. Преміальна CRM для вашого бізнесу.</p>
@@ -53,8 +46,7 @@
   </section>
 
   <div class="login-page">
-    <div class="card login-card glass-hero animate-fade-up stagger-2">
-      <div class="glass-hero__shine"></div>
+    <div class="card login-card">
       <div class="login-card__logo">
         <div class="login-card__logo-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 17h14v-5H5v5zM7 12V7h10v5"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>

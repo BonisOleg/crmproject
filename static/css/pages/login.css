@@ -46,7 +46,7 @@
 
 .login-showcase__title {
   font-size: clamp(32px, 4vw, 44px);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.1;
   margin-bottom: 16px;
@@ -71,10 +71,8 @@
   gap: 14px;
   padding: 14px 16px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--wf-surface, var(--bg-surface));
   border: 1px solid var(--border);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .login-feature__icon {
@@ -115,9 +113,7 @@
   padding-left: max(20px, var(--safe-left, 0px));
   padding-right: max(20px, var(--safe-right, 0px));
   padding-bottom: calc(var(--safe-bottom) + 24px);
-  background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--wf-surface, var(--bg-surface));
   border-left: none;
   min-width: 0;
   box-sizing: border-box;
@@ -170,7 +166,7 @@
 
 .login-card__title {
   font-size: 26px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
 }
 
@@ -391,5 +387,23 @@
   .login-card__submit,
   .btn--google {
     font-size: 16px;
+  }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card::before,
+  .login-card__logo-icon {
+    animation: none;
   }
 }

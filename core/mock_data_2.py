@@ -28,8 +28,6 @@ MONTHLY_REPORTS = {
     },
 }
 
-MONTHLY_REPORT = MONTHLY_REPORTS["2026-07"]
-
 _CHF = {
     "currency": "CHF",
     "won_currency": "CHF",
@@ -96,10 +94,4 @@ REPORTS_BY_MONTH = {
         ],
     },
 }
-
-# Сумісність зі старим кодом
-REPORT_SECTIONS = [
-    {"name": "Виграні", "rows": REPORTS_BY_MONTH["2026-07"]["won"]},
-    {"name": "Підтверджені", "rows": REPORTS_BY_MONTH["2026-07"]["confirmed"]},
-]
 

@@ -13,8 +13,8 @@ services:
     #   name: autolot-media
     #   mountPath: /var/data/media
     #   sizeGB: 1
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py ensure_demo_user && if [ "$CRM_CLEAR_DATA" = "true" ]; then python manage.py clear_crm_data --yes; fi
-    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    buildCommand: pip install -r requirements.txt && python3 scripts/build_static.py && python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py ensure_demo_user && if [ "$CRM_CLEAR_DATA" = "true" ]; then python manage.py clear_crm_data --yes; fi
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 2 --timeout 60
     healthCheckPath: /healthz/
     envVars:
       - key: PYTHON_VERSION
