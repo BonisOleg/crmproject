@@ -1377,18 +1377,6 @@ ul, ol {
   box-sizing: border-box;
 }
 
-.login-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), var(--gold), var(--blue));
-  background-size: 200% 100%;
-  animation: gradient-shift 5s ease infinite;
-}
-
 .login-card__logo {
   text-align: center;
   margin-bottom: 36px;
@@ -1638,19 +1626,12 @@ ul, ol {
   }
 }
 
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .login-card::before,
   .login-card__logo-icon {
     animation: none;
   }
