@@ -138,6 +138,23 @@ const CrmDealCard = (() => {
     const form = document.getElementById('deal-unified-form');
     if (!form || !dealId) return;
 
+    if (!deal) {
+      if (typeof showToast === 'function') {
+        showToast('Картка ще завантажується — спробуйте знову', 'info');
+      }
+      return;
+    }
+
+    const car = form.car.value.trim();
+    const client = form.client.value.trim();
+    if (!car || !client) {
+      if (typeof showToast === 'function') {
+        showToast(!car ? 'Вкажіть модель авто' : 'Заповніть клієнта', 'info');
+      }
+      (!car ? form.car : form.client)?.focus();
+      return;
+    }
+
     const execution = form.execution.value;
     const executionLabel = EXECUTION_OPTIONS.find((opt) => opt.value === execution)?.label || execution;
     const price = Number(sanitizeDigits(form.price.value)) || 0;
@@ -156,8 +173,8 @@ const CrmDealCard = (() => {
     const documents = docWidget?.read() || (window.CrmDocuments ? CrmDocuments.read(docRoot) : []);
 
     const patch = {
-      car: form.car.value.trim(),
-      client: form.client.value.trim(),
+      car,
+      client,
       phone: form.phone.value.trim(),
       vin: form.vin.value.trim(),
       auction: form.auction.value,
@@ -215,18 +232,61 @@ const CrmDealCard = (() => {
     });
   }
 
-  function init() {
+  function readInlineDeal() {
+    const node = document.getElementById('crm-current-deal');
+    if (!node) return null;
+    try {
+      const parsed = JSON.parse(node.textContent || '{}');
+      return parsed?.id ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function ensureDealLoaded() {
+    const inline = readInlineDeal();
+    if (inline && window.CrmStore?.putDeal) {
+      CrmStore.putDeal(inline);
+    }
+    if (loadDeal()) return true;
+
+    if (window.CrmStore?.ready) {
+      await CrmStore.ready();
+    }
+    if (loadDeal()) return true;
+
+    if (window.CrmApi?.deals?.get) {
+      try {
+        const remote = await CrmApi.deals.get(dealId);
+        if (remote?.id && window.CrmStore?.putDeal) {
+          CrmStore.putDeal(remote);
+        }
+      } catch {
+        /* toast у CrmApi / далі покажемо нижче */
+      }
+    }
+    return Boolean(loadDeal());
+  }
+
+  async function init() {
     const page = document.querySelector('[data-deal-page]');
     if (!page) return;
 
     dealId = page.dataset.dealId;
-    if (!loadDeal()) return;
+    bindForm();
+
+    const ok = await ensureDealLoaded();
+    if (!ok) {
+      if (typeof showToast === 'function') {
+        showToast('Не вдалося завантажити картку угоди', 'info');
+      }
+      return;
+    }
 
     fillForm();
     mountDuePayments();
     mountDocuments();
     refreshFinance();
-    bindForm();
   }
 
   return { init };

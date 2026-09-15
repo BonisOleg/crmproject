@@ -95,46 +95,46 @@
       <div class="deal-unified__grid">
         <label class="deal-unified__group">
           <span>Авто</span>
-          <input class="deal-unified__input" type="text" name="car" required maxlength="120" autocomplete="off">
+          <input class="deal-unified__input" type="text" name="car" required maxlength="120" autocomplete="off" value="{{ deal.car }}">
         </label>
         <label class="deal-unified__group">
           <span>Клієнт</span>
-          <input class="deal-unified__input" type="text" name="client" required maxlength="80" autocomplete="off">
+          <input class="deal-unified__input" type="text" name="client" required maxlength="80" autocomplete="off" value="{{ deal.client }}">
         </label>
         <label class="deal-unified__group">
           <span>Телефон</span>
-          <input class="deal-unified__input" type="tel" name="phone" inputmode="tel" maxlength="20" autocomplete="tel">
+          <input class="deal-unified__input" type="tel" name="phone" inputmode="tel" maxlength="20" autocomplete="tel" value="{{ deal.phone }}">
         </label>
         <label class="deal-unified__group">
           <span>VIN</span>
-          <input class="deal-unified__input" type="text" name="vin" maxlength="20" autocomplete="off">
+          <input class="deal-unified__input" type="text" name="vin" maxlength="20" autocomplete="off" value="{{ deal.vin }}">
         </label>
         <label class="deal-unified__group">
           <span>Аукціон</span>
           <select class="deal-unified__input" name="auction">
-            <option value="BCP">BCP</option>
-            <option value="SCC">SCC</option>
-            <option value="ALLIANZ">ALLIANZ</option>
-            <option value="AXA">AXA</option>
-            <option value="REST">REST</option>
+            <option value="BCP"{% if deal.auction == 'BCP' or not deal.auction %} selected{% endif %}>BCP</option>
+            <option value="SCC"{% if deal.auction == 'SCC' %} selected{% endif %}>SCC</option>
+            <option value="ALLIANZ"{% if deal.auction == 'ALLIANZ' %} selected{% endif %}>ALLIANZ</option>
+            <option value="AXA"{% if deal.auction == 'AXA' %} selected{% endif %}>AXA</option>
+            <option value="REST"{% if deal.auction == 'REST' %} selected{% endif %}>REST</option>
           </select>
         </label>
         <label class="deal-unified__group">
           <span>Стадія</span>
           <select class="deal-unified__input" name="execution">
-            <option value="won">Виграно</option>
-            <option value="confirmed">Підтверджено</option>
-            <option value="picked">Забрано</option>
-            <option value="in_transit">В дорозі</option>
-            <option value="customs">Розмитнено</option>
-            <option value="delivered">Доставлено</option>
+            <option value="won"{% if deal.execution == 'won' %} selected{% endif %}>Виграно</option>
+            <option value="confirmed"{% if deal.execution == 'confirmed' %} selected{% endif %}>Підтверджено</option>
+            <option value="picked"{% if deal.execution == 'picked' %} selected{% endif %}>Забрано</option>
+            <option value="in_transit"{% if deal.execution == 'in_transit' %} selected{% endif %}>В дорозі</option>
+            <option value="customs"{% if deal.execution == 'customs' %} selected{% endif %}>Розмитнено</option>
+            <option value="delivered"{% if deal.execution == 'delivered' %} selected{% endif %}>Доставлено</option>
           </select>
         </label>
 
         <div class="deal-unified__group deal-unified__group--full">
           <span>Виграна</span>
           <div class="deal-unified__amount-row">
-            <input class="deal-unified__input" type="text" name="won_price" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+            <input class="deal-unified__input" type="text" name="won_price" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0" value="{{ deal.won_price|default:0|floatformat:0|unlocalize }}">
             <select class="deal-unified__cur-select" name="won_currency">
               <option{% if deal.won_currency == 'CHF' or not deal.won_currency %} selected{% endif %}>CHF</option>
               <option{% if deal.won_currency == 'EUR' %} selected{% endif %}>EUR</option>
@@ -146,7 +146,7 @@
         <div class="deal-unified__group deal-unified__group--full">
           <span>Ставка</span>
           <div class="deal-unified__amount-row">
-            <input class="deal-unified__input" type="text" name="bid" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+            <input class="deal-unified__input" type="text" name="bid" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0" value="{{ deal.bid|default:0|floatformat:0|unlocalize }}">
             <select class="deal-unified__cur-select" name="bid_currency">
               <option{% if deal.bid_currency == 'CHF' or not deal.bid_currency %} selected{% endif %}>CHF</option>
               <option{% if deal.bid_currency == 'EUR' %} selected{% endif %}>EUR</option>
@@ -158,7 +158,7 @@
         <div class="deal-unified__group deal-unified__group--full">
           <span>Собівартість</span>
           <div class="deal-unified__amount-row">
-            <input class="deal-unified__input" type="text" name="cost" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+            <input class="deal-unified__input" type="text" name="cost" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0" value="{{ deal.cost|default:0|floatformat:0|unlocalize }}">
             <select class="deal-unified__cur-select" name="cost_currency">
               <option{% if deal.cost_currency == 'CHF' or not deal.cost_currency %} selected{% endif %}>CHF</option>
               <option{% if deal.cost_currency == 'EUR' %} selected{% endif %}>EUR</option>
@@ -170,7 +170,7 @@
         <div class="deal-unified__group deal-unified__group--full">
           <span>Клієнту</span>
           <div class="deal-unified__amount-row">
-            <input class="deal-unified__input" type="text" name="price" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+            <input class="deal-unified__input" type="text" name="price" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0" value="{{ deal.price|default:0|floatformat:0|unlocalize }}">
             <select class="deal-unified__cur-select" name="price_currency">
               <option{% if deal.price_currency == 'CHF' or not deal.price_currency %} selected{% endif %}>CHF</option>
               <option{% if deal.price_currency == 'EUR' %} selected{% endif %}>EUR</option>
@@ -182,7 +182,7 @@
         <div class="deal-unified__group deal-unified__group--full">
           <span>Доставка (якщо наша)</span>
           <div class="deal-unified__amount-row">
-            <input class="deal-unified__input" type="text" name="delivery_cost" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+            <input class="deal-unified__input" type="text" name="delivery_cost" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0" value="{{ deal.delivery_cost|default:0|floatformat:0|unlocalize }}">
             <select class="deal-unified__cur-select" name="delivery_currency">
               <option{% if deal.delivery_currency == 'CHF' or not deal.delivery_currency %} selected{% endif %}>CHF</option>
               <option{% if deal.delivery_currency == 'EUR' %} selected{% endif %}>EUR</option>
@@ -193,17 +193,17 @@
 
         <label class="deal-unified__group deal-unified__group--full">
           <span>Комісія (вручну)</span>
-          <input class="deal-unified__input" type="text" name="commission" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+          <input class="deal-unified__input" type="text" name="commission" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0" value="{{ deal.commission|default:0|floatformat:0|unlocalize }}">
         </label>
 
         <label class="deal-unified__group deal-unified__group--full">
           <span>Логістика (вручну)</span>
-          <input class="deal-unified__input" type="text" name="logistics_cost" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0">
+          <input class="deal-unified__input" type="text" name="logistics_cost" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="0" value="0">
         </label>
 
         <label class="deal-unified__group deal-unified__grid--wide">
           <span>Нотатки</span>
-          <textarea class="deal-unified__textarea" name="notes" maxlength="500"></textarea>
+          <textarea class="deal-unified__textarea" name="notes" maxlength="500">{{ deal.notes }}</textarea>
         </label>
       </div>
 
@@ -292,5 +292,6 @@
 {% endblock %}
 
 {% block extra_js %}
+{{ deal|json_script:"crm-current-deal" }}
 <script src="{% static 'js/crm-deal-card.js' %}" defer></script>
 {% endblock %}

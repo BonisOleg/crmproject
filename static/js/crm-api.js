@@ -71,6 +71,7 @@ const CrmApi = (() => {
     },
     deals: {
       list: () => get('/api/deals/'),
+      get: (code) => get(`/api/deals/${encodeURIComponent(code)}/`),
       create: (data) => post('/api/deals/', data),
       update: (code, data) => patch(`/api/deals/${encodeURIComponent(code)}/`, data),
       remove: (code) => del(`/api/deals/${encodeURIComponent(code)}/`),
